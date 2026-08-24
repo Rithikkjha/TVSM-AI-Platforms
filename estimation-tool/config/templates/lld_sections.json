@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Overview",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "High Level Design - Quick Recap",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Assumptions",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Components",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "API Design",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Data Model/ Schema Changes",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Class & Interface Design",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "UI Changes",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Error Handling & Retries",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Security and Compliance (if applicable)",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "RBAC (Role-Based Access Control)",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Configuration Rules & Feature Flag (If Any)",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Dependencies",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Trade-offs & Alternatives Considered",
+    "level": 2,
+    "has_table": false
+  },
+  {
+    "name": "Open Questions",
+    "level": 2,
+    "has_table": false
+  }
+]

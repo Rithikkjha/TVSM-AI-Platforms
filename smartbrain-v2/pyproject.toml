@@ -1,0 +1,163 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "engineering-memory-graph"
+version = "0.1.0"
+description = "Microservices knowledge graph ingesting from GitHub, Jira, and Confluence via MCP servers, exposed through a REST Query API with GraphRAG."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [
+    { name = "Engineering Memory Graph Team" },
+]
+keywords = ["graph", "neo4j", "mcp", "knowledge-graph", "graphrag"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Framework :: FastAPI",
+]
+
+dependencies = [
+    # Web framework
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.0",
+    # Graph database
+    "neo4j>=5.18.0",
+    # Vector store
+    "azure-search-documents>=11.4.0",
+    # Sparse / BM25 keyword index (local dev / Qdrant hybrid-retrieval path)
+    "rank-bm25>=0.2.2",
+    # LLM and embeddings (Azure OpenAI)
+    "openai>=1.14.0",
+    # Tokenizer for embedding input truncation (text-embedding-3-large)
+    "tiktoken>=0.7.0",
+    # Model Context Protocol SDK
+    "mcp>=0.9.0",
+    # Config + YAML
+    "pyyaml>=6.0.1",
+    # HTTP client (used by MCP + integrations)
+    "httpx>=0.27.0",
+    # Property-based testing (imported by fixtures/generators in runtime helpers too)
+    "hypothesis>=6.100.0",
+]
+
+[project.optional-dependencies]
+# Optional production cache backend (RedisBackend). The `redis` import is
+# lazy/guarded so the package is not required for the in-memory dev default.
+redis = [
+    "redis>=5.0.0",
+]
+# Optional local cross-encoder re-ranker (CrossEncoderReranker). The
+# `sentence_transformers` import is lazy/guarded so the package is not required
+# for the fallback (hybrid top-k) path; install this extra to enable re-ranking.
+rerank = [
+    "sentence-transformers>=2.7.0",
+]
+dev = [
+    "pytest>=8.1.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
+    "hypothesis>=6.100.0",
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+    "types-PyYAML>=6.0.12",
+]
+
+[project.urls]
+Homepage = "https://example.com/engineering-memory-graph"
+Documentation = "https://example.com/engineering-memory-graph/docs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/pyproject.toml",
+]
+
+# ---------------------------------------------------------------------------
+# Tooling configuration
+# ---------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "N",    # pep8-naming
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]  # allow assert in tests
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = [
+    "mcp.*",
+    "azure.search.documents.*",
+    "neo4j.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "-ra",
+]
+markers = [
+    "integration: integration tests requiring external services (deselect with -m 'not integration')",
+    "property: Hypothesis property-based tests",
+    "unit: fast unit tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

@@ -1,0 +1,783 @@
+{
+  "version": "3.0",
+  "engine": "catalog",
+  "lastUpdated": "2026-07-04T00:00:00Z",
+  "effortTable": {
+    "FE-01": {
+      "simple": 0.5,
+      "medium": 1.0,
+      "complex": 2.0,
+      "name": "Static/info page",
+      "category": "frontend"
+    },
+    "FE-02": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Form page (simple)",
+      "category": "frontend"
+    },
+    "FE-03": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Form page (multi-step/wizard)",
+      "category": "frontend"
+    },
+    "FE-04": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "List/table with CRUD",
+      "category": "frontend"
+    },
+    "FE-05": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "File upload/download",
+      "category": "frontend"
+    },
+    "FE-06": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 5.5,
+      "name": "Map/location UI",
+      "category": "frontend"
+    },
+    "FE-07": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Chart/visualization",
+      "category": "frontend"
+    },
+    "FE-08": {
+      "simple": 0.5,
+      "medium": 1.5,
+      "complex": 2.5,
+      "name": "Notification/alert UI",
+      "category": "frontend"
+    },
+    "FE-09": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Role-based view toggle",
+      "category": "frontend"
+    },
+    "FE-10": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Mobile-specific screen",
+      "category": "frontend"
+    },
+    "FE-11": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "PDF/report generation UI",
+      "category": "frontend"
+    },
+    "FE-12": {
+      "simple": 2.5,
+      "medium": 4.0,
+      "complex": 6.5,
+      "name": "Drag-and-drop interface",
+      "category": "frontend"
+    },
+    "FE-13": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Infinite scroll / virtual list",
+      "category": "frontend"
+    },
+    "FE-14": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "Accessibility (WCAG) pass",
+      "category": "frontend"
+    },
+    "FE-15": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "Excel upload + preview",
+      "category": "frontend"
+    },
+    "BE-01": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "CRUD API",
+      "category": "backendCrud"
+    },
+    "BE-02": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Business logic service",
+      "category": "backendLogic"
+    },
+    "BE-03": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 8.0,
+      "name": "Approval/workflow engine",
+      "category": "backendLogic"
+    },
+    "BE-04": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "Scheduled job (timer/cron)",
+      "category": "backendLogic"
+    },
+    "BE-05": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 5.5,
+      "name": "Background queue worker",
+      "category": "backendLogic"
+    },
+    "BE-06": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Authentication/authorization",
+      "category": "backendLogic"
+    },
+    "BE-07": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "OTP/verification flow",
+      "category": "backendLogic"
+    },
+    "BE-08": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 8.0,
+      "name": "Payment processing",
+      "category": "backendLogic"
+    },
+    "BE-09": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Refund/reversal logic",
+      "category": "backendLogic"
+    },
+    "BE-10": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.5,
+      "name": "Report/export service",
+      "category": "backendCrud"
+    },
+    "BE-11": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "Bulk data processing",
+      "category": "backendLogic"
+    },
+    "BE-12": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Cache layer",
+      "category": "backendCrud"
+    },
+    "BE-13": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Search/filter engine",
+      "category": "backendLogic"
+    },
+    "BE-14": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.0,
+      "name": "Audit trail/logging",
+      "category": "backendCrud"
+    },
+    "BE-15": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "Data validation service",
+      "category": "backendLogic"
+    },
+    "BE-16": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Notification trigger",
+      "category": "backendCrud"
+    },
+    "BE-17": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 8.0,
+      "name": "SAP integration service",
+      "category": "sap"
+    },
+    "BE-18": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Excel parsing service",
+      "category": "backendCrud"
+    },
+    "BE-19": {
+      "simple": 0.5,
+      "medium": 1.0,
+      "complex": 1.5,
+      "name": "Health check + readiness probe",
+      "category": "devops"
+    },
+    "BE-20": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "API versioning layer",
+      "category": "backendCrud"
+    },
+    "BE-21": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Rate limiting / throttling",
+      "category": "backendCrud"
+    },
+    "BE-22": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Data archival/purge job",
+      "category": "backendLogic"
+    },
+    "BE-23": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "Data anonymization (PII)",
+      "category": "backendLogic"
+    },
+    "BE-24": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Read replica / query optimization",
+      "category": "backendLogic"
+    },
+    "INT-01": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "REST API — call existing",
+      "category": "integration"
+    },
+    "INT-02": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "REST API — build new",
+      "category": "integration"
+    },
+    "INT-03": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 5.5,
+      "name": "IDP publisher setup",
+      "category": "integration"
+    },
+    "INT-04": {
+      "simple": 2.5,
+      "medium": 4.0,
+      "complex": 6.5,
+      "name": "IDP subscriber setup",
+      "category": "integration"
+    },
+    "INT-05": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 5.5,
+      "name": "Service Bus — new topic",
+      "category": "integration"
+    },
+    "INT-06": {
+      "simple": 2.0,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Service Bus — new subscriber",
+      "category": "integration"
+    },
+    "INT-07": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 8.0,
+      "name": "SAP inbound (SAP → App)",
+      "category": "sap"
+    },
+    "INT-08": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 8.0,
+      "name": "SAP outbound (App → SAP)",
+      "category": "sap"
+    },
+    "INT-09": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "Webhook (receive)",
+      "category": "integration"
+    },
+    "INT-10": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "Webhook (send)",
+      "category": "integration"
+    },
+    "INT-11": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 5.5,
+      "name": "File-based integration",
+      "category": "integration"
+    },
+    "INT-12": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 5.5,
+      "name": "SSO/OAuth integration",
+      "category": "integration"
+    },
+    "INT-13": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 8.0,
+      "name": "Payment gateway integration",
+      "category": "integration"
+    },
+    "INT-14": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "SMS/Email/WhatsApp via CNS",
+      "category": "integration"
+    },
+    "INT-15": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "Push notification (FCM/APNs)",
+      "category": "integration"
+    },
+    "INT-16": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Third-party SaaS API",
+      "category": "integration"
+    },
+    "INT-17": {
+      "simple": 2.0,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Dead-letter handling + retry",
+      "category": "integration"
+    },
+    "INT-18": {
+      "simple": 2.5,
+      "medium": 4.0,
+      "complex": 6.5,
+      "name": "GraphQL endpoint",
+      "category": "integration"
+    },
+    "INT-19": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 7.5,
+      "name": "gRPC service",
+      "category": "integration"
+    },
+    "INT-20": {
+      "simple": 3.5,
+      "medium": 5.5,
+      "complex": 8.5,
+      "name": "Data sync (bidirectional)",
+      "category": "integration"
+    },
+    "QA-01": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Unit test suite",
+      "category": "qa"
+    },
+    "QA-02": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Integration test suite",
+      "category": "qa"
+    },
+    "QA-03": {
+      "simple": 1.5,
+      "medium": 2.5,
+      "complex": 4.0,
+      "name": "API contract test",
+      "category": "qa"
+    },
+    "QA-04": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "UI automation",
+      "category": "qa"
+    },
+    "QA-05": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "Performance/load test",
+      "category": "qa"
+    },
+    "QA-06": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Security scan (SAST+DAST)",
+      "category": "qa"
+    },
+    "QA-07": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "UAT support",
+      "category": "qa"
+    },
+    "QA-08": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "Multi-region test",
+      "category": "qa"
+    },
+    "QA-09": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Regression suite update",
+      "category": "qa"
+    },
+    "QA-10": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Data migration validation",
+      "category": "qa"
+    },
+    "DO-01": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "CI/CD pipeline (new)",
+      "category": "devops"
+    },
+    "DO-02": {
+      "simple": 0.5,
+      "medium": 1.5,
+      "complex": 3.0,
+      "name": "CI/CD pipeline (modify)",
+      "category": "devops"
+    },
+    "DO-03": {
+      "simple": 2.0,
+      "medium": 4.0,
+      "complex": 7.0,
+      "name": "Infrastructure provisioning",
+      "category": "devops"
+    },
+    "DO-04": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Environment setup",
+      "category": "devops"
+    },
+    "DO-05": {
+      "simple": 1.0,
+      "medium": 2.5,
+      "complex": 4.5,
+      "name": "Database migration script",
+      "category": "devops"
+    },
+    "DO-06": {
+      "simple": 1.5,
+      "medium": 3.0,
+      "complex": 5.0,
+      "name": "Monitoring/alerting setup",
+      "category": "devops"
+    },
+    "DO-07": {
+      "simple": 0.5,
+      "medium": 1.0,
+      "complex": 2.0,
+      "name": "Feature flag configuration",
+      "category": "devops"
+    },
+    "DO-08": {
+      "simple": 1.0,
+      "medium": 2.0,
+      "complex": 3.5,
+      "name": "Rollback runbook",
+      "category": "devops"
+    },
+    "DO-09": {
+      "simple": 3.0,
+      "medium": 5.0,
+      "complex": 8.0,
+      "name": "Disaster recovery setup",
+      "category": "devops"
+    },
+    "DO-10": {
+      "simple": 0.5,
+      "medium": 1.5,
+      "complex": 3.0,
+      "name": "SSL/certificate management",
+      "category": "devops"
+    },
+    "DO-11": {
+      "simple": 2.0,
+      "medium": 3.5,
+      "complex": 6.0,
+      "name": "Container/K8s config",
+      "category": "devops"
+    },
+    "DO-12": {
+      "simple": 4.0,
+      "medium": 7.0,
+      "complex": 12.0,
+      "name": "On-prem ↔ Cloud migration",
+      "category": "devops"
+    }
+  },
+  "systemMultipliers": {
+    "DMS": 1.5,
+    "DigiApp": 1.3,
+    "POMS": 1.4,
+    "TruChamp": 1.2,
+    "IDP": 1.6,
+    "CPS": 1.5,
+    "EMS": 1.2,
+    "JCN": 1.4,
+    "DWR": 1.3,
+    "DCP": 1.1,
+    "AAP": 1.1,
+    "KYC Dealer Master": 1.3,
+    "KYC Auditor Master": 1.3,
+    "Institutional Sales": 1.1,
+    "DRS": 1.3,
+    "Townwise": 1.2,
+    "Johri": 1.1,
+    "Goodwill Warranty": 1.5,
+    "Function Apps": 1.0,
+    "AMS": 1.3,
+    "DMS Reports": 1.2,
+    "Marketing Automation Report": 1.0,
+    "Mahale": 1.0,
+    "StratBeans": 1.0,
+    "Dealer Network Appointment": 1.1,
+    "tvsmotor.com": 1.4,
+    "TVS Connect": 1.5,
+    "CNS": 1.5,
+    "Dealer Locator": 1.0,
+    "UMS": 1.5,
+    "MDP": 1.6,
+    "CPG": 1.4,
+    "Catalog Service": 1.2,
+    "Lead Service": 1.2,
+    "Booking Service": 1.5,
+    "TVS MeraFrnd": 1.1,
+    "TVS Holdings": 1.0,
+    "P360": 1.4,
+    "Subscription Platform": 1.3,
+    "Vehicle Systems": 1.6,
+    "PaymentService": 1.2,
+    "TrakNTell": 1.3,
+    "RS": 1.2,
+    "Pricing Engine": 1.2
+  },
+  "overheadFactors": {
+    "teamSize": {
+      "1-2": 1.0,
+      "3-5": 1.1,
+      "6-10": 1.2,
+      "11+": 1.35
+    },
+    "crossDomain": 1.2,
+    "multiVendor": 1.25,
+    "distributedTeam": 1.15,
+    "techFamiliarity": {
+      "proficient": 1.0,
+      "learning": 1.25,
+      "unfamiliar": 1.5
+    },
+    "dataVolume": {
+      "<1K": 1.0,
+      "1K-10K": 1.05,
+      "10K-100K": 1.15,
+      "100K-1M": 1.3,
+      ">1M": 1.5
+    },
+    "deploymentTopology": {
+      "single_region": 1.0,
+      "multi_region_2_3": 1.2,
+      "multi_country_4_10": 1.35,
+      "multi_country_10+": 1.5,
+      "hybrid": 1.3,
+      "on_prem": 1.15
+    },
+    "security": {
+      "standard": 1.0,
+      "pii": 1.15,
+      "payment": 1.2,
+      "pii_and_payment": 1.3
+    },
+    "legacyDebt": {
+      "modern": 1.0,
+      "moderate": 1.15,
+      "heavy": 1.3
+    }
+  },
+  "integrationPatternCosts": {
+    "REST_EXISTING": 0,
+    "REST_NEW": 0,
+    "REST_API": 0.5,
+    "REST_API_IDP": 1.5,
+    "REST_API_BATCH": 1.0,
+    "SERVICE_BUS": 1.5,
+    "SERVICE_BUS_NEW_TOPIC": 1.5,
+    "SERVICE_BUS_NEW_SUBSCRIBER": 1.0,
+    "SERVICE_BUS_BATCH": 1.5,
+    "SAP_RFC": 2.0,
+    "SAP_IDOC": 2.5,
+    "BATCH_FILE": 1.0,
+    "BATCH": 1.0,
+    "DATA_FEED": 0.5,
+    "IDP": 1.5,
+    "IDP_DIRECT_API": 1.5,
+    "SSO_JWT": 1.0,
+    "WEBHOOK": 0.5,
+    "GRPC": 1.5,
+    "GRAPHQL": 1.0,
+    "GRAPHQL_WEBSOCKET": 1.5,
+    "SHARED_DB_API": 0.5,
+    "SHARED_APP": 0,
+    "BLE": 2.0,
+    "BLE_CLOUD": 2.0,
+    "MQTT": 1.5,
+    "TIMER_BATCH": 0.5,
+    "WIDGET_EMBED": 0.5
+  },
+  "hubSurcharges": {
+    "MDP": 3.0,
+    "IDP": 2.5,
+    "UMS": 2.5,
+    "CNS": 2.0,
+    "Booking Service": 2.0,
+    "P360": 1.5
+  },
+  "documentationOverhead": 0.05,
+  "aiProductivity": {
+    "globalMultiplier": 0.8,
+    "perCategory": {
+      "frontend": 0.75,
+      "backendCrud": 0.7,
+      "backendLogic": 0.85,
+      "integration": 0.85,
+      "qa": 0.8,
+      "devops": 0.9,
+      "sap": 0.95
+    }
+  },
+  "sanityChecks": {
+    "minEffort": {
+      "New Feature": 10,
+      "Enhancement": 3,
+      "Bug Fix": 0.5,
+      "Integration": 5,
+      "Migration": 15
+    },
+    "maxEffort": {
+      "Enhancement": 60,
+      "Bug Fix": 20
+    }
+  },
+  "disciplineMapping": {
+    "frontend": "Digital Engineering",
+    "backendCrud": "Digital Engineering",
+    "backendLogic": "Digital Engineering",
+    "integration": "Digital Engineering",
+    "sap": "Digital Engineering",
+    "qa": "QA/Testing",
+    "devops": "DevOps"
+  },
+  "systemDisciplineOverrides": {
+    "TVS Connect": "P360 Telematics + Connected Features",
+    "Vehicle Systems": "P360 Telematics + Connected Features",
+    "TrakNTell": "P360 Telematics + Connected Features",
+    "P360": "P360 Telematics + Connected Features",
+    "Subscription Platform": "P360 Telematics + Connected Features",
+    "MDP": "Data Engineering",
+    "Catalog Service": "Data Engineering",
+    "Pricing Engine": "Data Engineering"
+  },
+  "scopeFactors": {
+    "Bug Fix": 1.0,
+    "Enhancement": 1.0,
+    "New Feature": 1.3,
+    "New Module": 1.8,
+    "New Application": 2.5,
+    "Integration": 1.0,
+    "Migration": 1.5
+  },
+  "distributionRules": {
+    "New Application": {
+      "Digital Engineering": {"min": 0.55, "expected": 0.65, "max": 0.75},
+      "QA/Testing": {"min": 0.10, "expected": 0.15, "max": 0.20},
+      "DevOps": {"min": 0.04, "expected": 0.07, "max": 0.12},
+      "P360 Telematics + Connected Features": {"min": 0.0, "expected": 0.0, "max": 0.25},
+      "Data Engineering": {"min": 0.0, "expected": 0.0, "max": 0.15}
+    },
+    "New Module": {
+      "Digital Engineering": {"min": 0.55, "expected": 0.65, "max": 0.75},
+      "QA/Testing": {"min": 0.10, "expected": 0.15, "max": 0.20},
+      "DevOps": {"min": 0.03, "expected": 0.05, "max": 0.10}
+    },
+    "New Feature": {
+      "Digital Engineering": {"min": 0.50, "expected": 0.60, "max": 0.75},
+      "QA/Testing": {"min": 0.08, "expected": 0.12, "max": 0.18},
+      "DevOps": {"min": 0.02, "expected": 0.05, "max": 0.10}
+    },
+    "Enhancement": {
+      "Digital Engineering": {"min": 0.55, "expected": 0.65, "max": 0.80},
+      "QA/Testing": {"min": 0.10, "expected": 0.15, "max": 0.25},
+      "DevOps": {"min": 0.02, "expected": 0.05, "max": 0.10}
+    },
+    "Integration": {
+      "Digital Engineering": {"min": 0.40, "expected": 0.55, "max": 0.70},
+      "QA/Testing": {"min": 0.15, "expected": 0.22, "max": 0.30},
+      "DevOps": {"min": 0.05, "expected": 0.10, "max": 0.15}
+    }
+  }
+}

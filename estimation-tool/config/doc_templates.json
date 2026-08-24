@@ -1,0 +1,91 @@
+{
+  "prd": {
+    "name": "TVS Digital Engineering PRD Template",
+    "sections": [
+      {"name": "Document Metadata (Status, Owner, BRD sign-off, EM, TA, BU)", "required": true, "weight": 5},
+      {"name": "MP name/description (Managing Point)", "required": true, "weight": 4},
+      {"name": "CP name/description (Checkpoint)", "required": true, "weight": 4},
+      {"name": "Problem Definition - Problem Statement", "required": true, "weight": 10},
+      {"name": "Problem Definition - Business Impact", "required": true, "weight": 8},
+      {"name": "Product Objective", "required": true, "weight": 10},
+      {"name": "User Personas", "required": true, "weight": 7},
+      {"name": "Customer Journey Summary (Current vs Proposed flow with diagrams)", "required": true, "weight": 8},
+      {"name": "Assumptions Made", "required": true, "weight": 6},
+      {"name": "Platform Capability Check (Reuse vs New)", "required": true, "weight": 8},
+      {"name": "System Interaction Overview", "required": true, "weight": 8},
+      {"name": "Functional Requirements (UC#, Change Type E/M/N/D, User Stories, Channel, Acceptance Criteria, Priority P0/P1/P2)", "required": true, "weight": 15},
+      {"name": "Edge Cases and Exception Handling", "required": true, "weight": 8},
+      {"name": "Out of Scope", "required": true, "weight": 5},
+      {"name": "Non-Functional Requirements (Scale, Performance, Reliability, Security - SAST/DAST/VAPT/OWASP)", "required": true, "weight": 10},
+      {"name": "Dependencies (Upstream/Downstream services, PO alignment, Budget)", "required": true, "weight": 8},
+      {"name": "Release Scope / Rollout Plan (Phases)", "required": true, "weight": 5},
+      {"name": "Success Criteria (Quantifiable metrics)", "required": true, "weight": 6},
+      {"name": "Metrics/Dashboard Required (Data Engineering, Data Governance)", "required": true, "weight": 5},
+      {"name": "Next Phases Planned", "required": true, "weight": 3},
+      {"name": "UI/UX Design (Screenshots, Figma links, Screen Inventory per platform)", "required": true, "weight": 8},
+      {"name": "Testing Strategy / QA Approach (How ACs will be validated)", "required": false, "weight": 5},
+      {"name": "Migration / Transition Plan (Existing users, data, rollback)", "required": false, "weight": 4},
+      {"name": "Privacy & Data Compliance (DPDP, consent, PII handling, data retention)", "required": false, "weight": 5},
+      {"name": "AI/GenAI Use Cases Planned", "required": false, "weight": 3},
+      {"name": "Open Questions", "required": true, "weight": 4},
+      {"name": "Appendix / Glossary", "required": false, "weight": 3}
+    ]
+  },
+  "brd": {
+    "name": "Standard BRD Template",
+    "sections": [
+      {"name": "Executive Summary", "required": true, "weight": 10},
+      {"name": "Business Objectives", "required": true, "weight": 15},
+      {"name": "Problem Statement / Current State", "required": true, "weight": 10},
+      {"name": "Scope (In/Out)", "required": true, "weight": 12},
+      {"name": "Product Overview / Key Principles", "required": true, "weight": 10},
+      {"name": "User Journeys / Functional Requirements", "required": true, "weight": 15},
+      {"name": "Configuration Requirements", "required": false, "weight": 5},
+      {"name": "Success Metrics / KPIs", "required": true, "weight": 8},
+      {"name": "Analytics & Tracking", "required": false, "weight": 5},
+      {"name": "Assumptions", "required": true, "weight": 7},
+      {"name": "Open Questions", "required": false, "weight": 3},
+      {"name": "Timeline", "required": false, "weight": 5},
+      {"name": "Appendix (Feature mapping, flow diagrams)", "required": false, "weight": 5}
+    ]
+  },
+  "hld": {
+    "name": "TVS D2C Engineering HLD Template",
+    "sections": [
+      {"name": "Overview (What you're building and why)", "required": true, "weight": 10},
+      {"name": "Tier Classification (Mission Critical / Business Critical / Non-Critical)", "required": true, "weight": 5},
+      {"name": "Background (Why now, learnings from previous systems, tech debt)", "required": true, "weight": 7},
+      {"name": "Requirements - Functional", "required": true, "weight": 8},
+      {"name": "Requirements - Non-Functional", "required": true, "weight": 8},
+      {"name": "Current Architecture (HLD diagram of existing system)", "required": true, "weight": 10},
+      {"name": "Proposed Architecture (HLD diagram, components, interactions, boundaries, external dependencies/APIs/contracts)", "required": true, "weight": 15},
+      {"name": "Pros and Cons of Proposed Architecture", "required": true, "weight": 5},
+      {"name": "Data Flow / Sequence Diagram (main user flows, retry, error-handling, failover, dependencies)", "required": true, "weight": 12},
+      {"name": "Deployment & Rollout Plan (phased, feature flags, beta, rollback, hotfix strategy)", "required": true, "weight": 8},
+      {"name": "Metrics to be Tracked (post-launch alarms/metrics)", "required": true, "weight": 5},
+      {"name": "Data Analytics / Data Engineering metrics/tables", "required": false, "weight": 5},
+      {"name": "Alternatives Considered (other designs, why rejected, pros/cons)", "required": true, "weight": 7},
+      {"name": "Risks (If Any)", "required": false, "weight": 3},
+      {"name": "Appendix / Glossary / Acronyms", "required": false, "weight": 2}
+    ]
+  },
+  "lld": {
+    "name": "TVS D2C Engineering LLD Template",
+    "sections": [
+      {"name": "Module/Component Overview", "required": true, "weight": 10},
+      {"name": "Class Diagram / Object Model", "required": true, "weight": 12},
+      {"name": "Sequence Diagrams (key flows)", "required": true, "weight": 12},
+      {"name": "Database Schema / ER Diagram", "required": true, "weight": 12},
+      {"name": "API Contracts (Request/Response/Error codes)", "required": true, "weight": 12},
+      {"name": "Error Handling & Edge Cases", "required": true, "weight": 10},
+      {"name": "Data Validation Rules", "required": true, "weight": 8},
+      {"name": "Caching Strategy (keys, TTL, invalidation)", "required": false, "weight": 6},
+      {"name": "Security Considerations (Auth, Input sanitization, Encryption)", "required": true, "weight": 8},
+      {"name": "Unit/Integration Test Plan", "required": false, "weight": 7},
+      {"name": "Dependencies & Libraries (versions, justification)", "required": true, "weight": 7},
+      {"name": "Configuration & Environment Variables", "required": false, "weight": 5},
+      {"name": "Migration Plan (DB migrations, backward compatibility)", "required": false, "weight": 5},
+      {"name": "Observability (Logging, Monitoring, Alerting)", "required": true, "weight": 6}
+    ]
+  }
+}

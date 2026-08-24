@@ -1,0 +1,13 @@
+__pycache__
+.pytest_cache
+.git
+.env.*
+.kiro
+.vscode
+docs
+tests
+*.pyc
+.DS_Store
+*.md
+!requirements.txt
+1

@@ -1,0 +1,238 @@
+[
+  {
+    "id": "easy_01",
+    "question": "What tech stack does booking-crud-services use?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "brain": {
+      "answer": "The **booking-crud-services** uses the following tech stack:\n\n| Layer                | Technology                          | Version       |\n|----------------------|-------------------------------------|---------------|\n| Runtime              | Node.js                             | 25.9 (Alpine) |\n| Framework            | NestJS                              | 11.x          |\n| Language             | TypeScript                          | 5.x           |\n| Database             | Microsoft SQL Serv",
+      "time": 9.9,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "NestJS",
+        "TypeScript",
+        "Azure Service Bus"
+      ],
+      "missed": [
+        "MongoDB"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not contain specific information about the tech stack used by the \"Lead-Booking-Crud-Services-Testing\" service. Therefore, I cannot provide details regarding the technology stack for that service.",
+      "time": 2.12,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "NestJS",
+        "TypeScript",
+        "MongoDB",
+        "Azure Service Bus"
+      ]
+    },
+    "judge": {
+      "brain_scores": {
+        "accuracy": 5,
+        "completeness": 4,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "lite_scores": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "winner": "Brain",
+      "reasoning": "Answer A provides a detailed and accurate tech stack for the booking-crud-services, including specific technologies and versions, making it highly useful for developers. In contrast, Answer B fails to provide any relevant information, resulting in low scores across all criteria."
+    }
+  },
+  {
+    "id": "easy_02",
+    "question": "What language is tvsm-auth written in?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "brain": {
+      "answer": "The `tvsm-auth` service is written in **Java** (version 17) as indicated in the tech stack summary (source_id: steering:tvsm-auth:tech).",
+      "time": 3.94,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "Java"
+      ],
+      "missed": [
+        "Spring Boot"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not specify the programming language in which the `tvsm-auth` service is written. Therefore, I cannot provide that information.",
+      "time": 1.72,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "Java",
+        "Spring Boot"
+      ]
+    },
+    "judge": {
+      "brain_scores": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "lite_scores": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "winner": "Brain",
+      "reasoning": "Answer A provides accurate information about the programming language used for the `tvsm-auth` service, including the specific version of Java, making it highly useful for developers. In contrast, Answer B fails to provide any relevant information, resulting in low scores across all criteria."
+    }
+  },
+  {
+    "id": "easy_03",
+    "question": "What database does notification-service use?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "brain": {
+      "answer": "The notification-service uses **MongoDB** as its primary database. This is implemented via **Spring Data MongoDB**. The transition from MySQL to MongoDB was part of the exploration and implementation efforts documented in the following tickets:\n\n- **Use of MongoDB for notification services** (source_id: jira:ticket:CBS6-74)\n- **Switching MySQL to MongoDB** (source_id: github:pr:839185695/1)\n\nAdditionally, the tech stack details confirm that MongoDB is utilized for the notification service:\n\n```m",
+      "time": 4.41,
+      "error": null,
+      "score": 0.67,
+      "matched": [
+        "MongoDB",
+        "database"
+      ],
+      "missed": [
+        "CosmosDB"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not contain any information regarding the database used by the notification-service. Therefore, I cannot provide an answer to your question.",
+      "time": 2.2,
+      "error": null,
+      "score": 0.33,
+      "matched": [
+        "database"
+      ],
+      "missed": [
+        "MongoDB",
+        "CosmosDB"
+      ]
+    },
+    "judge": {
+      "brain_scores": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "lite_scores": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "winner": "Brain",
+      "reasoning": "Answer A provides accurate and detailed information about the database used by the notification-service, including specific references to the transition from MySQL to MongoDB and relevant tickets. In contrast, Answer B fails to provide any information, making it unhelpful for a developer seeking to understand the database choice."
+    }
+  },
+  {
+    "id": "easy_04",
+    "question": "What are the API endpoints of booking-crud-services?",
+    "difficulty": "easy",
+    "category": "api_lookup",
+    "brain": {
+      "answer": "The provided context does not contain specific information about the API endpoints of the `booking-crud-services`. Therefore, I cannot provide details on the API endpoints.",
+      "time": 4.01,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "/bookings",
+        "POST",
+        "GET",
+        "PUT"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not include specific information about the API endpoints for the \"Lead-Booking-Crud-Services-Testing\" service. To find the API endpoints, you would need to refer to the documentation for that specific service, which is likely detailed in the linked markdown file: [Lead-Booking-Crud-Services-Testing](services/Lead-Booking-Crud-Services-Testing.md).",
+      "time": 2.8,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "/bookings",
+        "POST",
+        "GET",
+        "PUT"
+      ]
+    },
+    "judge": {
+      "brain_scores": {
+        "accuracy": 3,
+        "completeness": 2,
+        "specificity": 1,
+        "usefulness": 2
+      },
+      "lite_scores": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 2,
+        "usefulness": 3
+      },
+      "winner": "Lite",
+      "reasoning": "While both answers accurately state that they lack specific information about the API endpoints, Answer B provides a more actionable response by directing the user to the relevant documentation. This makes it more useful for a developer seeking to find the necessary information, thus giving it an edge over Answer A."
+    }
+  },
+  {
+    "id": "easy_05",
+    "question": "Who are the recent contributors to tvsm-otp-service?",
+    "difficulty": "easy",
+    "category": "ownership",
+    "brain": {
+      "answer": "The provided context does not contain any information regarding the recent contributors to the \"tvsm-otp-service.\" Therefore, I cannot provide that information.",
+      "time": 4.06,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "contributor"
+      ],
+      "missed": [
+        "author"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not contain any information regarding the contributors to the `tvsm-otp-service` or any other service. Therefore, I cannot provide details about the recent contributors to that service.",
+      "time": 3.14,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "contributor"
+      ],
+      "missed": [
+        "author"
+      ]
+    },
+    "judge": {
+      "brain_scores": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "lite_scores": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "winner": "Tie",
+      "reasoning": "Both answers accurately state that there is no information available regarding the recent contributors to the \"tvsm-otp-service.\" They are complete in their responses, as they both address the lack of information without providing incorrect details. Additionally, both answers are specific in their wording and would be equally useful to a developer seeking this information."
+    }
+  }
+]

@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPCP Project Tracker - TVS PlanIQ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#333;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:200px;height:100vh;background:linear-gradient(180deg,#1a237e 0%,#0d1452 100%);color:white;padding:20px 0;z-index:200;overflow-y:auto}
+.sidebar .logo{padding:0 16px 20px;font-size:15px;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:12px}
+.sidebar .logo span{color:rgba(255,255,255,0.6);font-size:11px;display:block;margin-top:2px;font-weight:400}
+.sidebar .nav-item{padding:10px 16px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.6);transition:all 0.2s;border-left:3px solid transparent}
+.sidebar .nav-item:hover{background:rgba(255,255,255,0.05);color:white}
+.sidebar .nav-item.active{background:rgba(255,255,255,0.1);color:white;border-left-color:#7c4dff}
+.sidebar .nav-section{font-size:10px;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:16px 16px 6px;letter-spacing:0.5px}
+.header{background:linear-gradient(135deg,#1a237e,#3949ab);color:white;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.15);position:sticky;top:0;z-index:100;margin-left:200px}
+.header h1{font-size:18px;font-weight:600}
+.header .user-info{font-size:13px;display:flex;align-items:center;gap:10px}
+.header .user-badge{background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:12px;font-size:11px}
+.main-content{margin-left:200px;padding:24px 32px;max-width:1400px}
+.breadcrumb{font-size:12px;color:#666;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#3949ab;text-decoration:none;cursor:pointer}
+.breadcrumb a:hover{text-decoration:underline}
+.breadcrumb .sep{color:#999}
+.card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px}
+.card h2{font-size:17px;color:#1a237e;margin-bottom:4px}
+.card h3{font-size:14px;color:#333;margin-bottom:8px}
+.card .subtitle{font-size:13px;color:#666;margin-bottom:16px}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.metric-card{background:#f8f9ff;border-radius:10px;padding:16px;border:1px solid #e8eaf6;cursor:pointer;transition:all 0.2s}
+.metric-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(26,35,126,0.1)}
+.metric-card h4{font-size:10px;text-transform:uppercase;color:#666;margin-bottom:4px;letter-spacing:0.5px}
+.metric-card .value{font-size:24px;font-weight:700;color:#1a237e}
+.metric-card .sub{font-size:11px;color:#999;margin-top:2px}
+.metric-card.green .value{color:#2e7d32}
+.metric-card.yellow .value{color:#f57f17}
+.metric-card.red .value{color:#c62828}
+.metric-card.deps .value{color:#e65100}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th,.data-table td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee;font-size:12px}
+.data-table th{background:#f8f9fa;font-weight:600;color:#555;font-size:11px;text-transform:uppercase}
+.data-table tr:hover{background:#f8f9ff;cursor:pointer}
+.data-table tr.no-hover:hover{background:transparent;cursor:default}
+.data-table tr.overdue{background:#fff5f5}
+.data-table tr.overdue:hover{background:#ffebee;cursor:default}
+.rag-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.rag-badge.green{background:#e8f5e9;color:#2e7d32}
+.rag-badge.yellow{background:#fff8e1;color:#f57f17}
+.rag-badge.red{background:#ffebee;color:#c62828}
+.rag-badge.gray{background:#f5f5f5;color:#999}
+.rag-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.rag-dot.green{background:#4caf50}
+.rag-dot.yellow{background:#ffc107}
+.rag-dot.red{background:#f44336}
+.rag-dot.gray{background:#bbb}
+.btn{padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#1a237e;color:white}
+.btn-primary:hover{background:#283593;transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,35,126,0.3)}
+.btn-secondary{background:#e8eaf6;color:#1a237e}
+.btn-secondary:hover{background:#c5cae9}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-outline{background:transparent;border:1.5px solid #1a237e;color:#1a237e}
+.btn-outline:hover{background:#1a237e;color:white}
+.btn-danger{background:#ffebee;color:#c62828;border:1px solid #ffcdd2}
+.btn-danger:hover{background:#ffcdd2}
+.btn-icon{padding:4px 8px;font-size:12px;border-radius:6px;background:#f0f2ff;border:1px solid #e8eaf6;cursor:pointer;transition:all 0.2s}
+.btn-icon:hover{background:#e8eaf6}
+.section-title{font-size:14px;font-weight:600;color:#1a237e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.filter-bar{display:flex;gap:12px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{padding:7px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;background:white}
+.filter-bar select:focus,.filter-bar input:focus{outline:none;border-color:#3949ab}
+.type-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.type-badge.fixed{background:#e3f2fd;color:#1565c0}
+.type-badge.enhancement{background:#f3e5f5;color:#7b1fa2}
+.type-badge.tandc{background:#fff3e0;color:#e65100}
+.stepper-track{display:flex;align-items:center;justify-content:center;padding:30px 0;gap:0}
+.step-node{display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:3px solid #e0e0e0;background:white;color:#999;transition:all 0.3s}
+.step-circle.completed{background:#4caf50;border-color:#4caf50;color:white}
+.step-circle.current{background:#1a237e;border-color:#1a237e;color:white;animation:pulse-step 2s infinite}
+.step-circle.pending{background:white;border-color:#e0e0e0;color:#bbb}
+.step-label{font-size:10px;color:#666;margin-top:6px;text-align:center;max-width:60px}
+.step-date{font-size:9px;color:#999;margin-top:2px}
+.step-connector{width:40px;height:3px;background:#e0e0e0;margin:0 -2px;margin-bottom:20px}
+.step-connector.completed{background:#4caf50}
+.step-connector.current{background:linear-gradient(90deg,#4caf50,#1a237e)}
+@keyframes pulse-step{0%,100%{box-shadow:0 0 0 0 rgba(26,35,126,0.4)}50%{box-shadow:0 0 0 8px rgba(26,35,126,0)}}
+.tab-bar{display:flex;border-bottom:2px solid #e0e0e0;margin-bottom:20px}
+.tab-item{padding:10px 20px;font-size:13px;font-weight:500;color:#666;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s}
+.tab-item.active{color:#1a237e;border-bottom-color:#1a237e}
+.tab-item:hover{color:#333}
+.gantt-container{overflow-x:auto;margin-bottom:20px}
+.gantt-chart{min-width:600px;position:relative}
+.gantt-header{display:flex;border-bottom:1px solid #e0e0e0;padding:8px 0;margin-left:180px}
+.gantt-month{flex:1;text-align:center;font-size:11px;font-weight:600;color:#666}
+.gantt-row{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5}
+.gantt-label{width:180px;font-size:11px;color:#444;padding-right:12px;flex-shrink:0}
+.gantt-bars{flex:1;position:relative;height:20px}
+.gantt-bar{position:absolute;height:14px;border-radius:4px;top:3px}
+.gantt-bar.planned{background:#bbdefb}
+.gantt-bar.actual-ok{background:#66bb6a}
+.gantt-bar.actual-delayed{background:#ef5350}
+.gantt-bar.actual-yellow{background:#ffc107}
+.gantt-bar.actual-gray{background:#e0e0e0}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal-card{background:white;border-radius:16px;padding:32px;width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.modal-card h2{font-size:17px;color:#1a237e;margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#444;margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;transition:border-color 0.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#3949ab;box-shadow:0 0 0 3px rgba(57,73,171,0.1)}
+.form-group textarea{resize:vertical;min-height:60px}
+.radio-group{display:flex;gap:16px;margin:12px 0}
+.radio-option{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.radio-option input[type=radio]{accent-color:#1a237e}
+.conditional-fields{display:none;margin-top:12px;padding:16px;background:#fafafa;border-radius:8px;border:1px solid #eee}
+.conditional-fields.show{display:block}
+.project-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.project-header .left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.project-header .title{font-size:20px;font-weight:700;color:#1a237e}
+.info-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.info-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f0f2ff;border-radius:16px;font-size:11px;color:#444}
+.info-pill strong{color:#1a237e}
+.critical-item{padding:12px;border-left:3px solid #f44336;background:#fff8f8;border-radius:0 8px 8px 0;margin-bottom:8px}
+.critical-item .ci-title{font-size:12px;font-weight:600;color:#c62828;margin-bottom:4px}
+.critical-item .ci-meta{font-size:11px;color:#666}
+.dep-item{padding:12px;border-left:3px solid #e65100;background:#fff8f0;border-radius:0 8px 8px 0;margin-bottom:8px}
+.dep-item .ci-title{font-size:12px;font-weight:600;color:#e65100;margin-bottom:4px}
+.dep-item .ci-meta{font-size:11px;color:#666}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.status-badge.resolved{background:#e8f5e9;color:#2e7d32}
+.status-badge.wip{background:#e3f2fd;color:#1565c0}
+.status-badge.overdue{background:#ffebee;color:#c62828}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="logo">TVS PlanIQ<span>Engineering Platform</span></div>
+    <div class="nav-section">Tools</div>
+    <div class="nav-item" onclick="window.location.href='index.html'">📊 Estimation Engine</div>
+    <div class="nav-item" onclick="window.location.href='index.html'">📋 PRD Checker</div>
+    <div class="nav-item" onclick="window.location.href='index.html'">⚖️ Build vs Buy</div>
+    <div class="nav-section">Tracking</div>
+    <div class="nav-item active" id="nav-tracker" onclick="navigateTo('dashboard')">📈 MPCP Tracker</div>
+    <div class="nav-item" id="nav-allprojects" onclick="navigateTo('allProjects')">📋 All Projects</div>
+    <div class="nav-section">Admin</div>
+    <div class="nav-item" onclick="window.location.href='index.html'">⚙️ Configuration</div>
+    <div class="nav-item" onclick="window.location.href='index.html'">👥 Users</div>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <h1>MPCP Project Tracker</h1>
+    <div class="user-info">
+        <span class="user-badge">Admin</span>
+        <span>Suraj Ray</span>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="main-content">
+    <!-- BU Switcher -->
+    <div id="bu-switcher" style="display:flex;gap:4px;margin-bottom:20px;background:white;padding:8px 12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);width:fit-content">
+        <button class="btn btn-sm" style="background:#1a237e;color:white" onclick="switchBU(this,'All')">All</button>
+        <button class="btn btn-sm btn-secondary" onclick="switchBU(this,'IND-2W')">IND-2W</button>
+        <button class="btn btn-sm btn-secondary" onclick="switchBU(this,'3W/CMB')">3W / CMB</button>
+        <button class="btn btn-sm btn-secondary" onclick="switchBU(this,'IB')">IB</button>
+    </div>
+</div>
+
+<!-- RAG Update Modal -->
+<div class="modal-overlay" id="ragModal" onclick="closeModalOutside(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <h2 id="ragModalTitle">Update RAG Status</h2>
+        <div class="form-group">
+            <label>Select RAG Status</label>
+            <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="rag" value="green" onchange="toggleConditional()"> <span class="rag-dot green"></span> Green</label>
+                <label class="radio-option"><input type="radio" name="rag" value="yellow" onchange="toggleConditional()"> <span class="rag-dot yellow"></span> Yellow</label>
+                <label class="radio-option"><input type="radio" name="rag" value="red" onchange="toggleConditional()"> <span class="rag-dot red"></span> Red</label>
+            </div>
+        </div>
+        <div class="conditional-fields" id="condFields">
+            <div class="form-group">
+                <label>What <span style="color:#e53935">*</span></label>
+                <textarea placeholder="What is the issue?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Why <span style="color:#e53935">*</span></label>
+                <textarea placeholder="Why did this happen? (root cause)"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Who <span style="color:#e53935">*</span></label>
+                <input type="text" placeholder="Who is responsible / blocking?">
+            </div>
+            <div class="form-group">
+                <label>How <span style="color:#e53935">*</span></label>
+                <textarea placeholder="How to get back on track?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>ETA <span style="color:#e53935">*</span></label>
+                <input type="date">
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="closeModal()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const MPs = [
+    { code:'A3', name:'Booking to Delivery', theme:'A - Customer Satisfaction', owner:'Akshay Bhosle', rag:'yellow', cps:2, projects:5 },
+    { code:'B1', name:'Profit Improvement', theme:'B - Profit & Profitability', owner:'Akshay Bhosle', rag:'red', cps:3, projects:7 },
+    { code:'B2', name:'Cost Optimization', theme:'B - Profit & Profitability', owner:'Prakash Bharati', rag:'green', cps:2, projects:4 },
+    { code:'C2', name:'Business Growth - Marketplace', theme:'C - Business Growth', owner:'Ashish Thakur', rag:'green', cps:2, projects:4 },
+    { code:'C4', name:'Channel Expansion', theme:'C - Business Growth', owner:'Avinash Kumar', rag:'green', cps:1, projects:3 },
+    { code:'D1', name:'Digital Transformation', theme:'D - Digital Excellence', owner:'Bibin', rag:'yellow', cps:3, projects:5 },
+    { code:'E1', name:'People Development', theme:'E - People & Culture', owner:'Sumitra Rathod', rag:'green', cps:2, projects:4 },
+    { code:'F1', name:'Sustainability Initiatives', theme:'F - Sustainability', owner:'Ashish Thakur', rag:'green', cps:1, projects:3 }
+];
+
+const CPsByMP = {
+    'B1': [
+        { code:'B1.1', name:'2-hour follow-up of digital leads', owner:'Akshay Bhosle', rag:'red', projects:3 },
+        { code:'B1.4', name:'Test ride adherence', owner:'Akshay Bhosle', rag:'green', projects:2 },
+        { code:'B1.7', name:'Lead conversion optimization', owner:'Akshay Bhosle', rag:'yellow', projects:2 }
+    ],
+    'A3': [
+        { code:'A3.1', name:'Order tracking visibility', owner:'Akshay Bhosle', rag:'green', projects:3 },
+        { code:'A3.2', name:'Delivery SLA adherence', owner:'Akshay Bhosle', rag:'yellow', projects:2 }
+    ],
+    'C2': [
+        { code:'C2.1', name:'Marketplace listing optimization', owner:'Ashish Thakur', rag:'green', projects:2 },
+        { code:'C2.3', name:'Partner onboarding acceleration', owner:'Ashish Thakur', rag:'green', projects:2 }
+    ]
+};
+
+const ProjectsByCP = {
+    'B1.1': [
+        { name:'Lead Nurture - AIDEN', type:'Fixed_Bid', vendor:'Exathought', po:'Akshay Bhosle', stage:'RFP', rag:'red', mp:'B1', cp:'B1.1', domain:'Shop' },
+        { name:'Lead Nurture - MIRA', type:'Fixed_Bid', vendor:'TBD', po:'Akshay Bhosle', stage:'RFP', rag:'yellow', mp:'B1', cp:'B1.1', domain:'Shop' },
+        { name:'Drivex POC', type:'Enhancement', vendor:'TBD', po:'Akshay Bhosle', stage:'PRD', rag:'green', mp:'B1', cp:'B1.1', domain:'Buy' }
+    ],
+    'B1.4': [
+        { name:'Test Ride Scheduler v2', type:'Enhancement', vendor:'Exathought', po:'Akshay Bhosle', stage:'Kickoff', rag:'green', mp:'B1', cp:'B1.4', domain:'Shop' },
+        { name:'Ride Analytics Dashboard', type:'Fixed_Bid', vendor:'Deloitte', po:'Akshay Bhosle', stage:'PO', rag:'green', mp:'B1', cp:'B1.4', domain:'Shop' }
+    ],
+    'B1.7': [
+        { name:'Conversion Funnel Tracker', type:'Enhancement', vendor:'TVSD', po:'Akshay Bhosle', stage:'Exec Start', rag:'yellow', mp:'B1', cp:'B1.7', domain:'Buy' },
+        { name:'Lead Score ML Model', type:'Fixed_Bid', vendor:'Evontech', po:'Akshay Bhosle', stage:'BRD', rag:'yellow', mp:'B1', cp:'B1.7', domain:'Shop' }
+    ],
+    'A3.1': [
+        { name:'Order Tracker Widget', type:'Enhancement', vendor:'TVSD', po:'Akshay Bhosle', stage:'Exec Start', rag:'green', mp:'A3', cp:'A3.1', domain:'Buy' },
+        { name:'Delivery Notifications v2', type:'Fixed_Bid', vendor:'Deloitte', po:'Akshay Bhosle', stage:'Prod', rag:'green', mp:'A3', cp:'A3.1', domain:'Buy' },
+        { name:'Dealer Portal Integration', type:'T&C', vendor:'Autovyn', po:'Akshay Bhosle', stage:'Kickoff', rag:'green', mp:'A3', cp:'A3.1', domain:'Buy' }
+    ],
+    'A3.2': [
+        { name:'SLA Dashboard', type:'Enhancement', vendor:'TVSD', po:'Akshay Bhosle', stage:'PRD', rag:'yellow', mp:'A3', cp:'A3.2', domain:'Own' },
+        { name:'Escalation Engine', type:'Fixed_Bid', vendor:'Deloitte', po:'Akshay Bhosle', stage:'BRD', rag:'yellow', mp:'A3', cp:'A3.2', domain:'Own' }
+    ],
+    'C2.1': [
+        { name:'Amazon Integration', type:'Fixed_Bid', vendor:'Exathought', po:'Ashish Thakur', stage:'Exec Start', rag:'green', mp:'C2', cp:'C2.1', domain:'Shop' },
+        { name:'Flipkart Listing Sync', type:'Fixed_Bid', vendor:'Exathought', po:'Ashish Thakur', stage:'Kickoff', rag:'green', mp:'C2', cp:'C2.1', domain:'Shop' }
+    ],
+    'C2.3': [
+        { name:'Vendor Onboarding Portal', type:'Enhancement', vendor:'TVSD', po:'Ashish Thakur', stage:'PRD', rag:'green', mp:'C2', cp:'C2.3', domain:'Own' },
+        { name:'Partner Analytics', type:'Fixed_Bid', vendor:'Deloitte', po:'Ashish Thakur', stage:'PO', rag:'green', mp:'C2', cp:'C2.3', domain:'Own' }
+    ]
+};
+
+// All projects flat list (derived from ProjectsByCP)
+function getAllProjects() {
+    let all = [];
+    Object.keys(ProjectsByCP).forEach(cpCode => {
+        ProjectsByCP[cpCode].forEach(p => {
+            all.push({...p, mp: p.mp || cpCode.split('.')[0], cp: p.cp || cpCode});
+        });
+    });
+    return all;
+}
+
+const projectDetail = {
+    name:'Lead Nurture - AIDEN', type:'Fixed_Bid', vendor:'Exathought', po:'Akshay Bhosle', lob:'Digital', rag:'red',
+    stages:['BRD','PRD','RFP','PO','Kickoff','Exec Start','Prod','S/F'],
+    stageStatus:['completed','completed','current','pending','pending','pending','pending','pending'],
+    stageDates:['15 May 2026','28 May 2026','In Progress','—','—','—','—','—'],
+    milestones:[
+        {name:'Requirements Finalization',vendor:'Exathought',ps:'1 Jul',pe:'10 Jul',as:'2 Jul',ae:'15 Jul',slip:'+5 days',rag:'yellow'},
+        {name:'Architecture & Design',vendor:'Exathought',ps:'11 Jul',pe:'20 Jul',as:'16 Jul',ae:'28 Jul',slip:'+8 days',rag:'red'},
+        {name:'Sprint 1 - Core Integration',vendor:'Exathought',ps:'21 Jul',pe:'8 Aug',as:'—',ae:'—',slip:'—',rag:'gray'},
+        {name:'Sprint 2 - Call Routing',vendor:'Exathought',ps:'9 Aug',pe:'25 Aug',as:'—',ae:'—',slip:'—',rag:'gray'},
+        {name:'QA / UAT',vendor:'Exathought',ps:'26 Aug',pe:'12 Sep',as:'—',ae:'—',slip:'—',rag:'gray'},
+        {name:'Prod Deployment',vendor:'Exathought',ps:'13 Sep',pe:'20 Sep',as:'—',ae:'—',slip:'—',rag:'gray'}
+    ],
+    dependencies:[
+        {name:'Amazon Seller Account creation',owner:'Amazon',cutoff:'1 Jun',raisedOn:'25 May',status:'Resolved',linkedMilestone:'Order Integration'},
+        {name:'Product listing - 100 SKUs',owner:'Lakshay/Avinash',cutoff:'2 Jul',raisedOn:'18 Jun',status:'WIP',linkedMilestone:'Listing Integration'},
+        {name:'FK - access token issue',owner:'Flipkart',cutoff:'12 Jun',raisedOn:'4 Jun',status:'Overdue',linkedMilestone:'Token Generation'},
+        {name:'Inter cloud security confirmation',owner:'SG Shankar',cutoff:'29 Jun',raisedOn:'16 Jun',status:'Overdue',linkedMilestone:'Architecture'}
+    ]
+};
+
+// Open dependencies across all projects (for dashboard)
+const openDependencies = [
+    {project:'Lead Nurture - AIDEN',dependency:'FK - access token issue',owner:'Flipkart',cutoff:'12 Jun',daysOverdue:18},
+    {project:'Lead Nurture - AIDEN',dependency:'Inter cloud security confirmation',owner:'SG Shankar',cutoff:'29 Jun',daysOverdue:1},
+    {project:'Amazon Integration',dependency:'Warehouse API access',owner:'Amazon',cutoff:'15 Jun',daysOverdue:15},
+    {project:'Flipkart Listing Sync',dependency:'Seller API rate limit approval',owner:'Flipkart',cutoff:'20 Jun',daysOverdue:10}
+];
+
+// ==================== STATE ====================
+let currentView = 'dashboard';
+let selectedMP = null;
+let selectedCP = null;
+let selectedProject = null;
+let currentTab = 'process';
+let activeBU = 'All';
+
+// ==================== RENDER ====================
+function render() {
+    const el = document.getElementById('main-content');
+    const buSwitcher = `<div id="bu-switcher" style="display:flex;gap:4px;margin-bottom:20px;background:white;padding:8px 12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);width:fit-content">
+        <button class="btn btn-sm ${activeBU==='All'?'':'btn-secondary'}" style="${activeBU==='All'?'background:#1a237e;color:white':''}" onclick="switchBU(this,'All')">All</button>
+        <button class="btn btn-sm ${activeBU==='IND-2W'?'':'btn-secondary'}" style="${activeBU==='IND-2W'?'background:#1a237e;color:white':''}" onclick="switchBU(this,'IND-2W')">IND-2W</button>
+        <button class="btn btn-sm ${activeBU==='3W/CMB'?'':'btn-secondary'}" style="${activeBU==='3W/CMB'?'background:#1a237e;color:white':''}" onclick="switchBU(this,'3W/CMB')">3W / CMB</button>
+        <button class="btn btn-sm ${activeBU==='IB'?'':'btn-secondary'}" style="${activeBU==='IB'?'background:#1a237e;color:white':''}" onclick="switchBU(this,'IB')">IB</button>
+    </div>`;
+    let content = '';
+    switch(currentView) {
+        case 'dashboard': content = renderDashboard(); break;
+        case 'mpList': content = renderMPList(); break;
+        case 'cpList': content = renderCPList(); break;
+        case 'projectList': content = renderProjectList(); break;
+        case 'projectDetail': content = renderProjectDetail(); break;
+        case 'allProjects': content = renderAllProjects(); break;
+    }
+    el.innerHTML = buSwitcher + content;
+    updateSidebarActive();
+}
+
+function updateSidebarActive() {
+    document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+    if(currentView === 'allProjects') {
+        document.getElementById('nav-allprojects').classList.add('active');
+    } else {
+        document.getElementById('nav-tracker').classList.add('active');
+    }
+}
+
+function ragBadge(rag) {
+    const labels = {green:'Green',yellow:'Yellow',red:'Red',gray:'Not Started'};
+    return `<span class="rag-badge ${rag}"><span class="rag-dot ${rag}"></span> ${labels[rag]||rag}</span>`;
+}
+
+function typeBadgeClass(type) {
+    if(type==='Fixed_Bid') return 'fixed';
+    if(type==='Enhancement') return 'enhancement';
+    return 'tandc';
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+    return `
+    <div class="metrics-grid">
+        <div class="metric-card" onclick="navigateTo('mpList')"><h4>Total Projects</h4><div class="value">35</div><div class="sub">Across all MPs</div></div>
+        <div class="metric-card green"><h4>On Track</h4><div class="value">20</div><div class="sub">57% of total</div></div>
+        <div class="metric-card yellow"><h4>At Risk</h4><div class="value">10</div><div class="sub">29% of total</div></div>
+        <div class="metric-card red"><h4>Critical</h4><div class="value">5</div><div class="sub">14% of total</div></div>
+        <div class="metric-card deps"><h4>Open Dependencies</h4><div class="value">${openDependencies.length}</div><div class="sub">Needs attention</div></div>
+    </div>
+    <div class="card" style="padding:16px 24px;margin-bottom:20px">
+        <div class="filter-bar" style="margin-bottom:0">
+            <span style="font-size:12px;font-weight:600;color:#1a237e">Quick Filter:</span>
+            <select style="padding:7px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:12px">
+                <option value="">All Streams</option>
+                <option value="CP">Channel Partner (CP)</option>
+                <option value="D2C">D2C</option>
+                <option value="Platform">Platform Services</option>
+            </select>
+            <select style="padding:7px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:12px">
+                <option value="">All Domains</option>
+                <option value="Shop">Shop</option>
+                <option value="Buy">Buy</option>
+                <option value="Own">Own</option>
+                <option value="Parts">Parts</option>
+            </select>
+            <select style="padding:7px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:12px">
+                <option value="">All RAG</option>
+                <option value="green">🟢 Green</option>
+                <option value="yellow">🟡 Yellow</option>
+                <option value="red">🔴 Red</option>
+            </select>
+            <input type="text" placeholder="🔍 Search project..." style="padding:7px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;width:180px">
+        </div>
+    </div>
+    <div class="two-col">
+        <div class="card">
+            <div class="section-title">📦 By Vendor</div>
+            <table class="data-table"><thead><tr><th>Vendor</th><th>Projects</th><th>Health</th></tr></thead><tbody>
+                <tr class="no-hover"><td>Deloitte</td><td>12</td><td>${ragBadge('green')}</td></tr>
+                <tr class="no-hover"><td>TVSD</td><td>10</td><td>${ragBadge('green')}</td></tr>
+                <tr class="no-hover"><td>Exathought</td><td>8</td><td>${ragBadge('yellow')}</td></tr>
+                <tr class="no-hover"><td>Evontech</td><td>3</td><td>${ragBadge('yellow')}</td></tr>
+                <tr class="no-hover"><td>Autovyn</td><td>2</td><td>${ragBadge('green')}</td></tr>
+            </tbody></table>
+        </div>
+        <div class="card">
+            <div class="section-title">👤 By Project Owner</div>
+            <table class="data-table"><thead><tr><th>PO</th><th>Projects</th><th>Health</th></tr></thead><tbody>
+                <tr class="no-hover"><td>Akshay Bhosle</td><td>8</td><td>${ragBadge('yellow')}</td></tr>
+                <tr class="no-hover"><td>Prakash Bharati</td><td>7</td><td>${ragBadge('green')}</td></tr>
+                <tr class="no-hover"><td>Ashish Thakur</td><td>6</td><td>${ragBadge('green')}</td></tr>
+                <tr class="no-hover"><td>Bibin</td><td>6</td><td>${ragBadge('yellow')}</td></tr>
+                <tr class="no-hover"><td>Avinash Kumar</td><td>5</td><td>${ragBadge('green')}</td></tr>
+                <tr class="no-hover"><td>Sumitra Rathod</td><td>3</td><td>${ragBadge('green')}</td></tr>
+            </tbody></table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="section-title">🏷️ By Domain</div>
+        <table class="data-table"><thead><tr><th>Domain</th><th>BU</th><th>Stream</th><th>Projects</th><th>🟢</th><th>🟡</th><th>🔴</th><th>Health</th></tr></thead><tbody>
+            <tr class="no-hover"><td><strong>Shop</strong></td><td>IND-2W</td><td>D2C</td><td>5</td><td>3</td><td>2</td><td>0</td><td>${ragBadge('yellow')}</td></tr>
+            <tr class="no-hover"><td><strong>Shop</strong></td><td>IND-2W</td><td>CP</td><td>7</td><td>5</td><td>1</td><td>1</td><td>${ragBadge('red')}</td></tr>
+            <tr class="no-hover"><td><strong>Buy</strong></td><td>IND-2W</td><td>D2C</td><td>4</td><td>3</td><td>1</td><td>0</td><td>${ragBadge('yellow')}</td></tr>
+            <tr class="no-hover"><td><strong>Buy</strong></td><td>IND-2W</td><td>CP</td><td>6</td><td>4</td><td>1</td><td>1</td><td>${ragBadge('red')}</td></tr>
+            <tr class="no-hover"><td><strong>Own</strong></td><td>IND-2W</td><td>D2C</td><td>5</td><td>3</td><td>2</td><td>0</td><td>${ragBadge('yellow')}</td></tr>
+            <tr class="no-hover"><td><strong>Own</strong></td><td>3W/CMB</td><td>CP</td><td>3</td><td>1</td><td>1</td><td>1</td><td>${ragBadge('red')}</td></tr>
+            <tr class="no-hover"><td><strong>Parts</strong></td><td>IB</td><td>D2C</td><td>3</td><td>1</td><td>1</td><td>1</td><td>${ragBadge('red')}</td></tr>
+            <tr class="no-hover"><td><strong>Parts</strong></td><td>IND-2W</td><td>CP</td><td>2</td><td>0</td><td>1</td><td>1</td><td>${ragBadge('red')}</td></tr>
+        </tbody></table>
+    </div>
+    <div class="card">
+        <div class="section-title" style="color:#c62828">🚨 Critical Items (Red RAG)</div>
+        <div class="critical-item">
+            <div class="ci-title">Lead Nurture - AIDEN (B1.1)</div>
+            <div class="ci-meta"><strong>Why:</strong> Vendor selection delayed, RFP response pending &nbsp;|&nbsp; <strong>Owner:</strong> Akshay Bhosle &nbsp;|&nbsp; <strong>ETA:</strong> 20 Jul 2026</div>
+        </div>
+        <div class="critical-item">
+            <div class="ci-title">Architecture & Design - AIDEN (B1.1)</div>
+            <div class="ci-meta"><strong>Why:</strong> 8-day slippage on design milestone &nbsp;|&nbsp; <strong>Owner:</strong> Exathought &nbsp;|&nbsp; <strong>ETA:</strong> 30 Jul 2026</div>
+        </div>
+        <div class="critical-item">
+            <div class="ci-title">Profit Improvement - B1 Overall</div>
+            <div class="ci-meta"><strong>Why:</strong> Multiple sub-projects delayed, resource constraints &nbsp;|&nbsp; <strong>Owner:</strong> Akshay Bhosle &nbsp;|&nbsp; <strong>ETA:</strong> 15 Aug 2026</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="section-title" style="color:#e65100">🔗 Open Dependencies (Needs Leadership Help)</div>
+        <div style="overflow-x:auto">
+        <table class="data-table">
+            <thead><tr><th>Project</th><th>Dependency</th><th>Owner</th><th>Cutoff</th><th>Days Overdue</th></tr></thead>
+            <tbody>
+                ${openDependencies.map(d => `<tr class="no-hover overdue">
+                    <td><strong>${d.project}</strong></td>
+                    <td>${d.dependency}</td>
+                    <td>${d.owner}</td>
+                    <td>${d.cutoff}</td>
+                    <td style="color:#c62828;font-weight:600">⚠️ ${d.daysOverdue} days</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+        <button class="btn btn-primary" onclick="navigateTo('mpList')">View MPs →</button>
+        <button class="btn btn-outline" onclick="navigateTo('allProjects')">View All Projects →</button>
+        <button class="btn btn-secondary" onclick="alert('Download feature coming soon')">📥 Download Report</button>
+        <button class="btn btn-danger btn-sm" onclick="alert('Downloads 3W1H Excel: All Yellow/Red projects with What, Why, Who, How, ETA columns')">📥 Download 3W1H Report</button>
+    </div>`;
+}
+
+// ==================== ALL PROJECTS VIEW ====================
+function domainPill(domain) {
+    const colors = {Shop:'#e3f2fd;color:#1565c0',Buy:'#f3e5f5;color:#7b1fa2',Own:'#e8f5e9;color:#2e7d32'};
+    return domain ? `<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:${colors[domain]||'#f5f5f5;color:#666'}">${domain}</span>` : '';
+}
+
+function renderAllProjects() {
+    const allProjects = getAllProjects();
+    const vendors = [...new Set(allProjects.map(p=>p.vendor))];
+    const pos = [...new Set(allProjects.map(p=>p.po))];
+    const types = [...new Set(allProjects.map(p=>p.type))];
+    const domains = [...new Set(allProjects.map(p=>p.domain).filter(Boolean))];
+
+    let rows = allProjects.map((p,i) => `<tr onclick="openProjectFromAll('${p.cp}','${p.name}')">
+        <td><strong>${p.name}</strong> ${domainPill(p.domain)}</td>
+        <td>${p.mp}</td>
+        <td>${p.cp}</td>
+        <td><span class="type-badge ${typeBadgeClass(p.type)}">${p.type.replace('_',' ')}</span></td>
+        <td>${domainPill(p.domain)}</td>
+        <td>${p.vendor}</td>
+        <td>${p.po}</td>
+        <td>${p.stage}</td>
+        <td>${ragBadge(p.rag)}</td>
+    </tr>`).join('');
+
+    return `
+    <div class="breadcrumb"><a onclick="navigateTo('dashboard')">Dashboard</a><span class="sep">›</span><span>All Projects</span></div>
+    <div class="card">
+        <h2>All Projects</h2>
+        <p class="subtitle">Flat view of all projects across the hierarchy. Click any row to view details.</p>
+        <div class="filter-bar">
+            <input type="text" id="projectSearch" placeholder="🔍 Search projects..." oninput="filterAllProjects()" style="width:200px">
+            <select id="allRagFilter" onchange="filterAllProjects()">
+                <option value="">All RAG</option>
+                <option value="green">Green</option>
+                <option value="yellow">Yellow</option>
+                <option value="red">Red</option>
+            </select>
+            <select id="allDomainFilter" onchange="filterAllProjects()">
+                <option value="">All Domains</option>
+                ${domains.map(d=>`<option value="${d}">${d}</option>`).join('')}
+            </select>
+            <select id="allVendorFilter" onchange="filterAllProjects()">
+                <option value="">All Vendors</option>
+                ${vendors.map(v=>`<option value="${v}">${v}</option>`).join('')}
+            </select>
+            <select id="allPOFilter" onchange="filterAllProjects()">
+                <option value="">All POs</option>
+                ${pos.map(p=>`<option value="${p}">${p}</option>`).join('')}
+            </select>
+            <select id="allTypeFilter" onchange="filterAllProjects()">
+                <option value="">All Types</option>
+                ${types.map(t=>`<option value="${t}">${t.replace('_',' ')}</option>`).join('')}
+            </select>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="data-table" id="allProjectsTable">
+            <thead><tr><th>Project</th><th>MP</th><th>CP</th><th>Type</th><th>Domain</th><th>Vendor</th><th>PO</th><th>Stage</th><th>RAG</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+        </div>
+    </div>`;
+}
+
+function filterAllProjects() {
+    const search = (document.getElementById('projectSearch').value || '').toLowerCase();
+    const rag = document.getElementById('allRagFilter').value;
+    const domain = document.getElementById('allDomainFilter').value;
+    const vendor = document.getElementById('allVendorFilter').value;
+    const po = document.getElementById('allPOFilter').value;
+    const type = document.getElementById('allTypeFilter').value;
+    const allProjects = getAllProjects();
+    const filtered = allProjects.filter(p => {
+        if(search && !p.name.toLowerCase().includes(search)) return false;
+        if(rag && p.rag !== rag) return false;
+        if(domain && p.domain !== domain) return false;
+        if(vendor && p.vendor !== vendor) return false;
+        if(po && p.po !== po) return false;
+        if(type && p.type !== type) return false;
+        return true;
+    });
+    let rows = filtered.map((p,i) => `<tr onclick="openProjectFromAll('${p.cp}','${p.name}')">
+        <td><strong>${p.name}</strong> ${domainPill(p.domain)}</td>
+        <td>${p.mp}</td>
+        <td>${p.cp}</td>
+        <td><span class="type-badge ${typeBadgeClass(p.type)}">${p.type.replace('_',' ')}</span></td>
+        <td>${domainPill(p.domain)}</td>
+        <td>${p.vendor}</td>
+        <td>${p.po}</td>
+        <td>${p.stage}</td>
+        <td>${ragBadge(p.rag)}</td>
+    </tr>`).join('');
+    document.querySelector('#allProjectsTable tbody').innerHTML = rows || '<tr class="no-hover"><td colspan="9" style="text-align:center;color:#999;padding:20px">No projects match the filters</td></tr>';
+}
+
+function openProjectFromAll(cpCode, projectName) {
+    // Set MP and CP context for breadcrumb navigation
+    const mpCode = cpCode.split('.')[0];
+    selectedMP = MPs.find(m => m.code === mpCode) || {code:mpCode, name:mpCode, theme:'', owner:''};
+    const cps = CPsByMP[mpCode] || [];
+    selectedCP = cps.find(c => c.code === cpCode) || {code:cpCode, name:cpCode, owner:selectedMP.owner, rag:'green'};
+    const projects = ProjectsByCP[cpCode] || [];
+    selectedProject = projects.find(p => p.name === projectName) || projectDetail;
+    currentView = 'projectDetail';
+    currentTab = 'process';
+    render();
+}
+
+// ==================== MP LIST ====================
+function renderMPList() {
+    const themes = [...new Set(MPs.map(m=>m.theme))];
+    let rows = MPs.map(m=>`<tr onclick="selectMP('${m.code}')">
+        <td><strong>${m.code}</strong></td><td>${m.name}</td><td>${m.theme}</td>
+        <td>${m.owner}</td><td>${ragBadge(m.rag)}</td><td>${m.cps}</td><td>${m.projects}</td>
+    </tr>`).join('');
+    return `
+    <div class="breadcrumb"><a onclick="navigateTo('dashboard')">Dashboard</a><span class="sep">›</span><span>Master Plans</span></div>
+    <div class="card">
+        <h2>Master Plans</h2>
+        <p class="subtitle">Click any MP to view its Check Points</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="filter-bar" style="margin-bottom:0">
+            <select id="themeFilter" onchange="filterMPs()">
+                <option value="">All Themes</option>
+                ${themes.map(t=>`<option value="${t}">${t}</option>`).join('')}
+            </select>
+            <select id="ragFilter" onchange="filterMPs()">
+                <option value="">All RAG</option>
+                <option value="green">Green</option>
+                <option value="yellow">Yellow</option>
+                <option value="red">Red</option>
+            </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="alert('Add MP modal — fields: Code, Name, Theme, Owner, LoB')">+ Add MP</button>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="data-table" id="mpTable">
+            <thead><tr><th>Code</th><th>Name</th><th>Theme</th><th>Owner</th><th>RAG</th><th>CPs</th><th>Projects</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+        </div>
+    </div>`;
+}
+
+function filterMPs() {
+    const theme = document.getElementById('themeFilter').value;
+    const rag = document.getElementById('ragFilter').value;
+    const filtered = MPs.filter(m => (!theme || m.theme===theme) && (!rag || m.rag===rag));
+    let rows = filtered.map(m=>`<tr onclick="selectMP('${m.code}')">
+        <td><strong>${m.code}</strong></td><td>${m.name}</td><td>${m.theme}</td>
+        <td>${m.owner}</td><td>${ragBadge(m.rag)}</td><td>${m.cps}</td><td>${m.projects}</td>
+    </tr>`).join('');
+    document.querySelector('#mpTable tbody').innerHTML = rows;
+}
+
+function selectMP(code) {
+    selectedMP = MPs.find(m=>m.code===code);
+    currentView = 'cpList';
+    render();
+}
+
+// ==================== CP LIST ====================
+function renderCPList() {
+    const cps = CPsByMP[selectedMP.code] || [
+        {code:selectedMP.code+'.1',name:'Check Point 1',owner:selectedMP.owner,rag:'green',projects:2},
+        {code:selectedMP.code+'.2',name:'Check Point 2',owner:selectedMP.owner,rag:'yellow',projects:1}
+    ];
+    let rows = cps.map(cp=>`<tr onclick="selectCP('${cp.code}')">
+        <td><strong>${cp.code}</strong></td><td>${cp.name}</td><td>${cp.owner}</td>
+        <td>${ragBadge(cp.rag)}</td><td>${cp.projects}</td>
+    </tr>`).join('');
+    return `
+    <div class="breadcrumb">
+        <a onclick="navigateTo('dashboard')">Dashboard</a><span class="sep">›</span>
+        <a onclick="navigateTo('mpList')">MPs</a><span class="sep">›</span>
+        <span>${selectedMP.code} - ${selectedMP.name} › Check Points</span>
+    </div>
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+                <h2>Check Points for ${selectedMP.code} - ${selectedMP.name}</h2>
+                <p class="subtitle" style="margin-bottom:0">Theme: ${selectedMP.theme} | Owner: ${selectedMP.owner} | ${ragBadge(selectedMP.rag)}</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="alert('Add CP modal — fields: Code (${selectedMP.code}.X), Name, Owner, Description')">+ Add CP</button>
+        </div>
+        <table class="data-table">
+            <thead><tr><th>Code</th><th>Name</th><th>Owner</th><th>RAG</th><th>Projects</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+    </div>`;
+}
+
+function selectCP(code) {
+    const cps = CPsByMP[selectedMP.code] || [];
+    selectedCP = cps.find(c=>c.code===code) || {code,name:'Check Point',owner:selectedMP.owner,rag:'green',projects:2};
+    currentView = 'projectList';
+    render();
+}
+
+// ==================== PROJECT LIST ====================
+function renderProjectList() {
+    const projects = ProjectsByCP[selectedCP.code] || [
+        {name:'Sample Project 1',type:'Fixed_Bid',vendor:'Deloitte',po:selectedCP.owner,stage:'PRD',rag:'green'},
+        {name:'Sample Project 2',type:'Enhancement',vendor:'TVSD',po:selectedCP.owner,stage:'BRD',rag:'yellow'}
+    ];
+    let rows = projects.map((p,i)=>`<tr onclick="selectProject(${i},'${selectedCP.code}')">
+        <td><strong>${p.name}</strong></td>
+        <td><span class="type-badge ${typeBadgeClass(p.type)}">${p.type.replace('_',' ')}</span></td>
+        <td>${p.vendor}</td><td>${p.po}</td><td>${p.stage}</td><td>${ragBadge(p.rag)}</td>
+    </tr>`).join('');
+    return `
+    <div class="breadcrumb">
+        <a onclick="navigateTo('dashboard')">Dashboard</a><span class="sep">›</span>
+        <a onclick="navigateTo('mpList')">MPs</a><span class="sep">›</span>
+        <a onclick="navigateTo('cpList')">${selectedMP.code}</a><span class="sep">›</span>
+        <span>${selectedCP.code} - ${selectedCP.name} › Projects</span>
+    </div>
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+                <h2>Projects under ${selectedCP.code} - ${selectedCP.name}</h2>
+                <p class="subtitle" style="margin-bottom:0">Owner: ${selectedCP.owner} | ${ragBadge(selectedCP.rag)}</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="alert('Add Project modal — fields: Name, Type, Domain, Vendor, PO, LoB, Description')">+ Add Project</button>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="data-table">
+            <thead><tr><th>Name</th><th>Type</th><th>Vendor</th><th>PO</th><th>Stage</th><th>RAG</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+        </div>
+    </div>`;
+}
+
+function selectProject(idx, cpCode) {
+    const projects = ProjectsByCP[cpCode] || [];
+    selectedProject = projects[idx] || projectDetail;
+    currentView = 'projectDetail';
+    currentTab = 'process';
+    render();
+}
+
+// ==================== PROJECT DETAIL ====================
+function renderProjectDetail() {
+    const p = selectedProject || projectDetail;
+    const detail = projectDetail; // use full detail data for stepper/milestones
+    
+    const stepperHTML = detail.stages.map((s,i) => {
+        let circleClass = detail.stageStatus[i];
+        let icon = circleClass==='completed'?'✓':circleClass==='current'?'●':'○';
+        let connector = i < detail.stages.length-1 ? 
+            `<div class="step-connector ${detail.stageStatus[i]==='completed'?'completed':detail.stageStatus[i]==='current'?'current':''}"></div>` : '';
+        return `<div class="step-node">
+            <div class="step-circle ${circleClass}">${icon}</div>
+            <div class="step-label">${s}</div>
+            <div class="step-date">${detail.stageDates[i]}</div>
+        </div>${connector}`;
+    }).join('');
+
+    const ganttBars = detail.milestones.map((m,i) => {
+        let leftPlanned = (i * 16) + '%';
+        let widthPlanned = '14%';
+        let actualBar = '';
+        if(m.as !== '—') {
+            let cls = m.rag==='red'?'actual-delayed':m.rag==='yellow'?'actual-yellow':'actual-ok';
+            actualBar = `<div class="gantt-bar ${cls}" style="left:${parseInt(leftPlanned)+1}%;width:${m.rag==='red'?'16%':'13%'};top:3px;opacity:0.85"></div>`;
+        }
+        return `<div class="gantt-row">
+            <div class="gantt-label">${m.name}</div>
+            <div class="gantt-bars">
+                <div class="gantt-bar planned" style="left:${leftPlanned};width:${widthPlanned}"></div>
+                ${actualBar}
+            </div>
+        </div>`;
+    }).join('');
+
+    const milestoneRows = detail.milestones.map((m,i) => {
+        const plannedStyle = 'color:#546e7a';
+        let actualStartStyle = 'color:#999';
+        let actualEndStyle = 'color:#999';
+        if(m.as !== '—') {
+            actualStartStyle = (m.rag==='red'||m.rag==='yellow') ? 'color:#c62828;font-weight:600' : 'color:#2e7d32;font-weight:600';
+        }
+        if(m.ae !== '—') {
+            actualEndStyle = (m.rag==='red'||m.rag==='yellow') ? 'color:#c62828;font-weight:600' : 'color:#2e7d32;font-weight:600';
+        }
+        // Check if this milestone has linked dependencies
+        const linkedDeps = (detail.dependencies||[]).filter(d => d.linkedMilestone && m.name.toLowerCase().includes(d.linkedMilestone.toLowerCase().split(' ')[0]));
+        const depIndicator = linkedDeps.length > 0 ? 
+            `<span style="margin-left:6px;background:${linkedDeps.some(d=>d.status==='Overdue')?'#ffebee':'#e3f2fd'};color:${linkedDeps.some(d=>d.status==='Overdue')?'#c62828':'#1565c0'};padding:1px 6px;border-radius:8px;font-size:10px;cursor:pointer" title="${linkedDeps.map(d=>d.name+' ('+d.status+')').join(', ')}">🔗 ${linkedDeps.length}</span>` : '';
+        return `<tr class="no-hover">
+        <td>${i+1}</td><td>${m.name}${depIndicator}</td><td>${m.vendor}</td>
+        <td style="${plannedStyle}">${m.ps}</td><td style="${plannedStyle}">${m.pe}</td>
+        <td style="${actualStartStyle}">${m.as}</td><td style="${actualEndStyle}">${m.ae}</td>
+        <td><strong>${m.slip}</strong></td>
+        <td>${ragBadge(m.rag)} <button class="btn-icon" onclick="openMilestoneRAG('${m.name}')" title="Update milestone RAG">🔄</button></td>
+    </tr>`;
+    }).join('');
+
+    // Slippage summary row
+    const slippageSummaryRow = `<tr class="no-hover" style="background:#f0f2ff;font-weight:600;border-top:2px solid #1a237e">
+        <td></td><td style="color:#1a237e">TOTAL</td><td></td>
+        <td style="color:#546e7a" colspan="2">1 Jul → 20 Sep (82 days)</td>
+        <td colspan="2"></td>
+        <td style="color:#c62828">+13 days</td>
+        <td></td>
+    </tr>
+    <tr class="no-hover" style="background:#fafafa">
+        <td colspan="9" style="padding:12px">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <span style="font-size:12px;font-weight:600;color:#1a237e">📅 Revised Target Date:</span>
+                <span style="font-size:12px;color:#666">Original: <strong>20 Sep</strong></span>
+                <span style="font-size:12px;color:#666">|</span>
+                <span style="font-size:12px;color:#2e7d32;font-weight:600">Revised: 15 Sep (Fast-track: 5 days recovered)</span>
+                <button class="btn-icon" title="Edit revised target date" style="margin-left:4px">✏️</button>
+            </div>
+        </td>
+    </tr>`;
+
+    const deps = detail.dependencies || [];
+    const depRows = deps.map((d,i) => {
+        const isOverdue = d.status === 'Overdue';
+        const rowClass = isOverdue ? 'overdue no-hover' : 'no-hover';
+        const statusBadge = d.status === 'Resolved' ? '<span class="status-badge resolved">✓ Resolved</span>' :
+                           d.status === 'WIP' ? '<span class="status-badge wip">● WIP</span>' :
+                           '<span class="status-badge overdue">⚠️ Overdue</span>';
+        const action = isOverdue ? '<button class="btn btn-danger btn-sm" onclick="alert(\'Escalation sent to leadership\')">Escalate</button>' :
+                      d.status === 'Resolved' ? '✓' : '—';
+        return `<tr class="${rowClass}">
+            <td>${d.name}</td>
+            <td>${d.owner}</td>
+            <td>${d.cutoff}</td>
+            <td>${d.raisedOn}</td>
+            <td>${statusBadge}</td>
+            <td>${d.linkedMilestone}</td>
+            <td>${action}</td>
+        </tr>`;
+    }).join('');
+
+    return `
+    <div class="breadcrumb">
+        <a onclick="navigateTo('dashboard')">Dashboard</a><span class="sep">›</span>
+        <a onclick="navigateTo('mpList')">MPs</a><span class="sep">›</span>
+        <a onclick="navigateTo('cpList')">${selectedMP?selectedMP.code:'B1'}</a><span class="sep">›</span>
+        <a onclick="navigateTo('projectList')">${selectedCP?selectedCP.code:'B1.1'}</a><span class="sep">›</span>
+        <span>${p.name}</span>
+    </div>
+    <div class="project-header">
+        <div class="left">
+            <span class="title">${p.name}</span>
+            ${ragBadge(p.rag)}
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">🔄 Update RAG</button>
+    </div>
+    <div class="info-pills">
+        <span class="info-pill"><strong>Type:</strong> <span class="type-badge ${typeBadgeClass(p.type)}">${p.type.replace('_',' ')}</span></span>
+        <span class="info-pill"><strong>Vendor:</strong> ${detail.vendor}</span>
+        <span class="info-pill"><strong>PO:</strong> ${detail.po}</span>
+        <span class="info-pill"><strong>LoB:</strong> ${detail.lob}</span>
+    </div>
+    <div class="tab-bar">
+        <div class="tab-item ${currentTab==='process'?'active':''}" onclick="switchTab('process')">Process Track</div>
+        <div class="tab-item ${currentTab==='execution'?'active':''}" onclick="switchTab('execution')">Execution Track</div>
+        <div class="tab-item ${currentTab==='dependencies'?'active':''}" onclick="switchTab('dependencies')">Dependencies</div>
+        <div class="tab-item ${currentTab==='budget'?'active':''}" onclick="switchTab('budget')">Budget</div>
+    </div>
+    <div id="tab-process" style="display:${currentTab==='process'?'block':'none'}">
+        <div class="card">
+            <h3>Process Stage Progress</h3>
+            <p class="subtitle">Current Stage: <strong>${detail.stages[detail.stageStatus.indexOf('current')]}</strong></p>
+            <div class="stepper-track">${stepperHTML}</div>
+        </div>
+    </div>
+    <div id="tab-execution" style="display:${currentTab==='execution'?'block':'none'}">
+        <div class="card">
+            <h3>Gantt Timeline</h3>
+            <p class="subtitle">Jul 2026 - Oct 2026 &nbsp;|&nbsp; Bars color-coded by milestone RAG</p>
+            <div class="gantt-container">
+                <div class="gantt-chart">
+                    <div class="gantt-header">
+                        <div class="gantt-month">Jul</div><div class="gantt-month">Aug</div>
+                        <div class="gantt-month">Sep</div><div class="gantt-month">Oct</div>
+                    </div>
+                    ${ganttBars}
+                </div>
+            </div>
+            <div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:#666">
+                <span><span style="display:inline-block;width:12px;height:12px;background:#bbdefb;border-radius:2px;vertical-align:middle"></span> Planned</span>
+                <span><span style="display:inline-block;width:12px;height:12px;background:#66bb6a;border-radius:2px;vertical-align:middle"></span> Green</span>
+                <span><span style="display:inline-block;width:12px;height:12px;background:#ffc107;border-radius:2px;vertical-align:middle"></span> Yellow</span>
+                <span><span style="display:inline-block;width:12px;height:12px;background:#ef5350;border-radius:2px;vertical-align:middle"></span> Red</span>
+            </div>
+        </div>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h3>Milestone Details</h3>
+                <div style="display:flex;gap:8px">
+                    <button class="btn btn-secondary btn-sm" onclick="alert('Downloads this project execution plan as Excel: milestones, dates, slippage, dependencies')">📥 Download Plan</button>
+                    <button class="btn btn-secondary btn-sm" onclick="alert('Upload Excel/CSV with columns: Milestone Name, Vendor, Planned Start, Planned End')">📤 Bulk Import</button>
+                    <button class="btn btn-primary btn-sm" onclick="alert('Add Milestone modal — fields: Name, Vendor, Planned Start, Planned End')">+ Add Milestone</button>
+                </div>
+            </div>
+            <div style="background:#e8eaf6;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;font-size:12px;color:#1a237e">
+                <span>📊 <strong>Cumulative Slippage:</strong> +13 days</span>
+                <span style="color:#999">|</span>
+                <span><strong>Revised Target:</strong> 15 Sep 2026 (5 days fast-tracked)</span>
+            </div>
+            <div style="overflow-x:auto">
+            <table class="data-table">
+                <thead><tr><th>#</th><th>Milestone</th><th>Vendor</th><th>Planned Start</th><th>Planned End</th><th>Actual Start</th><th>Actual End</th><th>Slippage</th><th>RAG</th></tr></thead>
+                <tbody>${milestoneRows}${slippageSummaryRow}</tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    <div id="tab-dependencies" style="display:${currentTab==='dependencies'?'block':'none'}">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <h3>Project Dependencies</h3>
+                <button class="btn btn-primary btn-sm" onclick="alert('Add Dependency modal coming soon')">+ Add Dependency</button>
+            </div>
+            <p class="subtitle">Track external dependencies, blockers, and escalations for this project</p>
+            <div style="overflow-x:auto">
+            <table class="data-table">
+                <thead><tr><th>Dependency</th><th>Owner</th><th>Cutoff Date</th><th>Raised On</th><th>Status</th><th>Linked Milestone</th><th>Actions</th></tr></thead>
+                <tbody>${depRows}</tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    <div id="tab-budget" style="display:${currentTab==='budget'?'block':'none'}">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <h3>Budget Tracker</h3>
+                <button class="btn btn-primary btn-sm" onclick="alert('Edit Budget modal — update amounts')">✏️ Edit Budget</button>
+            </div>
+            <div class="metrics-grid" style="grid-template-columns:repeat(5,1fr)">
+                <div class="metric-card"><h4>Internal Estimate</h4><div class="value" style="font-size:18px">₹18.5L</div><div class="sub">TVS team estimate</div></div>
+                <div class="metric-card"><h4>Approved Budget</h4><div class="value" style="font-size:18px">₹22.0L</div><div class="sub">Sanctioned amount</div></div>
+                <div class="metric-card"><h4>Vendor Proposal</h4><div class="value" style="font-size:18px">₹24.5L</div><div class="sub">SOW cost</div></div>
+                <div class="metric-card yellow"><h4>Exhausted</h4><div class="value" style="font-size:18px">₹17.8L</div><div class="sub">81% utilized</div></div>
+                <div class="metric-card green"><h4>Remaining</h4><div class="value" style="font-size:18px">₹4.2L</div><div class="sub">19% left</div></div>
+            </div>
+            <div style="margin-top:16px">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:4px">
+                    <span>Budget Utilization</span>
+                    <span style="font-weight:600;color:#f57f17">81% (At Risk)</span>
+                </div>
+                <div style="height:10px;background:#e0e0e0;border-radius:5px;overflow:hidden">
+                    <div style="height:100%;width:81%;background:linear-gradient(90deg,#4caf50 0%,#4caf50 60%,#ffc107 80%,#ffc107 100%);border-radius:5px"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:#999;margin-top:4px">
+                    <span>₹0</span>
+                    <span style="color:#f57f17">80% threshold</span>
+                    <span>₹22.0L</span>
+                </div>
+            </div>
+            <div style="margin-top:20px">
+                <h4 style="font-size:12px;color:#1a237e;margin-bottom:8px">Variance Analysis</h4>
+                <table class="data-table">
+                    <thead><tr><th>Metric</th><th>Amount</th><th>Notes</th></tr></thead>
+                    <tbody>
+                        <tr class="no-hover"><td>Vendor vs Internal Estimate</td><td style="color:#c62828;font-weight:600">+₹6.0L (+32%)</td><td>Vendor quoted higher than internal estimate</td></tr>
+                        <tr class="no-hover"><td>Vendor vs Approved Budget</td><td style="color:#c62828;font-weight:600">+₹2.5L (+11%)</td><td>Over budget allocation — needs CR approval</td></tr>
+                        <tr class="no-hover"><td>Burn Rate (avg/month)</td><td>₹5.9L/month</td><td>Based on 3 months of execution</td></tr>
+                        <tr class="no-hover"><td>Projected Total Spend</td><td style="color:#f57f17;font-weight:600">₹23.6L</td><td>At current burn rate — 7% over budget</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>`;
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    const processEl = document.getElementById('tab-process');
+    const executionEl = document.getElementById('tab-execution');
+    const depsEl = document.getElementById('tab-dependencies');
+    const budgetEl = document.getElementById('tab-budget');
+    if(processEl) processEl.style.display = tab==='process' ? 'block' : 'none';
+    if(executionEl) executionEl.style.display = tab==='execution' ? 'block' : 'none';
+    if(depsEl) depsEl.style.display = tab==='dependencies' ? 'block' : 'none';
+    if(budgetEl) budgetEl.style.display = tab==='budget' ? 'block' : 'none';
+    document.querySelectorAll('.tab-item').forEach((t,i) => {
+        t.classList.remove('active');
+        if((tab==='process' && i===0) || (tab==='execution' && i===1) || (tab==='dependencies' && i===2) || (tab==='budget' && i===3)) {
+            t.classList.add('active');
+        }
+    });
+}
+
+// ==================== NAVIGATION ====================
+function navigateTo(view) {
+    currentView = view;
+    currentTab = 'process';
+    render();
+}
+
+// ==================== MODAL ====================
+function openModal() {
+    document.getElementById('ragModalTitle').textContent = 'Update Project RAG Status';
+    document.getElementById('ragModal').classList.add('show');
+}
+
+function openMilestoneRAG(milestoneName) {
+    document.getElementById('ragModalTitle').textContent = 'Update RAG: ' + milestoneName;
+    document.getElementById('ragModal').classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('ragModal').classList.remove('show');
+    document.getElementById('condFields').classList.remove('show');
+    document.querySelectorAll('input[name=rag]').forEach(r=>r.checked=false);
+}
+
+function closeModalOutside(e) {
+    if(e.target===document.getElementById('ragModal')) closeModal();
+}
+
+function toggleConditional() {
+    const val = document.querySelector('input[name=rag]:checked').value;
+    const fields = document.getElementById('condFields');
+    if(val==='yellow'||val==='red') { fields.classList.add('show'); }
+    else { fields.classList.remove('show'); }
+}
+
+// ==================== BU SWITCHER ====================
+function switchBU(btn, bu) {
+    activeBU = bu;
+    render();
+}
+
+// ==================== INIT ====================
+render();
+</script>
+</body>
+</html>

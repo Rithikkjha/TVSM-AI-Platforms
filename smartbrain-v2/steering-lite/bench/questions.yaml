@@ -1,0 +1,189 @@
+# SWE Bench — Evaluation Questions for MCP Servers
+#
+# Tests both "Full Brain" (Neo4j + Qdrant + LLM) and "Steering Lite" (file-only)
+# Each question has a difficulty level and expected answer criteria.
+
+questions:
+  # --- EASY: Direct lookup (should work for both) ---
+  - id: easy_01
+    question: "What tech stack does booking-crud-services use?"
+    difficulty: easy
+    category: tech_lookup
+    expected_keywords: ["NestJS", "TypeScript", "MongoDB", "Azure Service Bus"]
+
+  - id: easy_02
+    question: "What language is tvsm-auth written in?"
+    difficulty: easy
+    category: tech_lookup
+    expected_keywords: ["Java", "Spring Boot"]
+
+  - id: easy_03
+    question: "What database does notification-service use?"
+    difficulty: easy
+    category: tech_lookup
+    expected_keywords: ["MongoDB", "CosmosDB", "database"]
+
+  - id: easy_04
+    question: "What are the API endpoints of booking-crud-services?"
+    difficulty: easy
+    category: api_lookup
+    expected_keywords: ["/bookings", "POST", "GET", "PUT"]
+
+  - id: easy_05
+    question: "Who are the recent contributors to tvsm-otp-service?"
+    difficulty: easy
+    category: ownership
+    expected_keywords: ["contributor", "author"]
+
+  # --- MEDIUM: Cross-service / discovery ---
+  - id: medium_01
+    question: "Which services handle payment processing?"
+    difficulty: medium
+    category: discovery
+    expected_keywords: ["PaymentService", "payment"]
+
+  - id: medium_02
+    question: "What services are involved in the booking flow?"
+    difficulty: medium
+    category: discovery
+    expected_keywords: ["booking-crud-services", "appointment-booking-service"]
+
+  - id: medium_03
+    question: "Which services use Azure Service Bus?"
+    difficulty: medium
+    category: discovery
+    expected_keywords: ["Service Bus", "topic", "publish", "subscribe"]
+
+  - id: medium_04
+    question: "What services does booking-crud-services depend on?"
+    difficulty: medium
+    category: dependencies
+    expected_keywords: ["tvsm-auth", "notification", "payment"]
+
+  - id: medium_05
+    question: "Which services are built with NestJS?"
+    difficulty: medium
+    category: tech_filter
+    expected_keywords: ["NestJS", "nest"]
+
+  - id: medium_06
+    question: "What Confluence documentation exists about the booking service?"
+    difficulty: medium
+    category: docs
+    expected_keywords: ["Confluence", "documentation", "booking"]
+
+  - id: medium_07
+    question: "What environment variables does tvsm-auth require?"
+    difficulty: medium
+    category: config
+    expected_keywords: ["env", "variable", "config"]
+
+  - id: medium_08
+    question: "List all services that expose REST APIs"
+    difficulty: medium
+    category: api_lookup
+    expected_keywords: ["endpoint", "API", "GET", "POST"]
+
+  - id: medium_09
+    question: "Which services publish events to Service Bus topics?"
+    difficulty: medium
+    category: service_bus
+    expected_keywords: ["publish", "topic", "Service Bus"]
+
+  - id: medium_10
+    question: "What frontend applications exist in our system?"
+    difficulty: medium
+    category: discovery
+    expected_keywords: ["frontend", "portal", "UI"]
+
+  # --- HARD: Dependency chains / blast radius / architecture ---
+  - id: hard_01
+    question: "If tvsm-auth goes down, what services would be affected?"
+    difficulty: hard
+    category: blast_radius
+    expected_keywords: ["depends", "affected", "booking", "notification"]
+
+  - id: hard_02
+    question: "What is the complete message flow when a booking is created?"
+    difficulty: hard
+    category: architecture
+    expected_keywords: ["booking-created", "Service Bus", "notification", "event"]
+
+  - id: hard_03
+    question: "Which services would need to be updated if we change the payment API contract?"
+    difficulty: hard
+    category: blast_radius
+    expected_keywords: ["PaymentService", "booking", "depends"]
+
+  - id: hard_04
+    question: "Design an architecture for a new vehicle service reminder system that integrates with our existing services"
+    difficulty: hard
+    category: architecture_design
+    expected_keywords: ["booking", "notification", "auth", "appointment"]
+
+  - id: hard_05
+    question: "What are all the services that both publish AND subscribe to Service Bus topics?"
+    difficulty: hard
+    category: service_bus
+    expected_keywords: ["publish", "subscribe", "topic"]
+
+  - id: hard_06
+    question: "If we need to migrate from MongoDB to PostgreSQL, which services would be affected?"
+    difficulty: hard
+    category: blast_radius
+    expected_keywords: ["MongoDB", "database", "booking"]
+
+  - id: hard_07
+    question: "What's the authentication flow from a user request to the booking service?"
+    difficulty: hard
+    category: architecture
+    expected_keywords: ["tvsm-auth", "JWT", "token", "middleware"]
+
+  - id: hard_08
+    question: "Which services share common dependencies or libraries?"
+    difficulty: hard
+    category: dependencies
+    expected_keywords: ["shared", "common", "dependency"]
+
+  - id: hard_09
+    question: "What is the notification delivery chain from booking creation to SMS delivery?"
+    difficulty: hard
+    category: architecture
+    expected_keywords: ["booking", "notification-service", "notification-dispatcher", "SMS"]
+
+  - id: hard_10
+    question: "Identify single points of failure in our microservice architecture"
+    difficulty: hard
+    category: architecture
+    expected_keywords: ["tvsm-auth", "single point", "dependency", "critical"]
+
+  # --- EXPERT: Multi-hop reasoning ---
+  - id: expert_01
+    question: "If Azure Service Bus goes down, which end-user features would stop working and why?"
+    difficulty: expert
+    category: blast_radius
+    expected_keywords: ["booking", "notification", "payment", "event", "async"]
+
+  - id: expert_02
+    question: "Compare the architecture patterns used across our Java services vs Node.js services"
+    difficulty: expert
+    category: architecture
+    expected_keywords: ["Spring Boot", "NestJS", "pattern", "architecture"]
+
+  - id: expert_03
+    question: "What would be the safest deployment order if we need to update the auth token format across all services?"
+    difficulty: expert
+    category: deployment
+    expected_keywords: ["tvsm-auth", "dependency", "order", "deploy"]
+
+  - id: expert_04
+    question: "Map out the complete data flow for a vehicle booking from frontend to all backend services and databases"
+    difficulty: expert
+    category: architecture
+    expected_keywords: ["frontend", "booking", "database", "auth", "payment", "notification"]
+
+  - id: expert_05
+    question: "Which teams should be in a war room if the booking system is completely down?"
+    difficulty: expert
+    category: ownership
+    expected_keywords: ["team", "owner", "booking", "auth", "payment"]

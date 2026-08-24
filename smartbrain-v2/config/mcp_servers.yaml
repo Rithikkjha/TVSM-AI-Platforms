@@ -1,0 +1,89 @@
+# MCP server registry for the Engineering Memory Graph.
+# Loaded at startup by the MCP_Orchestrator.
+# Secrets are NOT stored here — *_env fields name environment variables.
+
+servers:
+  - name: github
+    type: "@modelcontextprotocol/server-github"
+    config:
+      org: "TVSM-CS"
+      repos:
+        - "tvsmbe-location"
+        - "location-frontend"
+        - "master-data-platform"
+        - "TVS-CPS-PORTAL"
+        - "Parts-Catalogue-Service"
+        - "TVS-CPS-DB-MIGRATION"
+        - "TVS-CPS-BACKEND"
+        - "TVS-CPS-JOB-CARD-SERVICE"
+        - "appointment-booking-service"
+        - "job-card-service"
+        - "cbs-admin-portal"
+        - "booking-crud-services"
+        - "qrcode-frontend"
+        - "tvsmbe-qrcode"
+        - "TVS-CPS-INVENTORY"
+        - "tvsmbe-mdp-bff"
+        - "TVS-CPS-BE-BASE-FRAMEWORK"
+        - "TVS-CPS-BILLING"
+        - "master-data-platform-frontend"
+        - "async-communication-service"
+        - "Core-Commerce-Platform-API-Service-Testng"
+        - "TVS-CPS-JOBS"
+        - "PaymentService"
+        - "TVS-CPS-CUSTOMER"
+        - "tvsm-auth"
+        - "tvsm-marketplace-service"
+        - "Core-Commerce-Platform-API-Service"
+        - "notification-service"
+        - "Lead-Booking-Crud-Services-Testing"
+        - "notification-dispatcher-service"
+        - "Parts-Catalogue-Ingestion-Service"
+        - "Payment-Service"
+        - "tvsm-otp-service"
+        - "Catalog-Scheduler"
+        - "Price-Engine-MicroService-Backend"
+        - "Catalog-Microservice-Backend-for-Frontend-Layer"
+        - "tvsm-securesigner-service"
+        - "FormBuilder"
+        - "Price-Microservice-Backend-for-Frontend-Layer"
+        - "TVS-CPS-FE-BASE-FRAMEWORK"
+        - "BS2.0Backend_Integration"
+        - "CLAIM-SERVICE"
+        - "AUDIT-SERVICE"
+        - "bto_api"
+        - "Price-Engine-Frontend"
+        - "tvsm-location-FE"
+      token_env: "GITHUB_TOKEN"
+
+  - name: jira
+    type: "mcp-atlassian"
+    config:
+      instance: "tvsmotorcompany.atlassian.net"
+      projects:
+        - "CCP7"
+        - "CCP4"
+        - "CCP2"
+        - "CCP10"
+        - "CCP1"
+        - "CBS6"
+        - "CBS5"
+        - "CBS4"
+        - "CBS3"
+        - "CBS1"
+        - "CBS02"
+      token_env: "JIRA_TOKEN"
+      email_env: "JIRA_EMAIL"
+
+  - name: confluence
+    type: "mcp-atlassian"
+    config:
+      instance: "tvsmotorcompany.atlassian.net"
+      spaces:
+        - "CCP"
+        - "CM"
+      # DA space: only sub-pages under "Common Backend Engineering" (page ID 3028647986)
+      restricted_spaces:
+        - space_key: "DA"
+          parent_page_id: "3028647986"
+      token_env: "CONFLUENCE_TOKEN"

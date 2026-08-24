@@ -1,0 +1,191 @@
+[
+  {
+    "name": "Document Metadata (Status, Owner, BRD sign-off, EM, TA, BU)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "MP name/description (Managing Point)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "CP name/description (Checkpoint)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Problem Definition - Problem Statement",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Problem Definition - Business Impact",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Product Objective",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "User Personas",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Customer Journey Summary (Current vs Proposed flow with diagrams)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Assumptions Made",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Platform Capability Check (Reuse vs New)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "System Interaction Overview",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Functional Requirements (UC#, Change Type E/M/N/D, User Stories, Channel, Acceptance Criteria, Priority P0/P1/P2)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Edge Cases and Exception Handling",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Out of Scope",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Non-Functional Requirements (Scale, Performance, Reliability, Security - SAST/DAST/VAPT/OWASP)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Dependencies (Upstream/Downstream services, PO alignment, Budget)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Release Scope / Rollout Plan (Phases)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Success Criteria (Quantifiable metrics)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Metrics/Dashboard Required (Data Engineering, Data Governance)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Next Phases Planned",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "UI/UX Design (Screenshots, Figma links, Screen Inventory per platform)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Screen / Page Inventory (List all screens per Web/App with purpose)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Data Model / Entity Overview (High-level entities, relationships)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Privacy & Data Compliance (DPDP, consent, PII handling, data retention)",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "AI/GenAI Use Cases Planned",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Open Questions",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  },
+  {
+    "name": "Appendix / Glossary",
+    "level": 1,
+    "has_table": false,
+    "expected_content": "",
+    "table_columns": []
+  }
+]

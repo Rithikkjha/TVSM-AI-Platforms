@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Update Architecture Docs",
+  "description": "After completing a task, reminds the agent to update ARCHITECTURE.md and relevant spec files to reflect any new services, endpoints, or design changes.",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Check if the completed task introduced new services, API endpoints, config changes, or architectural decisions. If so, update ARCHITECTURE.md and the relevant spec files in .kiro/specs/ to reflect the current state. Keep docs concise and accurate."
+  }
+}

@@ -1,0 +1,57 @@
+# =============================================================================
+# GitHub Action: Auto-update Engineering Knowledge Graph
+# =============================================================================
+# Add this file to any repo as .github/workflows/update-knowledge.yml
+# When a PR merges to main that touches meaningful files, it triggers
+# the tvsm-brain steering updater to patch the knowledge graph.
+#
+# Prerequisites:
+#   - BRAIN_API_URL secret: URL of the tvsm-brain API (e.g. http://tvsm-brain:8000)
+#   - BRAIN_API_KEY secret: API key for the webhook endpoint
+# =============================================================================
+
+name: Update Engineering Knowledge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  update-knowledge:
+    # Only run if PR was actually merged (not just closed)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if meaningful files changed
+        id: check-files
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            meaningful:
+              - 'src/**'
+              - 'package.json'
+              - 'pom.xml'
+              - 'build.gradle'
+              - 'Dockerfile'
+              - '.env.example'
+              - 'application.yml'
+              - 'application.properties'
+              - 'appsettings.json'
+              - 'web.config'
+              - '*.csproj'
+              - 'pyproject.toml'
+              - 'requirements.txt'
+
+      - name: Trigger steering update
+        if: steps.check-files.outputs.meaningful == 'true'
+        run: |
+          curl -X POST "${{ secrets.BRAIN_API_URL }}/webhooks/steering-update" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${{ secrets.BRAIN_API_KEY }}" \
+            -d '{
+              "org": "${{ github.repository_owner }}",
+              "repo": "${{ github.event.repository.name }}",
+              "pr_number": ${{ github.event.pull_request.number }}
+            }'

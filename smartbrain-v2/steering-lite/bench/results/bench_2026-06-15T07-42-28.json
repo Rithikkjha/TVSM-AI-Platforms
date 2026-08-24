@@ -1,0 +1,682 @@
+[
+  {
+    "id": "hard_01",
+    "question": "If tvsm-auth goes down, what services would be affected?",
+    "difficulty": "hard",
+    "category": "blast_radius",
+    "brain": {
+      "answer": "If the `tvsm-auth` service goes down, the following services would be affected due to their dependencies on `tvsm-auth` for authentication and authorization functionalities:\n\n### Affected Services\n1. **tvsm-otp-service**\n   - This service likely relies on `tvsm-auth` for user authentication and possibly for generating or validating OTPs.\n\n2. **tvsm-marketplace-service**\n   - This service may depend on `tvsm-auth` for user authentication to access marketplace functionalities.\n\n3. **tvsm-securesig",
+      "time": 58.7,
+      "error": null,
+      "score": 0.25,
+      "matched": [
+        "affected"
+      ],
+      "missed": [
+        "depends",
+        "booking",
+        "notification"
+      ]
+    },
+    "brain_lite": {
+      "answer": "If the `tvsm-auth` service goes down, the following services would be affected:\n\n1. **Catalog-Microservice-Backend-for-Frontend-Layer**\n   - **Hops**: 1\n   - This service is directly dependent on `tvsm-auth`.\n\n2. **CLAIM-SERVICE**\n   - **Hops**: 2\n   - This service is indirectly dependent on `tvsm-auth`, meaning it relies on another service that depends on `tvsm-auth`.\n\n3. **Price-Engine-MicroService-Backend**\n   - **Hops**: 2\n   - Similar to the CLAIM-SERVICE, this service is also indirectly de",
+      "time": 7.33,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "depends",
+        "affected"
+      ],
+      "missed": [
+        "booking",
+        "notification"
+      ]
+    },
+    "lite": {
+      "answer": "If the `tvsm-auth` service goes down, the following services would be affected due to their dependencies on `tvsm-auth`:\n\n1. **FormBuilder** - This service has a high dependency on `tvsm-auth`, with 7 incoming dependencies. Any functionality that requires authentication or authorization checks would likely fail.\n\n2. **tvsm-marketplace-service** - This service depends on `tvsm-auth` for authentication and possibly for user-related operations. With 6 incoming dependencies, its ability to process r",
+      "time": 4.22,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "depends",
+        "affected",
+        "notification"
+      ],
+      "missed": [
+        "booking"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 4,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 3
+      },
+      "lite": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 4
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a comprehensive and accurate assessment of the services affected by the `tvsm-auth` downtime, detailing both direct and indirect impacts. It also explains the implications for user authentication and API access, making it highly useful. Answers B and C, while accurate, lack the depth and clarity of A, particularly in terms of completeness and specificity regarding the impact on functionalities."
+    }
+  },
+  {
+    "id": "hard_02",
+    "question": "What is the complete message flow when a booking is created?",
+    "difficulty": "hard",
+    "category": "architecture",
+    "brain": {
+      "answer": "The complete message flow when a booking is created in the Booking CRUD Services involves several steps and interactions between different components of the system. Here\u2019s a detailed breakdown of the process:\n\n### 1. Booking Creation Request\n- A booking request is initiated either online (via EV/ICE website) or offline (via dealer using EMS/DMS).\n- The request is processed by the **Booking Factory Service**, which routes it to the appropriate service based on the booking type.\n\n### 2. Data Valid",
+      "time": 16.41,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "Service Bus",
+        "notification",
+        "event"
+      ],
+      "missed": [
+        "booking-created"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The provided context does not contain specific information about the message flow for creating a booking in a microservices architecture. To provide a detailed and specific answer, I would need additional context regarding the services involved in the booking process, their endpoints, and the technologies used.\n\nTypically, in a microservices architecture, the message flow for creating a booking might involve several services such as:\n\n1. **Booking Service**: This service would handle the creatio",
+      "time": 6.31,
+      "error": null,
+      "score": 0.25,
+      "matched": [
+        "notification"
+      ],
+      "missed": [
+        "booking-created",
+        "Service Bus",
+        "event"
+      ]
+    },
+    "lite": {
+      "answer": "The context provided does not explicitly detail the complete message flow for a booking creation process. However, based on the service dependencies and the roles of the services mentioned, we can infer a potential flow for creating a booking. \n\n### Inferred Message Flow for Booking Creation\n\n1. **Client Request**: A client (e.g., a web or mobile application) sends a request to the **tvsm-marketplace-service** to create a booking. This request typically includes details such as user information,",
+      "time": 8.68,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "Service Bus",
+        "notification"
+      ],
+      "missed": [
+        "booking-created",
+        "event"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 3
+      },
+      "lite": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 4
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a detailed and structured breakdown of the complete message flow for booking creation, covering all necessary steps and interactions with specific services. In contrast, Answers B and C lack the same level of detail and specificity, making them less useful for understanding the complete process. While C is more detailed than B, it still does not match the thoroughness of A."
+    }
+  },
+  {
+    "id": "hard_03",
+    "question": "Which services would need to be updated if we change the payment API contract?",
+    "difficulty": "hard",
+    "category": "blast_radius",
+    "brain": {
+      "answer": "If the payment API contract is changed, the following services and tasks would need to be updated based on the provided context:\n\n### Relevant Jira Tickets\n1. **Understand code base, Update API changes if any changes in payload to update payment**\n   - **Key**: CCP10-26\n   - **Status**: Done\n   - **Updated At**: 2026-05-12\n   - This task indicates that the code base should be understood and updated if there are any changes in the payment API payload.\n\n2. **Make changes in Payment's check status ",
+      "time": 7.8,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "PaymentService",
+        "booking",
+        "depends"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The provided context does not contain specific information about services related to a payment API or any details about their endpoints, technologies, or how they interact with other services. Therefore, I cannot determine which services would need to be updated if the payment API contract changes. \n\nIn a typical microservices architecture, you would generally need to consider the following services that might be affected by a change in the payment API contract:\n\n1. **Payment Service**: This ser",
+      "time": 6.24,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "PaymentService",
+        "booking",
+        "depends"
+      ]
+    },
+    "lite": {
+      "answer": "If the payment API contract is changed, the services that would need to be updated are those that directly depend on the PaymentService. Based on the provided context, the only service that has a direct dependency on the PaymentService is:\n\n- **tvsm-auth**: This service has a dependency on the PaymentService as indicated in the Service Bus Topology section.\n\nSince tvsm-auth is the only service listed that interacts with the PaymentService, it would need to be updated to accommodate any changes i",
+      "time": 3.31,
+      "error": null,
+      "score": 0.33,
+      "matched": [
+        "PaymentService"
+      ],
+      "missed": [
+        "booking",
+        "depends"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 4
+      },
+      "lite": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 3
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a detailed and specific list of services and tasks that need to be updated, along with relevant Jira tickets and GitHub pull requests, making it highly accurate and useful. Answer B offers a general overview of potential services that could be affected but lacks specific context, while Answer C identifies only one service and does not consider other potential dependencies, making it the least comprehensive."
+    }
+  },
+  {
+    "id": "hard_04",
+    "question": "Design an architecture for a new vehicle service reminder system that integrates with our existing services",
+    "difficulty": "hard",
+    "category": "architecture_design",
+    "brain": {
+      "answer": "To design an architecture for a new vehicle service reminder system that integrates with existing services, we can leverage the information from the provided context. Here\u2019s a detailed architecture proposal:\n\n## Architecture Overview\n\nThe vehicle service reminder system will be designed to send notifications to customers regarding their vehicle service schedules. It will integrate with existing services such as the **Catalog Service**, **Location Service**, and the **Customer Notification Servic",
+      "time": 10.76,
+      "error": null,
+      "score": 0.25,
+      "matched": [
+        "notification"
+      ],
+      "missed": [
+        "booking",
+        "auth",
+        "appointment"
+      ]
+    },
+    "brain_lite": {
+      "answer": "To design a vehicle service reminder system that integrates with existing services, we can leverage microservices architecture. Below is a detailed architecture proposal that outlines the components, services, endpoints, and technologies involved.\n\n### Architecture Overview\n\n1. **Microservices Components**:\n   - **Vehicle Service Reminder Service**: This service will handle the logic for scheduling and sending reminders for vehicle services.\n   - **User Management Service**: This service manages",
+      "time": 7.88,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "notification",
+        "auth"
+      ],
+      "missed": [
+        "booking",
+        "appointment"
+      ]
+    },
+    "lite": {
+      "answer": "To design a vehicle service reminder system that integrates with the existing services outlined in the provided context, we will create a microservice architecture that leverages the existing services while ensuring scalability, maintainability, and efficient communication. Below is a detailed architecture proposal:\n\n### Architecture Overview\n\n1. **Vehicle Service Reminder Service (VSRService)**\n   - This will be the core service responsible for managing vehicle service reminders.\n   - **Endpoin",
+      "time": 10.41,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "booking",
+        "notification",
+        "auth"
+      ],
+      "missed": [
+        "appointment"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 4,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 4
+      },
+      "lite": {
+        "accuracy": 4,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 4
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a comprehensive and accurate architecture proposal with clear integration points and detailed component descriptions. It excels in completeness and usefulness, making it the most effective response. While Answers B and C are also strong, they lack the same level of detail and integration clarity found in Answer A."
+    }
+  },
+  {
+    "id": "hard_05",
+    "question": "What are all the services that both publish AND subscribe to Service Bus topics?",
+    "difficulty": "hard",
+    "category": "service_bus",
+    "brain": {
+      "answer": "Based on the provided context, the following services are identified as both publishing to and subscribing from Service Bus topics:\n\n### 1. **Marketplace Service**\n- **Role**: Subscribes to Booking Updates\n- **Details**:\n  - The Booking Service publishes booking updates to the Service Bus.\n  - The Marketplace Service subscribes to these updates.\n  - Upon receiving a booking update, it updates its database with the latest booking details.\n  - It includes mechanisms to retry processing if it fails",
+      "time": 5.23,
+      "error": null,
+      "score": 1.0,
+      "matched": [
+        "publish",
+        "subscribe",
+        "topic"
+      ],
+      "missed": []
+    },
+    "brain_lite": {
+      "answer": "The provided context does not contain specific information about services that publish and subscribe to Service Bus topics. Therefore, I cannot provide details about those services, their names, endpoints, or technologies. If you have additional context or details, please share them for a more accurate response.",
+      "time": 4.71,
+      "error": null,
+      "score": 1.0,
+      "matched": [
+        "publish",
+        "subscribe",
+        "topic"
+      ],
+      "missed": []
+    },
+    "lite": {
+      "answer": "Based on the provided context, there are no services explicitly mentioned that both publish and subscribe to Service Bus topics. The only service listed is `tvsm-auth`, which is a publisher for multiple topics but does not have any subscribers indicated. Therefore, it appears that there are no services that fulfill the criteria of both publishing and subscribing to Service Bus topics in the provided documentation.",
+      "time": 5.43,
+      "error": null,
+      "score": 1.0,
+      "matched": [
+        "publish",
+        "subscribe",
+        "topic"
+      ],
+      "missed": []
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 4,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 2,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "lite": {
+        "accuracy": 3,
+        "completeness": 2,
+        "specificity": 2,
+        "usefulness": 2
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a clear identification of a service that both publishes and subscribes to Service Bus topics, along with detailed context and a relevant ticket link. In contrast, Answers B and C lack specific information and do not identify any services that meet the criteria, making them less useful and complete."
+    }
+  },
+  {
+    "id": "hard_06",
+    "question": "If we need to migrate from MongoDB to PostgreSQL, which services would be affected?",
+    "difficulty": "hard",
+    "category": "blast_radius",
+    "brain": {
+      "answer": "To determine which services would be affected by a migration from MongoDB to PostgreSQL, we can analyze the context provided. The relevant entities indicate that MongoDB is currently being utilized for notification services and certain tables have already been migrated from MySQL to MongoDB.\n\n### Affected Services\n\n1. **Notification Services**\n   - The service that utilizes MongoDB for notifications is directly impacted. The following tickets indicate the use of MongoDB for notification services",
+      "time": 7.5,
+      "error": null,
+      "score": 0.67,
+      "matched": [
+        "MongoDB",
+        "database"
+      ],
+      "missed": [
+        "booking"
+      ]
+    },
+    "brain_lite": {
+      "answer": "Based on the provided context, the service \"TVS-CPS-DB-MIGRATION\" does not have any upstream or downstream dependencies listed. Therefore, it appears that there are no other services directly affected by the migration from MongoDB to PostgreSQL.\n\nHowever, in a typical microservices architecture, if \"TVS-CPS-DB-MIGRATION\" interacts with other services that rely on MongoDB, those services would need to be assessed for impact. Since the context does not provide any specific services that depend on ",
+      "time": 5.35,
+      "error": null,
+      "score": 0.33,
+      "matched": [
+        "MongoDB"
+      ],
+      "missed": [
+        "database",
+        "booking"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not specify any direct dependencies on MongoDB or PostgreSQL for the services listed. Therefore, it is unclear which specific services would be affected by a migration from MongoDB to PostgreSQL based solely on the information given.\n\nHowever, typically, services that directly interact with the database would need to be reviewed for potential impact. In a microservices architecture, this could include:\n\n1. **tvsm-marketplace-service**: If this service uses MongoDB for d",
+      "time": 3.28,
+      "error": null,
+      "score": 0.67,
+      "matched": [
+        "MongoDB",
+        "database"
+      ],
+      "missed": [
+        "booking"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 2,
+        "completeness": 2,
+        "specificity": 2,
+        "usefulness": 2
+      },
+      "lite": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 3
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a thorough analysis of the affected services, specifically identifying the notification services and their dependencies on MongoDB, which is crucial for understanding the impact of the migration. In contrast, Answers B and C lack specificity and do not identify any concrete affected services, making them less useful for decision-making in the migration process."
+    }
+  },
+  {
+    "id": "hard_07",
+    "question": "What's the authentication flow from a user request to the booking service?",
+    "difficulty": "hard",
+    "category": "architecture",
+    "brain": {
+      "answer": "The authentication flow for a user request to the booking service involves several key components and steps, as outlined in the provided context. Here\u2019s a detailed breakdown:\n\n### Authentication and Authorization Overview\n\n1. **User Request Initiation**:\n   - The user initiates a request to access booking details or perform actions such as booking verification, cancellation, or downloading documents.\n\n2. **Authentication and Authorization Ticket**:\n   - The ticket titled **\"Authentication and Au",
+      "time": 9.55,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "JWT",
+        "token",
+        "middleware"
+      ],
+      "missed": [
+        "tvsm-auth"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The context provided does not include specific details about the authentication flow for a user request to the booking service. However, I can outline a typical authentication flow that might be used in a microservices architecture involving a booking service.\n\n### Typical Authentication Flow for a Booking Service\n\n1. **User Login Request**:\n   - The user initiates a login request by sending their credentials (username and password) to the **Authentication Service**.\n   - **Endpoint**: `POST /ap",
+      "time": 6.2,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "JWT",
+        "token"
+      ],
+      "missed": [
+        "tvsm-auth",
+        "middleware"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not explicitly detail the authentication flow from a user request to the booking service. However, we can infer some aspects based on the services mentioned, particularly the `tvsm-auth` service, which appears to handle authentication and has multiple dependencies.\n\nHere\u2019s a potential flow based on typical microservices architecture and the information available:\n\n1. **User Request Initiation**: The user initiates a request to the booking service (let's assume this is a",
+      "time": 5.62,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "tvsm-auth",
+        "JWT",
+        "token"
+      ],
+      "missed": [
+        "middleware"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 2,
+        "usefulness": 3
+      },
+      "brain_lite": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 4
+      },
+      "lite": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 3
+      },
+      "winner": "Brain-Lite",
+      "reasoning": "Answer B provides a clear and structured outline of a typical authentication flow, including specific endpoints and token generation details, making it the most accurate and useful. Answer A lacks implementation details and is incomplete, while Answer C offers a reasonable flow but is less specific and detailed than Answer B."
+    }
+  },
+  {
+    "id": "hard_08",
+    "question": "Which services share common dependencies or libraries?",
+    "difficulty": "hard",
+    "category": "dependencies",
+    "brain": {
+      "answer": "The following services share common dependencies or libraries within the Parts Catalogue Service:\n\n### Common Dependencies\n\n1. **NebulaGraph**:\n   - Used by:\n     - `NebulaGraphRepository` (for graph database operations)\n     - `HierarchyService` (for fetching hierarchy data)\n     - `PartRepository` (for part lookups)\n     - `PriceRepository` (for price lookups)\n     - `WarrantyRepository` (for warranty lookups)\n\n2. **OpenSearch**:\n   - Used by:\n     - `OpenSearchRepository` (for search operatio",
+      "time": 5.97,
+      "error": null,
+      "score": 1.0,
+      "matched": [
+        "shared",
+        "common",
+        "dependency"
+      ],
+      "missed": []
+    },
+    "brain_lite": {
+      "answer": "The provided context does not contain specific information about services, their dependencies, or libraries. Therefore, I cannot determine which services share common dependencies or libraries based on the given data. If you have additional context or details about the services in question, please provide that for a more accurate response.",
+      "time": 3.45,
+      "error": null,
+      "score": 0.33,
+      "matched": [
+        "common"
+      ],
+      "missed": [
+        "shared",
+        "dependency"
+      ]
+    },
+    "lite": {
+      "answer": "Based on the provided context, the services that share common dependencies or libraries are not explicitly listed. However, we can infer some potential shared dependencies based on the services mentioned and their functionalities.\n\n1. **tvsm-marketplace-service**:\n   - This service utilizes several libraries for various functionalities:\n     - **Guava**: Used for batch processing with `ImmutableSet` and `Lists.partition()`.\n     - **Jackson + Joda/JSR-310**: For JSON serialization, particularly ",
+      "time": 6.76,
+      "error": null,
+      "score": 1.0,
+      "matched": [
+        "shared",
+        "common",
+        "dependency"
+      ],
+      "missed": []
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "lite": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 3
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a detailed and accurate breakdown of the services and their shared dependencies, making it highly useful for understanding the architecture. Answer B fails to provide any relevant information, while Answer C offers some insights but lacks the specificity and completeness found in Answer A."
+    }
+  },
+  {
+    "id": "hard_09",
+    "question": "What is the notification delivery chain from booking creation to SMS delivery?",
+    "difficulty": "hard",
+    "category": "architecture",
+    "brain": {
+      "answer": "The notification delivery chain from booking creation to SMS delivery involves several steps and components within the **Async Communication Service**. Here\u2019s a detailed breakdown of the process:\n\n### 1. Booking Creation\n- When a booking is created in the **DMS (Dealer Management System)**, the system triggers events that include the booking ID and customer ID.\n\n### 2. Event Triggering\n- The booking creation event is processed, and the relevant information is sent to the **Azure Service Bus**. T",
+      "time": 9.17,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "booking",
+        "SMS"
+      ],
+      "missed": [
+        "notification-service",
+        "notification-dispatcher"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The context provided does not contain specific information about the notification delivery chain from booking creation to SMS delivery. Therefore, I cannot provide detailed service names, endpoints, or technologies related to that process. \n\nHowever, I can outline a typical notification delivery chain in a microservices architecture that could be used for such a scenario:\n\n1. **Booking Service**: This service handles the creation of bookings. When a booking is created, it triggers an event.\n   -",
+      "time": 6.04,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "booking",
+        "SMS"
+      ],
+      "missed": [
+        "notification-service",
+        "notification-dispatcher"
+      ]
+    },
+    "lite": {
+      "answer": "The context provided does not explicitly detail the notification delivery chain from booking creation to SMS delivery. However, we can infer some potential components based on the services and dependencies listed.\n\n1. **Booking Creation**: This would likely involve a service responsible for handling bookings, which is not explicitly mentioned in the context. This service would create a booking and trigger the notification process.\n\n2. **Notification Service**: The context mentions a \"Notificatio",
+      "time": 4.54,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "booking",
+        "SMS"
+      ],
+      "missed": [
+        "notification-service",
+        "notification-dispatcher"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 3,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 3
+      },
+      "lite": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 4
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a detailed and specific breakdown of the notification delivery chain, including service names, event handling, and technologies used, making it highly accurate and useful. Answer B offers a general outline but lacks specific details relevant to the context, while Answer C provides a reasonable inference but is less detailed than A."
+    }
+  },
+  {
+    "id": "hard_10",
+    "question": "Identify single points of failure in our microservice architecture",
+    "difficulty": "hard",
+    "category": "architecture",
+    "brain": {
+      "answer": "Based on the provided context, here are potential single points of failure in the microservice architecture of the TVS-CPS-BE-BASE-FRAMEWORK:\n\n### 1. **Database Dependency**\n- **PostgreSQL** is the primary data store for all tenant data, managed through **Spring Data JPA** and **HikariCP**. If the PostgreSQL database becomes unavailable, all microservices relying on it will fail to function properly, leading to a complete service outage.\n\n### 2. **Cloud Storage Dependency**\n- The architecture re",
+      "time": 8.75,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "single point",
+        "dependency",
+        "critical"
+      ],
+      "missed": [
+        "tvsm-auth"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The provided context does not contain specific details about the microservice architecture, such as the services involved, their interactions, or the technologies used. However, I can outline common single points of failure (SPOFs) that are typically found in microservice architectures, which you can then evaluate against your specific setup.\n\n1. **Database**: If all microservices rely on a single database instance, any downtime or failure of that database can lead to a complete service outage. ",
+      "time": 7.0,
+      "error": null,
+      "score": 0.25,
+      "matched": [
+        "single point"
+      ],
+      "missed": [
+        "tvsm-auth",
+        "dependency",
+        "critical"
+      ]
+    },
+    "lite": {
+      "answer": "In the provided context, we can identify several potential single points of failure (SPoFs) in the microservice architecture based on the service dependencies and the service bus topology. Here are the key observations:\n\n1. **tvsm-auth Service**:\n   - The `tvsm-auth` service is a critical component with the highest incoming dependencies count (8). It serves as a central authentication and authorization service for multiple other services, including `FormBuilder`, `tvsm-marketplace-service`, and ",
+      "time": 6.9,
+      "error": null,
+      "score": 1.0,
+      "matched": [
+        "tvsm-auth",
+        "single point",
+        "dependency",
+        "critical"
+      ],
+      "missed": []
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 4,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 4
+      },
+      "lite": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 4
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a detailed and specific analysis of potential single points of failure in the microservice architecture, directly referencing the components and technologies used. In contrast, Answers B and C offer more general insights and lack the same level of specificity and completeness regarding the architecture in question, making A the most useful and accurate response."
+    }
+  }
+]

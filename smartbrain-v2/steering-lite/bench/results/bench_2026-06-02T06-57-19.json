@@ -1,0 +1,331 @@
+[
+  {
+    "id": "easy_01",
+    "question": "What tech stack does booking-crud-services use?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "brain": {
+      "answer": "The **booking-crud-services** uses the following tech stack:\n\n| Layer               | Technology                               | Version     |\n|---------------------|------------------------------------------|-------------|\n| Runtime             | Node.js                                  | 25.9 (Alpine) |\n| Framework           | NestJS                                   | 11.x        |\n| Language            | TypeScript                               | 5.x         |\n| Database            | Microso",
+      "time": 8.58,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "NestJS",
+        "TypeScript",
+        "Azure Service Bus"
+      ],
+      "missed": [
+        "MongoDB"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The context does not provide specific details about the tech stack used by the `booking-crud-services`. It only mentions a document titled \"Tech Stack: booking-crud-services,\" which may contain that information, but the content of the document is not included in the provided context. Therefore, I cannot specify the tech stack for `booking-crud-services`.",
+      "time": 3.84,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "NestJS",
+        "TypeScript",
+        "MongoDB",
+        "Azure Service Bus"
+      ]
+    },
+    "lite": {
+      "answer": "The context does not provide specific information about the tech stack used by the \"Lead-Booking-Crud-Services-Testing\" service. It only mentions that it tests API functionality for Norton Motorcycles' booking lifecycle management. For detailed tech stack information, you would need to refer to the service documentation directly.",
+      "time": 603.23,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "NestJS",
+        "TypeScript",
+        "MongoDB",
+        "Azure Service Bus"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 2,
+        "completeness": 2,
+        "specificity": 2,
+        "usefulness": 2
+      },
+      "lite": {
+        "accuracy": 2,
+        "completeness": 2,
+        "specificity": 2,
+        "usefulness": 2
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a detailed and specific breakdown of the tech stack used by booking-crud-services, including versions and technologies for each layer, making it highly accurate and useful. In contrast, Answers B and C lack specific information about the tech stack and do not provide any useful details, resulting in lower scores across all categories."
+    }
+  },
+  {
+    "id": "easy_02",
+    "question": "What language is tvsm-auth written in?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "brain": {
+      "answer": "The `tvsm-auth` service is written in **Java** (version 17) as indicated in the tech stack summary (source_id: steering:tvsm-auth:tech).",
+      "time": 4.92,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "Java"
+      ],
+      "missed": [
+        "Spring Boot"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The provided context does not specify the programming language used for the `tvsm-auth` service. Therefore, I cannot provide that information.",
+      "time": 3.86,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "Java",
+        "Spring Boot"
+      ]
+    },
+    "lite": {
+      "answer": "The context provided does not specify the programming language used for the `tvsm-auth` service. Therefore, I cannot provide that information.",
+      "time": 2.11,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "Java",
+        "Spring Boot"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "lite": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a clear and accurate response, specifying that the `tvsm-auth` service is written in Java (version 17) and cites a source for this information, making it complete and useful. In contrast, Answers B and C both fail to provide any information about the programming language, resulting in low scores across all criteria."
+    }
+  },
+  {
+    "id": "easy_03",
+    "question": "What database does notification-service use?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "brain": {
+      "answer": "The notification-service uses **MongoDB** as its primary database. This is implemented via **Spring Data MongoDB**. The transition from MySQL to MongoDB was part of the exploration and implementation efforts documented in the following tickets:\n\n- **Use of MongoDB for notification services** (source_id: jira:ticket:CBS6-74)\n- **Switching MySQL to MongoDB** (source_id: github:pr:839185695/1)\n\nAdditionally, the tech stack details confirm the use of MongoDB:\n\n```markdown\n| Layer     | Technology | ",
+      "time": 6.01,
+      "error": null,
+      "score": 0.67,
+      "matched": [
+        "MongoDB",
+        "database"
+      ],
+      "missed": [
+        "CosmosDB"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The provided context does not contain any information regarding the database used by the notification-service. Therefore, I cannot provide an answer to that question.",
+      "time": 3.11,
+      "error": null,
+      "score": 0.33,
+      "matched": [
+        "database"
+      ],
+      "missed": [
+        "MongoDB",
+        "CosmosDB"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not specify the database used by the `notification-service`. Therefore, I cannot provide that information.",
+      "time": 1.79,
+      "error": null,
+      "score": 0.33,
+      "matched": [
+        "database"
+      ],
+      "missed": [
+        "MongoDB",
+        "CosmosDB"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 5,
+        "specificity": 5,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "lite": {
+        "accuracy": 1,
+        "completeness": 1,
+        "specificity": 1,
+        "usefulness": 1
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a clear and accurate identification of the database used by the notification-service, along with specific details about its implementation and relevant documentation. In contrast, Answers B and C fail to provide any information, resulting in very low scores across all criteria."
+    }
+  },
+  {
+    "id": "easy_04",
+    "question": "What are the API endpoints of booking-crud-services?",
+    "difficulty": "easy",
+    "category": "api_lookup",
+    "brain": {
+      "answer": "The provided context does not specify the exact API endpoints for the `booking-crud-services`. However, it does mention that there is a single controller for all booking REST endpoints within the `BookingsModule`, which handles various operations related to bookings.\n\nFor more detailed information about the specific API endpoints, you may refer to the **Booking Service API Contract** documentation available at the following URL:\n\n- [Booking Service API Contract](https://tvsmotorcompany.atlassian",
+      "time": 5.65,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "/bookings",
+        "POST",
+        "GET",
+        "PUT"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The provided context does not specify the API endpoints for the `booking-crud-services`. To obtain the API endpoints, you would typically refer to the service's documentation or the \"Booking Service API Contracts\" document mentioned in the context. If you have access to that documentation, it should provide detailed information about the available endpoints, their methods (GET, POST, PUT, DELETE), and the expected request and response formats.",
+      "time": 4.37,
+      "error": null,
+      "score": 0.75,
+      "matched": [
+        "POST",
+        "GET",
+        "PUT"
+      ],
+      "missed": [
+        "/bookings"
+      ]
+    },
+    "lite": {
+      "answer": "The context does not provide specific details about the API endpoints for the \"Lead-Booking-Crud-Services-Testing\" service. It only mentions that it tests API functionality for Norton Motorcycles' booking lifecycle management and that there are old request builders located in the `api/endpoints/` directory, which are commented out. For detailed API endpoints, you would need to refer to the service documentation directly.",
+      "time": 2.35,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "/bookings",
+        "POST",
+        "GET",
+        "PUT"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 4,
+        "completeness": 4,
+        "specificity": 4,
+        "usefulness": 5
+      },
+      "brain_lite": {
+        "accuracy": 4,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 4
+      },
+      "lite": {
+        "accuracy": 3,
+        "completeness": 2,
+        "specificity": 2,
+        "usefulness": 3
+      },
+      "winner": "Full Brain",
+      "reasoning": "Answer A provides a clear reference to the specific documentation for the API endpoints, which enhances its usefulness and completeness. While Answers B and C acknowledge the lack of specific details, they do not provide as much actionable information or direct references, making A the most informative and helpful response."
+    }
+  },
+  {
+    "id": "easy_05",
+    "question": "Who are the recent contributors to tvsm-otp-service?",
+    "difficulty": "easy",
+    "category": "ownership",
+    "brain": {
+      "answer": "The provided context does not contain information about the recent contributors to the \"tvsm-otp-service.\" Therefore, I cannot provide that information.",
+      "time": 4.78,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "contributor"
+      ],
+      "missed": [
+        "author"
+      ]
+    },
+    "brain_lite": {
+      "answer": "The provided context does not contain any information regarding the recent contributors to the `tvsm-otp-service`. To find out who the recent contributors are, you would typically need access to the version control system (like Git) or a project management tool that tracks contributions, such as GitHub or GitLab.",
+      "time": 4.1,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "contributor"
+      ],
+      "missed": [
+        "author"
+      ]
+    },
+    "lite": {
+      "answer": "The provided context does not contain any information regarding the contributors to the `tvsm-otp-service`. Therefore, I cannot provide details about recent contributors to that service.",
+      "time": 2.56,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "contributor"
+      ],
+      "missed": [
+        "author"
+      ]
+    },
+    "judge": {
+      "brain": {
+        "accuracy": 5,
+        "completeness": 2,
+        "specificity": 2,
+        "usefulness": 2
+      },
+      "brain_lite": {
+        "accuracy": 5,
+        "completeness": 3,
+        "specificity": 3,
+        "usefulness": 4
+      },
+      "lite": {
+        "accuracy": 5,
+        "completeness": 2,
+        "specificity": 2,
+        "usefulness": 2
+      },
+      "winner": "Brain-Lite",
+      "reasoning": "All answers accurately state that the context does not provide information about recent contributors. However, Answer B is more complete and useful as it suggests where to find the information (version control systems or project management tools), making it more actionable for the user. Answers A and C lack this additional guidance, resulting in lower scores for completeness and usefulness."
+    }
+  }
+]

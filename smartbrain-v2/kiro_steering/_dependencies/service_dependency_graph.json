@@ -1,0 +1,987 @@
+{
+  "version": "2.0",
+  "generated": "2026-07-17",
+  "description": "Inter-service dependency graph for TVS Motor engineering ecosystem. Edges represent runtime dependencies (API calls, Service Bus subscriptions, shared databases).",
+  "services": {
+    "master-data-platform": {
+      "aliases": [
+        "MDP",
+        "master-data-platform-docs"
+      ],
+      "tier": 1,
+      "description": "Source of truth for dealer, product, and pricing master data",
+      "depends_on": [],
+      "depended_by": [
+        "common-backend-booking-service",
+        "common-backend-lead-service",
+        "tvsm-marketplace-service",
+        "tvsmbe-mdp-bff",
+        "common-services-ums",
+        "TVS-CPS-BACKEND",
+        "tvs-centralized-api-digi"
+      ],
+      "publishes_to_service_bus": [
+        "dealerData",
+        "dmsDealerData",
+        "productVehicleData",
+        "priceVehicleData",
+        "productMnaData",
+        "partData",
+        "partPriceData"
+      ],
+      "subscribes_from_service_bus": [
+        "dealerData",
+        "dmsDealerData"
+      ],
+      "infrastructure": [
+        "MySQL",
+        "Redis",
+        "Azure Service Bus",
+        "Azure Key Vault",
+        "Azure APIM"
+      ],
+      "has_steering_docs": true
+    },
+    "common-backend-booking-service": {
+      "aliases": [
+        "Booking CRUD Services",
+        "booking-crud-services",
+        "common-backend-booking-service-docs",
+        "Booking 2.0",
+        "booking service",
+        "booking-service"
+      ],
+      "tier": 1,
+      "description": "Core booking platform managing vehicle booking lifecycle across all channels",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "service_bus",
+          "topic": "MDP Dealer Topic"
+        },
+        {
+          "service": "common-backend-lead-service",
+          "type": "http",
+          "via": "APIM"
+        },
+        {
+          "service": "payment-service",
+          "type": "inbound_webhook",
+          "note": "Receives CPG/JusPay payment callbacks"
+        }
+      ],
+      "depended_by": [
+        "tvsm-marketplace-service",
+        "async-communication-service",
+        "payment-service"
+      ],
+      "publishes_to_service_bus": [
+        "Booking Topic"
+      ],
+      "subscribes_from_service_bus": [
+        "DMS Topic",
+        "ATP Topic",
+        "MDP Dealer Topic",
+        "Booking Topic"
+      ],
+      "infrastructure": [
+        "Azure SQL (MSSQL)",
+        "Redis",
+        "Azure Service Bus",
+        "Azure Key Vault"
+      ],
+      "has_steering_docs": true
+    },
+    "common-backend-lead-service": {
+      "aliases": [
+        "LMS",
+        "Lead Management System",
+        "common-backend-lead-service-docs",
+        "lms",
+        "lms_process",
+        "lms_ems",
+        "lms_crm",
+        "lead-service"
+      ],
+      "tier": 1,
+      "description": "4-microservice lead management platform (lms, lms_process, lms_ems, lms_crm)",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "service_bus",
+          "topic": "dev.mdp.dealer_data"
+        },
+        {
+          "service": "common-backend-booking-service",
+          "type": "service_bus",
+          "topic": "uat.booking"
+        }
+      ],
+      "depended_by": [
+        "common-backend-booking-service"
+      ],
+      "publishes_to_service_bus": [
+        "uat.oclns-lead-ib"
+      ],
+      "subscribes_from_service_bus": [
+        "uat.oclns-lead-ib",
+        "dev.mdp.dealer_data",
+        "uat.booking"
+      ],
+      "infrastructure": [
+        "Azure SQL (MSSQL)",
+        "Azure Service Bus",
+        "Azure App Service"
+      ],
+      "has_steering_docs": true
+    },
+    "payment-service": {
+      "aliases": [
+        "PaymentService",
+        "payment-service-docs",
+        "payment service"
+      ],
+      "tier": 1,
+      "description": "Stateless serverless relay routing JusPay payment events to 11 downstream services",
+      "depends_on": [
+        {
+          "service": "Azure AD",
+          "type": "auth",
+          "note": "OAuth2 tokens for all outbound calls"
+        }
+      ],
+      "depended_by": [],
+      "delivers_webhooks_to": [
+        "common-backend-booking-service",
+        "tvs-ev-web-api",
+        "tvs-connect-ev-api",
+        "tvs-racing-api",
+        "tvs-fleet-api",
+        "shopify-website",
+        "tvs-spares",
+        "tvs-connect-ev-mandate"
+      ],
+      "subscribes_from_service_bus": [
+        "cpg-juspay (queue)"
+      ],
+      "infrastructure": [
+        "Azure Functions",
+        "Azure Service Bus",
+        "Azure AD",
+        "Azure APIM"
+      ],
+      "has_steering_docs": true
+    },
+    "tvsm-marketplace-service": {
+      "aliases": [
+        "Marketplace Service",
+        "tvsm-marketplace-service-docs"
+      ],
+      "tier": 2,
+      "description": "Integration backbone between TVS commerce and external marketplaces (Flipkart)",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "http",
+          "note": "Dealer proximity, eligibility"
+        },
+        {
+          "service": "common-backend-lead-service",
+          "type": "http",
+          "note": "Push leads, get lead details"
+        },
+        {
+          "service": "common-backend-booking-service",
+          "type": "http",
+          "note": "Create/update/cancel bookings"
+        },
+        {
+          "service": "notification-service",
+          "type": "http",
+          "note": "Email notifications"
+        },
+        {
+          "service": "common-backend-location-master",
+          "type": "http",
+          "note": "Pincode geocoding"
+        }
+      ],
+      "depended_by": [],
+      "subscribes_from_service_bus": [
+        "vehiclePriceData",
+        "bookingUpdates"
+      ],
+      "infrastructure": [
+        "MySQL",
+        "Azure Service Bus",
+        "AKS",
+        "Azure AD B2C"
+      ],
+      "has_steering_docs": true
+    },
+    "tvsmbe-mdp-bff": {
+      "aliases": [
+        "MDP BFF",
+        "tvsmbe-mdp-bff-docs"
+      ],
+      "tier": 2,
+      "description": "Backend-for-Frontend for MDP dealer data — reads + async fan-out to partners",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "http_and_service_bus",
+          "note": "Reads dealer data, consumes dealer events"
+        },
+        {
+          "service": "notification-service",
+          "type": "http",
+          "note": "Failure alert emails"
+        }
+      ],
+      "depended_by": [],
+      "fans_out_to_external": [
+        "Knowlarity",
+        "Single Interface",
+        "LatLong",
+        "Daksha"
+      ],
+      "subscribes_from_service_bus": [
+        "dealerData (subscription: mdp_bff)"
+      ],
+      "infrastructure": [
+        "MySQL",
+        "Azure Service Bus",
+        "Azure AD B2C",
+        "AKS"
+      ],
+      "has_steering_docs": true
+    },
+    "common-services-ums": {
+      "aliases": [
+        "tvsm-auth",
+        "Auth Ninja",
+        "common-services-ums-docs",
+        "UMS",
+        "auth-service"
+      ],
+      "tier": 1,
+      "description": "Central auth service — OAuth2, user lifecycle, eKYC, face recognition",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "http",
+          "note": "Dealer/branch master data"
+        },
+        {
+          "service": "notification-service",
+          "type": "http",
+          "note": "SMS for consent and reminders"
+        }
+      ],
+      "depended_by": [
+        "tvs-centralized-api-digi"
+      ],
+      "publishes_to_service_bus": [
+        "{env}.ums.user_apps"
+      ],
+      "infrastructure": [
+        "MySQL",
+        "Azure AD B2C",
+        "Azure Face API",
+        "Azure Service Bus",
+        "Azure Blob Storage"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-centralized-api-digi": {
+      "aliases": [
+        "CentralisedAPI",
+        "DIGI DMS",
+        "tvs-centralized-api-digi-docs",
+        "DMS Digi"
+      ],
+      "tier": 1,
+      "description": "Monolithic DMS backend — 38 controllers covering all dealer service operations",
+      "depends_on": [
+        {
+          "service": "common-services-ums",
+          "type": "http",
+          "note": "UMS token validation"
+        }
+      ],
+      "depended_by": [
+        "tvs-connect-backend-services",
+        "tvs-connect-ib-backend-services",
+        "tvs-job-card-service"
+      ],
+      "shared_database": "onlineDMS",
+      "infrastructure": [
+        "Azure App Service (IIS)",
+        "SQL Server (6 databases)",
+        "Azure Key Vault",
+        "Azure APIM"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-connect-backend-services": {
+      "aliases": [
+        "TVS Connect Web API",
+        "tvs-connect-backend-services-docs",
+        "tvs-connect"
+      ],
+      "tier": 1,
+      "description": "Backend for TVS Connect mobile app — telemetry, rides, OTA, notifications",
+      "depends_on": [
+        {
+          "service": "tvs-centralized-api-digi",
+          "type": "http",
+          "note": "DMS Digi API for vehicle/service/job cards"
+        }
+      ],
+      "depended_by": [],
+      "shared_database": "onlineDMS (read)",
+      "infrastructure": [
+        "Azure App Service",
+        "Azure SQL",
+        "Azure Event Hub",
+        "Azure Notification Hub",
+        "Azure Blob Storage"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-job-card-service": {
+      "aliases": [
+        "Job Card Service",
+        "tvs-job-card-service-docs"
+      ],
+      "tier": 2,
+      "description": "Job card management for vehicle services at dealerships",
+      "depends_on": [],
+      "depended_by": [
+        "tvs-connect-backend-services",
+        "TVS-CPS-BACKEND"
+      ],
+      "shared_database": "onlineDMS",
+      "infrastructure": [
+        "AKS (.NET 9)",
+        "SQL Server"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-appointment-booking-service": {
+      "aliases": [
+        "Appointment Booking Service",
+        "tvs-appointment-booking-service-docs"
+      ],
+      "tier": 2,
+      "description": "Vehicle service appointment scheduling",
+      "depends_on": [],
+      "depended_by": [],
+      "shared_database": "onlineDMS",
+      "infrastructure": [
+        "AKS (.NET 9)",
+        "SQL Server"
+      ],
+      "has_steering_docs": true
+    },
+    "async-communication-service": {
+      "aliases": [
+        "Booking Communications",
+        "Comms Service"
+      ],
+      "tier": 2,
+      "description": "Event-driven comms orchestrator — Salesforce, SendGrid, SMS, WhatsApp",
+      "depends_on": [
+        {
+          "service": "common-backend-booking-service",
+          "type": "service_bus",
+          "note": "Subscribes to booking lifecycle events"
+        }
+      ],
+      "depended_by": [],
+      "subscribes_from_service_bus": [
+        "Booking Topic (20 concurrent sessions)"
+      ],
+      "infrastructure": [
+        "Azure Service Bus",
+        "MSSQL (shared booking DB)",
+        "Azure Key Vault"
+      ],
+      "has_steering_docs": false
+    },
+    "notification-service": {
+      "aliases": [
+        "notification-dispatcher-service"
+      ],
+      "tier": 2,
+      "description": "Multi-channel notification platform — SMS, email, WhatsApp, push",
+      "depends_on": [],
+      "depended_by": [
+        "tvsm-marketplace-service",
+        "tvsmbe-mdp-bff",
+        "common-services-ums",
+        "TVS-CPS-BACKEND",
+        "master-data-platform"
+      ],
+      "infrastructure": [
+        "MongoDB",
+        "Azure Service Bus",
+        "Azure Blob Storage",
+        "AKS"
+      ],
+      "has_steering_docs": false
+    },
+    "TVS-CPS-BACKEND": {
+      "aliases": [
+        "CPS",
+        "Norton Channel Partner System"
+      ],
+      "tier": 2,
+      "description": "Multi-tenant dealer portal for Norton Motorcycles",
+      "depends_on": [
+        {
+          "service": "notification-service",
+          "type": "http",
+          "note": "Push notifications"
+        },
+        {
+          "service": "tvs-job-card-service",
+          "type": "http",
+          "note": "Norton Job Card Service"
+        },
+        {
+          "service": "master-data-platform",
+          "type": "http",
+          "note": "Norton MDP dealer sync (every 2h)"
+        }
+      ],
+      "depended_by": [],
+      "infrastructure": [
+        "PostgreSQL",
+        "Azure Event Hubs (Kafka)",
+        "Azure Blob Storage",
+        "SAP ERP"
+      ],
+      "has_steering_docs": false
+    },
+    "common-backend-location-master": {
+      "aliases": [
+        "Location Master",
+        "common-backend-location-master-docs"
+      ],
+      "tier": 3,
+      "description": "Pincode-to-lat/long geocoding service",
+      "depends_on": [],
+      "depended_by": [
+        "tvsm-marketplace-service"
+      ],
+      "infrastructure": [
+        "AKS"
+      ],
+      "has_steering_docs": true
+    },
+    "common-backend-norton-ib-booking-service": {
+      "aliases": [
+        "Booking CRUD Services IB",
+        "common-backend-norton-ib-booking-service-docs",
+        "booking-ib"
+      ],
+      "tier": 1,
+      "description": "International variant of vehicle booking with multi-tenant, structured IDs, state machine",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "service_bus",
+          "topic": "MDP Dealer Topic"
+        },
+        {
+          "service": "common-backend-lead-service",
+          "type": "http",
+          "via": "APIM"
+        },
+        {
+          "service": "payment-service",
+          "type": "inbound_webhook"
+        }
+      ],
+      "depended_by": [
+        "async-communication-service"
+      ],
+      "subscribes_from_service_bus": [
+        "DMS Topic",
+        "ATP Topic",
+        "MDP Dealer Topic",
+        "Booking Topic"
+      ],
+      "infrastructure": [
+        "Azure SQL (MSSQL)",
+        "Redis",
+        "Azure Service Bus",
+        "Azure Key Vault"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-lead-service-domestic": {
+      "aliases": [
+        "LMS Domestic",
+        "tvs-lead-service-domestic-docs",
+        "Lead Service Domestic",
+        "TVSM Lead Service",
+        "LS"
+      ],
+      "tier": 1,
+      "description": "5-microservice domestic lead pipeline (lms, lms_process, lms_ems, lms_crm, lms_tvs_credit)",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "service_bus",
+          "note": "MDP dealer assignments"
+        },
+        {
+          "service": "common-backend-booking-service",
+          "type": "service_bus",
+          "note": "Booking events"
+        }
+      ],
+      "depended_by": [
+        "common-backend-booking-service"
+      ],
+      "publishes_to_service_bus": [
+        "lead topics (PROCESS, EMS, CRM, FINANCE)"
+      ],
+      "subscribes_from_service_bus": [
+        "MDP messages",
+        "Process subscription"
+      ],
+      "infrastructure": [
+        "Azure SQL",
+        "Azure Service Bus",
+        "Azure Redis Cache",
+        "Azure Key Vault"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-connect-ib-backend-services": {
+      "aliases": [
+        "TVS Connect Web API IB",
+        "tvs-connect-ib-backend-services-docs",
+        "tvs-connect-ib"
+      ],
+      "tier": 1,
+      "description": "Multi-region connected vehicle backend for international markets",
+      "depends_on": [
+        {
+          "service": "tvs-centralized-api-digi",
+          "type": "http",
+          "note": "DMS Digi API (not all regions)"
+        }
+      ],
+      "depended_by": [],
+      "infrastructure": [
+        "Azure SQL",
+        "Azure CosmosDB",
+        "Azure Event Hubs",
+        "Azure Notification Hubs",
+        "Azure Blob Storage",
+        "Azure Key Vault"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-domestic-dms-angular": {
+      "aliases": [
+        "DMS Domestic",
+        "tvs-domestic-dms-angular-docs",
+        "OnlineDMS_WebAPI",
+        "OnlineDMS"
+      ],
+      "tier": 1,
+      "description": "Dealer Management System for Indian domestic market (Angular + .NET 4.7.2)",
+      "depends_on": [
+        {
+          "service": "common-services-ums",
+          "type": "auth",
+          "note": "UMS/Azure AD B2C"
+        },
+        {
+          "service": "common-backend-booking-service",
+          "type": "http",
+          "note": "BookingEngine 2.0 webhooks"
+        }
+      ],
+      "depended_by": [
+        "tvs-connect-backend-services"
+      ],
+      "shared_database": "onlineDMS",
+      "infrastructure": [
+        "Azure App Service (IIS)",
+        "SQL Server",
+        "Oracle DB",
+        "Redis",
+        "Azure Service Bus",
+        "Azure Blob Storage"
+      ],
+      "has_steering_docs": true
+    },
+    "dealer-claims-portal": {
+      "aliases": [
+        "Dealer Claims Portal",
+        "dealer-claims-portal-docs",
+        "CustomerBay"
+      ],
+      "tier": 2,
+      "description": "Warranty claims management for dealers with OCR compliance",
+      "depends_on": [
+        {
+          "service": "tvs-centralized-api-digi",
+          "type": "http",
+          "note": "DMS REST API for branches/frame numbers"
+        },
+        {
+          "service": "common-backend-booking-service",
+          "type": "service_bus",
+          "note": "Booking lifecycle events"
+        }
+      ],
+      "depended_by": [],
+      "subscribes_from_service_bus": [
+        "Booking events topic",
+        "Export queue"
+      ],
+      "infrastructure": [
+        "Azure SQL (2 databases)",
+        "Azure Service Bus",
+        "Azure AD (SSO)",
+        "Azure Databricks (OCR)"
+      ],
+      "has_steering_docs": true
+    },
+    "pre-owned-dms": {
+      "aliases": [
+        "PreOwnedDMS",
+        "UVD",
+        "pre-owned-dms-docs"
+      ],
+      "tier": 2,
+      "description": "Used-vehicle dealership management system",
+      "depends_on": [],
+      "depended_by": [],
+      "infrastructure": [
+        "SQL Server AlwaysOn AG",
+        "IIS",
+        "SAP (SOAP)",
+        "POMS/IDP"
+      ],
+      "has_steering_docs": true
+    },
+    "tvs-institutional-sales": {
+      "aliases": [
+        "Institutional Sales",
+        "tvs-institutional-sales-docs"
+      ],
+      "tier": 2,
+      "description": "Institutional/fleet vehicle sales platform",
+      "depends_on": [],
+      "depended_by": [],
+      "infrastructure": [
+        "MongoDB (Cosmos DB API)",
+        "Azure AD",
+        "Azure Blob Storage"
+      ],
+      "has_steering_docs": true
+    },
+    "price-engine-microservice-backend": {
+      "aliases": [
+        "Price Engine",
+        "Price-Engine-MicroService-Backend"
+      ],
+      "tier": 2,
+      "description": "Vehicle pricing engine consuming MDP events",
+      "depends_on": [
+        {
+          "service": "master-data-platform",
+          "type": "service_bus",
+          "note": "Inbound price/dealer data"
+        }
+      ],
+      "depended_by": [
+        "tvsm-marketplace-service"
+      ],
+      "subscribes_from_service_bus": [
+        "priceVehicleData (from MDP)"
+      ],
+      "infrastructure": [
+        "Azure Service Bus"
+      ],
+      "has_steering_docs": false
+    },
+    "notification-dispatcher-service": {
+      "aliases": [
+        "Notification Dispatcher"
+      ],
+      "tier": 2,
+      "description": "Downstream dispatcher that delivers notifications via Infobip, Salesforce, etc.",
+      "depends_on": [
+        {
+          "service": "notification-service",
+          "type": "service_bus",
+          "note": "Consumes from notification topic"
+        }
+      ],
+      "depended_by": [],
+      "subscribes_from_service_bus": [
+        "Notification topic subscriptions"
+      ],
+      "infrastructure": [
+        "MongoDB",
+        "Azure Service Bus",
+        "Infobip",
+        "Salesforce"
+      ],
+      "has_steering_docs": false
+    },
+    "tvsm-securesigner-service": {
+      "aliases": [
+        "SecureSigner",
+        "tvsm-securesigner-service"
+      ],
+      "tier": 3,
+      "description": "Stateless crypto utility — URL signing, JWT/JWE, BCrypt hashing",
+      "depends_on": [],
+      "depended_by": [
+        "common-services-ums",
+        "tvsm-otp-service"
+      ],
+      "infrastructure": [
+        "Azure Key Vault (RSA keys, HMAC secrets)"
+      ],
+      "has_steering_docs": false
+    },
+    "tvsmbe-location": {
+      "aliases": [
+        "Location Master Backend",
+        "tvsmbe-location"
+      ],
+      "tier": 3,
+      "description": "Location/pincode/lat-long master data service",
+      "depends_on": [],
+      "depended_by": [
+        "tvsm-marketplace-service",
+        "common-backend-lead-service"
+      ],
+      "infrastructure": [
+        "MongoDB Atlas",
+        "Azure Blob Storage"
+      ],
+      "has_steering_docs": false
+    },
+    "tvsmbe-qrcode": {
+      "aliases": [
+        "QR Code Service",
+        "tvsmbe-qrcode"
+      ],
+      "tier": 3,
+      "description": "QR code generation, storage, and redirect tracking",
+      "depends_on": [],
+      "depended_by": [],
+      "infrastructure": [
+        "MongoDB",
+        "Azure Blob Storage"
+      ],
+      "has_steering_docs": false
+    },
+    "parts-catalogue-service": {
+      "aliases": [
+        "Parts Catalogue",
+        "Parts-Catalogue-Service"
+      ],
+      "tier": 2,
+      "description": "Vehicle parts catalog with graph-based relationships",
+      "depends_on": [],
+      "depended_by": [
+        "parts-catalogue-ingestion-service"
+      ],
+      "infrastructure": [
+        "NebulaGraph",
+        "OpenSearch"
+      ],
+      "has_steering_docs": false
+    },
+    "core-commerce-platform-api-service": {
+      "aliases": [
+        "CCP",
+        "Core Commerce Platform",
+        "Core-Commerce-Platform-API-Service"
+      ],
+      "tier": 2,
+      "description": "Central commerce/catalog/pricing platform",
+      "depends_on": [],
+      "depended_by": [
+        "tvsm-marketplace-service",
+        "price-engine-microservice-backend"
+      ],
+      "publishes_to_service_bus": [
+        "vehiclePriceData"
+      ],
+      "infrastructure": [
+        "MongoDB"
+      ],
+      "has_steering_docs": false
+    },
+    "bto-api": {
+      "aliases": [
+        "BTO Dashboard API",
+        "bto_api"
+      ],
+      "tier": 3,
+      "description": "Build-to-Order tracking dashboard API",
+      "depends_on": [],
+      "depended_by": [],
+      "infrastructure": [
+        "SQL Server (Prisma ORM)"
+      ],
+      "has_steering_docs": false
+    },
+    "sales-planning-app": {
+      "aliases": [
+        "DRS Sales Planning",
+        "sales-planning-app-docs"
+      ],
+      "tier": 2,
+      "description": "Dealer retail sales planning and target management",
+      "depends_on": [],
+      "depended_by": [],
+      "infrastructure": [
+        "SQL Server (4 connections)",
+        "Azure AD",
+        "SMTP"
+      ],
+      "has_steering_docs": true
+    },
+    "tvsm-otp-service": {
+      "aliases": [
+        "OTP Service"
+      ],
+      "tier": 3,
+      "description": "OTP generation and verification with rate-limiting",
+      "depends_on": [
+        {
+          "service": "tvsm-securesigner-service",
+          "type": "library",
+          "note": "RSA encryption"
+        }
+      ],
+      "depended_by": [
+        "TVS-CPS-BACKEND",
+        "tvs-mera-friend"
+      ],
+      "infrastructure": [
+        "Redis (OTP storage + rate-limiting)",
+        "Azure Key Vault"
+      ],
+      "has_steering_docs": false
+    },
+    "tvs-mera-friend": {
+      "aliases": [
+        "Mera Friend",
+        "Employee Referral Portal",
+        "tvs-mera-friend-docs"
+      ],
+      "tier": 3,
+      "description": "Employee referral portal for vehicle sales",
+      "depends_on": [
+        {
+          "service": "tvsm-otp-service",
+          "type": "http",
+          "note": "OTP via APIM"
+        }
+      ],
+      "depended_by": [],
+      "infrastructure": [
+        "SQL Server",
+        "Microsoft Entra ID (SSO)"
+      ],
+      "has_steering_docs": true
+    }
+  },
+  "shared_databases": {
+    "onlineDMS": {
+      "type": "SQL Server",
+      "services": [
+        "tvs-centralized-api-digi",
+        "tvs-job-card-service",
+        "tvs-appointment-booking-service",
+        "tvs-connect-backend-services"
+      ]
+    },
+    "booking_db": {
+      "type": "Azure SQL (MSSQL)",
+      "services": [
+        "common-backend-booking-service",
+        "async-communication-service"
+      ]
+    },
+    "lead_db": {
+      "type": "Azure SQL (MSSQL)",
+      "services": [
+        "common-backend-lead-service (all 4 microservices)"
+      ]
+    }
+  },
+  "service_bus_topics": {
+    "Booking Topic": {
+      "publisher": "common-backend-booking-service",
+      "subscribers": [
+        "async-communication-service",
+        "common-backend-lead-service",
+        "tvsm-marketplace-service",
+        "EMS",
+        "DMS",
+        "Comms",
+        "ATP",
+        "RS"
+      ]
+    },
+    "uat.oclns-lead-ib": {
+      "publisher": "common-backend-lead-service (lms)",
+      "subscribers": [
+        "lms_process",
+        "lms_ems",
+        "lms_crm"
+      ]
+    },
+    "dealerData": {
+      "publisher": "master-data-platform",
+      "subscribers": [
+        "tvsmbe-mdp-bff",
+        "common-backend-booking-service",
+        "common-backend-lead-service"
+      ]
+    },
+    "vehiclePriceData": {
+      "publisher": "master-data-platform",
+      "subscribers": [
+        "tvsm-marketplace-service"
+      ]
+    },
+    "cpg-juspay": {
+      "publisher": "JusPay (external)",
+      "subscribers": [
+        "payment-service"
+      ]
+    },
+    "{env}.ums.user_apps": {
+      "publisher": "common-services-ums",
+      "subscribers": [
+        "DMS",
+        "downstream services"
+      ]
+    },
+    "dev.mdp.dealer_data": {
+      "publisher": "master-data-platform",
+      "subscribers": [
+        "common-backend-lead-service (lms_process)"
+      ]
+    }
+  },
+  "total_services": 33
+}

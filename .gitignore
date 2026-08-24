@@ -1,0 +1,29 @@
+# --- secrets ---
+.env
+.env.*
+!.env.example
+
+# --- python ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- data / runtime state (large, not source) ---
+smartbrain-v2/data/
+*.pkl
+*.snapshot
+*.snapshot.gz
+
+# --- os / editor ---
+.DS_Store
+.vscode/
+*.log
+
+# --- build artifacts ---
+dist/
+build/
+*.egg-info/

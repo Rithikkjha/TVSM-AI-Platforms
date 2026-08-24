@@ -1,0 +1,94 @@
+[
+  {
+    "id": "easy_01",
+    "question": "What tech stack does booking-crud-services use?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "lite": {
+      "answer": "The provided context does not specify the tech stack used by the \"Lead-Booking-Crud-Services-Testing\" or any related booking CRUD services. Therefore, I cannot provide details about the technology stack for that service.",
+      "time": 4.07,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "NestJS",
+        "TypeScript",
+        "MongoDB",
+        "Azure Service Bus"
+      ]
+    }
+  },
+  {
+    "id": "easy_02",
+    "question": "What language is tvsm-auth written in?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "lite": {
+      "answer": "The provided context does not specify the programming language in which the `tvsm-auth` service is written. Therefore, I cannot provide that information.",
+      "time": 1.92,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "Java",
+        "Spring Boot"
+      ]
+    }
+  },
+  {
+    "id": "easy_03",
+    "question": "What database does notification-service use?",
+    "difficulty": "easy",
+    "category": "tech_lookup",
+    "lite": {
+      "answer": "The provided context does not contain any information regarding the database used by the notification-service. Therefore, I cannot provide an answer to your question.",
+      "time": 2.1,
+      "error": null,
+      "score": 0.33,
+      "matched": [
+        "database"
+      ],
+      "missed": [
+        "MongoDB",
+        "CosmosDB"
+      ]
+    }
+  },
+  {
+    "id": "easy_04",
+    "question": "What are the API endpoints of booking-crud-services?",
+    "difficulty": "easy",
+    "category": "api_lookup",
+    "lite": {
+      "answer": "The provided context does not include specific information about the API endpoints for the \"Lead-Booking-Crud-Services-Testing\" service. To find the API endpoints, you would typically need to refer to the documentation for that specific service, which may be found in the linked markdown file (services/Lead-Booking-Crud-Services-Testing.md) or in the overall API documentation for the system.",
+      "time": 2.98,
+      "error": null,
+      "score": 0.0,
+      "matched": [],
+      "missed": [
+        "/bookings",
+        "POST",
+        "GET",
+        "PUT"
+      ]
+    }
+  },
+  {
+    "id": "easy_05",
+    "question": "Who are the recent contributors to tvsm-otp-service?",
+    "difficulty": "easy",
+    "category": "ownership",
+    "lite": {
+      "answer": "The provided context does not contain any information regarding the contributors to the `tvsm-otp-service` or any other service. Therefore, I cannot provide details about the recent contributors to that service.",
+      "time": 2.08,
+      "error": null,
+      "score": 0.5,
+      "matched": [
+        "contributor"
+      ],
+      "missed": [
+        "author"
+      ]
+    }
+  }
+]

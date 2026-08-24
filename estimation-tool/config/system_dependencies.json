@@ -1,0 +1,1201 @@
+{
+  "version": "1.1",
+  "lastUpdated": "2026-07-04T00:00:00Z",
+  "systems": {
+    "DMS": {
+      "domain": "CP",
+      "domainTag": "cp.dealer.sales-service-parts",
+      "techStack": ".NET, Angular, SQL Server",
+      "deploymentModel": "Azure (IB countrywise)",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "SAP",
+        "EMS",
+        "IDP",
+        "UMS",
+        "MDP",
+        "CNS"
+      ]
+    },
+    "DigiApp": {
+      "domain": "CP",
+      "domainTag": "cp.dealer.service-mobile",
+      "techStack": "Flutter (Android), .NET, SQL Server",
+      "deploymentModel": "Azure (IB region-wise)",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "DMS",
+        "POMS",
+        "UMS",
+        "CNS"
+      ]
+    },
+    "POMS": {
+      "domain": "CP",
+      "domainTag": "cp.parts.ordering",
+      "techStack": ".NET, SQL Server",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "SAP",
+        "IDP",
+        "DMS",
+        "DigiApp",
+        "TruChamp"
+      ]
+    },
+    "TruChamp": {
+      "domain": "CP",
+      "domainTag": "cp.loyalty.pgm-retailer",
+      "techStack": ".NET, Angular",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "POMS",
+        "CNS",
+        "CPG",
+        "UMS"
+      ]
+    },
+    "IDP": {
+      "domain": "CP",
+      "domainTag": "cp.middleware.message-broker",
+      "techStack": ".NET Core WebAPI, Service Bus",
+      "deploymentModel": "Azure",
+      "isHub": true,
+      "integrationDensity": "Critical",
+      "keyIntegrations": [
+        "DMS",
+        "POMS",
+        "EMS",
+        "SAP",
+        "CPS"
+      ]
+    },
+    "CPS": {
+      "domain": "CP",
+      "domainTag": "cp.dealer.next-gen-unified",
+      "techStack": "Java, React",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Very High",
+      "keyIntegrations": [
+        "SAP",
+        "MDP",
+        "UMS",
+        "CNS",
+        "IDP"
+      ]
+    },
+    "EMS": {
+      "domain": "CP",
+      "domainTag": "cp.leads.enquiry-management",
+      "techStack": "Angular, Node.js, MongoDB",
+      "deploymentModel": "Azure (region-based)",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "DMS",
+        "Lead Service",
+        "IDP",
+        "CNS"
+      ]
+    },
+    "JCN": {
+      "domain": "CP",
+      "domainTag": "cp.field.visit-planning",
+      "techStack": "ASP.NET Web Forms, SQL Server",
+      "deploymentModel": "Azure (IB) / On-Prem (DOM)",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": [
+        "DMS",
+        "SAP"
+      ]
+    },
+    "DWR": {
+      "domain": "CP",
+      "domainTag": "cp.warranty.registration",
+      "techStack": ".NET, SQL Server",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "SAP",
+        "CNS"
+      ]
+    },
+    "DCP": {
+      "domain": "CP",
+      "domainTag": "cp.claims.dealer-portal",
+      "techStack": ".NET Core, React",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "AAP",
+        "SAP"
+      ]
+    },
+    "AAP": {
+      "domain": "CP",
+      "domainTag": "cp.claims.accountant-portal",
+      "techStack": ".NET Core, React",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "DCP",
+        "SAP"
+      ]
+    },
+    "KYC Dealer Master": {
+      "domain": "CP",
+      "domainTag": "cp.onboarding.dealer-kyc",
+      "techStack": "ASMX, SQL Server",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "KYC Auditor Master",
+        "SAP",
+        "MDP"
+      ]
+    },
+    "KYC Auditor Master": {
+      "domain": "CP",
+      "domainTag": "cp.onboarding.kyc-approval",
+      "techStack": "ASMX, SQL Server",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "KYC Dealer Master",
+        "SAP"
+      ]
+    },
+    "Institutional Sales": {
+      "domain": "CP",
+      "domainTag": "cp.sales.b2b-bulk",
+      "techStack": "React, NestJS, MongoDB, Azure Blob",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "SAP",
+        "CPG"
+      ]
+    },
+    "DRS": {
+      "domain": "CP",
+      "domainTag": "cp.planning.retail-sales",
+      "techStack": "VueJS, Laravel/PHP, MS-SQL",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "DMS",
+        "SAP"
+      ]
+    },
+    "Townwise": {
+      "domain": "CP",
+      "domainTag": "cp.analytics.market-share",
+      "techStack": "VueJS, Laravel/PHP, MS-SQL",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low-Medium",
+      "keyIntegrations": [
+        "Johri"
+      ]
+    },
+    "Johri": {
+      "domain": "CP",
+      "domainTag": "cp.analytics.johari-dashboard",
+      "techStack": "React, Node.js, Express, MS-SQL",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": [
+        "Townwise",
+        "DMS"
+      ]
+    },
+    "Mahale": {
+      "domain": "CP",
+      "domainTag": "cp.training.technician-forum",
+      "techStack": "SaaS",
+      "deploymentModel": "SaaS",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": []
+    },
+    "StratBeans": {
+      "domain": "CP",
+      "domainTag": "cp.training.lms",
+      "techStack": "SaaS",
+      "deploymentModel": "SaaS",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": []
+    },
+    "Function Apps": {
+      "domain": "CP",
+      "domainTag": "cp.automation.schedulers",
+      "techStack": ".NET Core 8, Azure Functions",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low-Medium",
+      "keyIntegrations": [
+        "DMS",
+        "SAP"
+      ]
+    },
+    "AMS": {
+      "domain": "CP",
+      "domainTag": "cp.monitoring.activity",
+      "techStack": "ASMX, SQL Server",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": [
+        "DMS"
+      ]
+    },
+    "Dealer Network Appointment": {
+      "domain": "CP",
+      "domainTag": "cp.onboarding.appointment",
+      "techStack": ".NET Core, SQL Server",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": [
+        "SAP",
+        "MDP"
+      ]
+    },
+    "DMS Reports": {
+      "domain": "CP",
+      "domainTag": "cp.reporting.dealer",
+      "techStack": "Angular, .NET WebAPI, SQL",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "DMS"
+      ]
+    },
+    "Marketing Automation Report": {
+      "domain": "CP",
+      "domainTag": "cp.reporting.marketing",
+      "techStack": "Node.js, VueJS",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": [
+        "DMS"
+      ]
+    },
+    "Goodwill Warranty": {
+      "domain": "CP",
+      "domainTag": "cp.warranty.goodwill",
+      "techStack": "ASP.NET, C#",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "SAP"
+      ]
+    },
+    "tvsmotor.com": {
+      "domain": "D2C",
+      "domainTag": "d2c.website.consumer",
+      "techStack": "React/Sitecore/.NET (DOM); Next.js/Sitecore/Liferay (IB)",
+      "deploymentModel": "Azure/CDN",
+      "isHub": false,
+      "integrationDensity": "Very High",
+      "keyIntegrations": [
+        "Lead Service",
+        "Booking Service",
+        "Catalog Service",
+        "Dealer Locator",
+        "CPG",
+        "CNS"
+      ]
+    },
+    "TVS Connect": {
+      "domain": "D2C",
+      "domainTag": "d2c.mobile.connected-vehicle",
+      "techStack": "Mobile (iOS/Android)",
+      "deploymentModel": "Azure + BLE/IoT",
+      "isHub": false,
+      "integrationDensity": "Very High",
+      "keyIntegrations": [
+        "UMS",
+        "MDP",
+        "CNS",
+        "Booking Service"
+      ]
+    },
+    "CNS": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.notifications",
+      "techStack": "Java/Spring Boot",
+      "deploymentModel": "Azure",
+      "isHub": true,
+      "integrationDensity": "Critical",
+      "keyIntegrations": [
+        "All systems"
+      ]
+    },
+    "Dealer Locator": {
+      "domain": "D2C",
+      "domainTag": "d2c.widget.dealer-search",
+      "techStack": "Java/Spring Boot (BE), React (FE)",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "MDP",
+        "tvsmotor.com"
+      ]
+    },
+    "UMS": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.identity",
+      "techStack": "Java/Spring Boot (BE), React (FE)",
+      "deploymentModel": "Azure",
+      "isHub": true,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "Azure AD B2C",
+        "DMS",
+        "DigiApp",
+        "CPS",
+        "POMS",
+        "EMS",
+        "TVS Connect"
+      ]
+    },
+    "MDP": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.master-data",
+      "techStack": "Java/Spring Boot",
+      "deploymentModel": "Azure",
+      "isHub": true,
+      "integrationDensity": "Critical",
+      "keyIntegrations": [
+        "SAP",
+        "DMS",
+        "EMS",
+        "CPS",
+        "Booking Service",
+        "Dealer Locator",
+        "Catalog Service",
+        "POMS",
+        "DWR",
+        "DRS"
+      ]
+    },
+    "CPG": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.payments",
+      "techStack": ".NET Core",
+      "deploymentModel": "Azure (APIM)",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "Booking Service",
+        "TruChamp",
+        "Institutional Sales",
+        "JusPay",
+        "CCAvenue"
+      ]
+    },
+    "Catalog Service": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.product-catalog",
+      "techStack": "Node.js/TypeScript",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "MDP",
+        "tvsmotor.com",
+        "Price Engine",
+        "NebulaGraph"
+      ]
+    },
+    "Lead Service": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.lead-management",
+      "techStack": ".NET Core",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "tvsmotor.com",
+        "EMS",
+        "DMS",
+        "Salesforce",
+        "CNS"
+      ]
+    },
+    "Booking Service": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.booking",
+      "techStack": "Node.js",
+      "deploymentModel": "Azure",
+      "isHub": true,
+      "integrationDensity": "Very High",
+      "keyIntegrations": [
+        "tvsmotor.com",
+        "DMS",
+        "CPG",
+        "SAP",
+        "CNS",
+        "MDP"
+      ]
+    },
+    "TVS MeraFrnd": {
+      "domain": "D2C",
+      "domainTag": "d2c.engagement.loyalty",
+      "techStack": "HTML/CSS/JS/.NET MVC, MSSQL",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": [
+        "CNS"
+      ]
+    },
+    "TVS Holdings": {
+      "domain": "D2C",
+      "domainTag": "d2c.corporate.website",
+      "techStack": "HTML/CSS/JS",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Low",
+      "keyIntegrations": []
+    },
+    "P360": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.customer-vehicle-orchestration",
+      "techStack": "GraphQL (Azure), WebSocket subscriptions",
+      "deploymentModel": "Azure",
+      "isHub": true,
+      "integrationDensity": "Critical",
+      "keyIntegrations": [
+        "TVS Connect",
+        "Booking Service",
+        "UMS",
+        "MDP",
+        "Subscription Platform"
+      ]
+    },
+    "Subscription Platform": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.entitlement-subscription",
+      "techStack": ".NET Core, Azure",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "P360",
+        "DMS",
+        "TVS Connect",
+        "tvsmotor.com",
+        "Vehicle Systems"
+      ]
+    },
+    "Vehicle Systems": {
+      "domain": "D2C",
+      "domainTag": "d2c.vehicle.vcu-tcu-cluster",
+      "techStack": "Embedded C/C++, BLE, MQTT, OTA",
+      "deploymentModel": "On-vehicle (BLE + Cloud sync)",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "TVS Connect",
+        "P360",
+        "TrakNTell",
+        "Subscription Platform"
+      ]
+    },
+    "PaymentService": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.payment-relay",
+      "techStack": "C#, Azure Functions, Service Bus",
+      "deploymentModel": "Azure (Serverless)",
+      "isHub": false,
+      "integrationDensity": "High",
+      "keyIntegrations": [
+        "CPG",
+        "Booking Service",
+        "TVS Connect",
+        "tvsmotor.com"
+      ]
+    },
+    "TrakNTell": {
+      "domain": "D2C",
+      "domainTag": "d2c.vehicle.telemetry-broker",
+      "techStack": "MQTT Broker, mTLS",
+      "deploymentModel": "Third-party hosted",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "TVS Connect",
+        "Vehicle Systems"
+      ]
+    },
+    "RS": {
+      "domain": "CP",
+      "domainTag": "cp.finance.reimbursement-system",
+      "techStack": ".NET, SQL Server",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "DMS",
+        "SAP",
+        "DCP"
+      ]
+    },
+    "Pricing Engine": {
+      "domain": "D2C",
+      "domainTag": "d2c.platform.price-calculation",
+      "techStack": ".NET Core, Azure",
+      "deploymentModel": "Azure",
+      "isHub": false,
+      "integrationDensity": "Medium",
+      "keyIntegrations": [
+        "DMS",
+        "Catalog Service",
+        "tvsmotor.com",
+        "Booking Service"
+      ]
+    }
+  },
+  "hubSystems": [
+    "MDP",
+    "IDP",
+    "UMS",
+    "CNS",
+    "Booking Service",
+    "P360"
+  ],
+  "integrationLinks": [
+    {
+      "source": "Lead Service",
+      "target": "EMS",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "Lead Service",
+      "target": "DMS",
+      "pattern": "REST_API_IDP",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "Booking Service",
+      "target": "DMS",
+      "pattern": "SERVICE_BUS",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "Booking Service",
+      "target": "SAP",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_external"
+    },
+    {
+      "source": "MDP",
+      "target": "DMS",
+      "pattern": "SERVICE_BUS_BATCH",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "MDP",
+      "target": "POMS",
+      "pattern": "BATCH",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "MDP",
+      "target": "EMS",
+      "pattern": "SERVICE_BUS",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "MDP",
+      "target": "Dealer Locator",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "MDP",
+      "target": "CPS",
+      "pattern": "SERVICE_BUS",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "UMS",
+      "target": "DMS",
+      "pattern": "SSO_JWT",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "UMS",
+      "target": "DigiApp",
+      "pattern": "SSO_JWT",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "UMS",
+      "target": "CPS",
+      "pattern": "SSO_JWT",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "UMS",
+      "target": "POMS",
+      "pattern": "SSO_JWT",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "CNS",
+      "target": "DMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "CNS",
+      "target": "EMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "CNS",
+      "target": "TruChamp",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "CPG",
+      "target": "DMS",
+      "pattern": "WEBHOOK",
+      "criticality": "critical",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "Catalog Service",
+      "target": "MDP",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "DMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "DigiApp",
+      "pattern": "BLE_CLOUD",
+      "criticality": "medium",
+      "domain": "D2C_to_CP"
+    },
+    {
+      "source": "DMS",
+      "target": "Booking Service",
+      "pattern": "SERVICE_BUS",
+      "criticality": "critical",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "DMS",
+      "target": "Lead Service",
+      "pattern": "IDP",
+      "criticality": "high",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "EMS",
+      "target": "Lead Service",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "DMS",
+      "target": "CNS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "DigiApp",
+      "target": "UMS",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "TruChamp",
+      "target": "CNS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "CPS",
+      "target": "Booking Service",
+      "pattern": "SERVICE_BUS",
+      "criticality": "critical",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "DMS",
+      "target": "POMS",
+      "pattern": "IDP_DIRECT_API",
+      "criticality": "critical",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "DMS",
+      "target": "DigiApp",
+      "pattern": "SHARED_DB_API",
+      "criticality": "critical",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "DMS",
+      "target": "EMS",
+      "pattern": "IDP",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "DMS",
+      "target": "DCP",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "DCP",
+      "target": "AAP",
+      "pattern": "SHARED_APP",
+      "criticality": "critical",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "AAP",
+      "target": "SAP",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "CP_to_external"
+    },
+    {
+      "source": "POMS",
+      "target": "SAP",
+      "pattern": "REST_API_BATCH",
+      "criticality": "critical",
+      "domain": "CP_to_external"
+    },
+    {
+      "source": "POMS",
+      "target": "TruChamp",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "TruChamp",
+      "target": "POMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "KYC Dealer Master",
+      "target": "KYC Auditor Master",
+      "pattern": "SHARED_APP",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "KYC Auditor Master",
+      "target": "SAP",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "CP_to_external"
+    },
+    {
+      "source": "DRS",
+      "target": "DMS",
+      "pattern": "DATA_FEED",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "DigiApp",
+      "target": "POMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "CPS",
+      "target": "POMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "CPS",
+      "target": "EMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "Function Apps",
+      "target": "DMS",
+      "pattern": "TIMER_BATCH",
+      "criticality": "medium",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "Function Apps",
+      "target": "SAP",
+      "pattern": "TIMER_BATCH",
+      "criticality": "medium",
+      "domain": "CP_to_external"
+    },
+    {
+      "source": "Institutional Sales",
+      "target": "SAP",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_external"
+    },
+    {
+      "source": "Townwise",
+      "target": "Johri",
+      "pattern": "DATA_FEED",
+      "criticality": "medium",
+      "domain": "CP_to_CP"
+    },
+    {
+      "source": "tvsmotor.com",
+      "target": "Lead Service",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "tvsmotor.com",
+      "target": "Booking Service",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "tvsmotor.com",
+      "target": "Catalog Service",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "tvsmotor.com",
+      "target": "Dealer Locator",
+      "pattern": "WIDGET_EMBED",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "tvsmotor.com",
+      "target": "CPG",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "Booking Service",
+      "target": "CPG",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "Booking Service",
+      "target": "CNS",
+      "pattern": "SERVICE_BUS",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "Booking Service",
+      "target": "MDP",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "Lead Service",
+      "target": "CNS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "Catalog Service",
+      "target": "MDP",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "UMS",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "CNS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "Booking Service",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "P360",
+      "pattern": "GRAPHQL_WEBSOCKET",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "P360",
+      "target": "Subscription Platform",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "Subscription Platform",
+      "target": "Vehicle Systems",
+      "pattern": "SERVICE_BUS",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "Subscription Platform",
+      "target": "TVS Connect",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "DMS",
+      "target": "Subscription Platform",
+      "pattern": "REST_API",
+      "criticality": "critical",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "Vehicle Systems",
+      "pattern": "BLE",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "TVS Connect",
+      "target": "TrakNTell",
+      "pattern": "MQTT",
+      "criticality": "high",
+      "domain": "D2C_to_external"
+    },
+    {
+      "source": "PaymentService",
+      "target": "Booking Service",
+      "pattern": "WEBHOOK",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "PaymentService",
+      "target": "TVS Connect",
+      "pattern": "WEBHOOK",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "CPG",
+      "target": "PaymentService",
+      "pattern": "SERVICE_BUS",
+      "criticality": "critical",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "tvsmotor.com",
+      "target": "Subscription Platform",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "DMS",
+      "target": "Pricing Engine",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_D2C"
+    },
+    {
+      "source": "tvsmotor.com",
+      "target": "Pricing Engine",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "D2C_to_D2C"
+    },
+    {
+      "source": "RS",
+      "target": "SAP",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_external"
+    },
+    {
+      "source": "RS",
+      "target": "DMS",
+      "pattern": "REST_API",
+      "criticality": "high",
+      "domain": "CP_to_CP"
+    }
+  ],
+  "crossDomainOverhead": {
+    "D2C_to_CP": 0.2,
+    "CP_to_D2C": 0.2,
+    "any_to_SAP": 0.3,
+    "any_to_notification": 0.1,
+    "any_to_MDP": 0.25,
+    "any_to_UMS": 0.15,
+    "any_to_IDP": 0.2,
+    "any_to_thirdParty": 0.25
+  },
+  "criticalPathChains": [
+    {
+      "name": "Full Purchase Journey",
+      "hops": 8,
+      "systems": [
+        "tvsmotor.com",
+        "Catalog Service",
+        "MDP",
+        "Lead Service",
+        "EMS",
+        "DMS",
+        "SAP",
+        "DWR",
+        "TVS Connect"
+      ]
+    },
+    {
+      "name": "Parts Fulfillment",
+      "hops": 6,
+      "systems": [
+        "DigiApp",
+        "POMS",
+        "SAP",
+        "IDP",
+        "DMS",
+        "TruChamp",
+        "CNS"
+      ]
+    },
+    {
+      "name": "Dealer Onboarding",
+      "hops": 7,
+      "systems": [
+        "KYC Dealer Master",
+        "Third-Party Verifier",
+        "KYC Auditor Master",
+        "SAP",
+        "MDP",
+        "UMS",
+        "DMS",
+        "Dealer Locator"
+      ]
+    },
+    {
+      "name": "Claim Settlement",
+      "hops": 5,
+      "systems": [
+        "DMS",
+        "DCP",
+        "AAP",
+        "SAP",
+        "Function Apps",
+        "CNS"
+      ]
+    },
+    {
+      "name": "Sales Planning",
+      "hops": 5,
+      "systems": [
+        "DRS",
+        "DMS",
+        "JCN",
+        "Townwise",
+        "Johri",
+        "IB CAME"
+      ]
+    },
+    {
+      "name": "Pro Plan Purchase & Activation",
+      "hops": 7,
+      "systems": [
+        "tvsmotor.com",
+        "Booking Service",
+        "DMS",
+        "Subscription Platform",
+        "P360",
+        "TVS Connect",
+        "Vehicle Systems"
+      ]
+    }
+  ]
+}
