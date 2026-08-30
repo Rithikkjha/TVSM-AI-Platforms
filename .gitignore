@@ -12,11 +12,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# --- data / runtime state (large, not source) ---
-smartbrain-v2/data/
-*.pkl
-*.snapshot
-*.snapshot.gz
+# --- data / runtime state ---
+# smartbrain-v2/data/ is intentionally TRACKED via Git LFS (large binaries).
+# See .gitattributes. Backup of the ingested Neo4j + Qdrant + BM25 index.
 
 # --- os / editor ---
 .DS_Store
