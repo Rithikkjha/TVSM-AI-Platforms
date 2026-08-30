@@ -592,13 +592,13 @@
                         <div class="doc-type">📄 BRD</div>
                     <div class="doc-status">Click to upload</div>
                     <span class="badge optional">Recommended</span>
-                    <input type="file" accept=".pdf,.docx,.md" onchange="handleFileUpload(this,'brd')">
+                    <input type="file" accept=".pdf,.docx,.md" multiple onchange="handleFileUpload(this,'brd')">
                 </div>
                 <div class="doc-upload-card" id="upload-prd">
                     <div class="doc-type">📄 PRD</div>
                     <div class="doc-status">Click to upload</div>
                     <span class="badge optional">Recommended</span>
-                    <input type="file" accept=".pdf,.docx,.md" onchange="handleFileUpload(this,'prd')">
+                    <input type="file" accept=".pdf,.docx,.md" multiple onchange="handleFileUpload(this,'prd')">
                 </div>
                 <div class="doc-upload-card" id="upload-hld">
                     <div class="doc-type">📐 HLD</div>
@@ -617,6 +617,12 @@
                     <div class="doc-status">Click to upload (.md)</div>
                     <span class="badge optional">Optional</span>
                     <input type="file" accept=".md,.txt,.markdown,text/markdown,text/plain" onchange="handleFileUpload(this,'infra')">
+                </div>
+                <div class="doc-upload-card" id="upload-sizing">
+                    <div class="doc-type">📊 Reference Sizing</div>
+                    <div class="doc-status">Click to upload (.xlsx)</div>
+                    <span class="badge optional">Optional</span>
+                    <input type="file" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(this,'sizing')">
                 </div>
             </div>
             <!-- Uploaded files list -->
@@ -1551,7 +1557,7 @@ let currentUser = { name: 'User', role: 'User', email: '' };
 let estimations = [];
 let sessionEstimations = []; // In-memory store for estimations generated this session
 let currentEstimation = null;
-let uploadedFiles = { brd: null, prd: null, hld: null, deps: [], infra: null };
+let uploadedFiles = { brd: [], prd: [], hld: null, deps: [], infra: null, sizing: null };
 let reestFiles = { brd: null, prd: null, hld: null, deps: [] };
 let reestEstimationId = '';
 let reestNewId = '';
@@ -2105,11 +2111,40 @@ function _renderDashboardPage() {
             <td>${formatDate(e.generatedAt)}</td>
             <td>
                 <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();navigateTo('#results/${e.estimationId}')">View</button>
+                ${currentUser.role === 'Admin' ? `<button class="btn btn-sm" style="background:#ffebee;color:#c62828;margin-left:4px;" onclick="event.stopPropagation();deleteEstimation('${e.estimationId}','${esc(e.projectName).replace(/'/g, "\\'")}')" title="Delete estimation">🗑</button>` : ''}
             </td>
         </tr>
     `).join('');
 
     _renderPagination('dashboard-pagination', totalPages);
+}
+
+async function deleteEstimation(estimationId, projectName) {
+    if (!confirm(`Delete estimation "${projectName}"?\n\nThis permanently removes it from:\n• Dashboard\n• Monthly estimation sheet\n• Audit log\n\nThis cannot be undone.`)) {
+        return;
+    }
+    try {
+        const resp = await fetch(`${API_BASE}/api/estimations/${estimationId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        });
+        if (resp.status === 401 || resp.status === 403) {
+            showToast('Admin access required to delete estimations.', 'error');
+            return;
+        }
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || 'Delete failed');
+        }
+        const data = await resp.json();
+        showToast(`Estimation deleted (${(data.deleted_from || []).join(', ')})`, 'success');
+        // Remove from local list and re-render
+        estimations = estimations.filter(e => e.estimationId !== estimationId);
+        sessionEstimations = sessionEstimations.filter(e => e.estimationId !== estimationId);
+        applyFilters();
+    } catch (e) {
+        showToast('Failed to delete: ' + e.message, 'error');
+    }
 }
 
 function _renderPagination(containerId, totalPages) {
@@ -2188,7 +2223,7 @@ let estStep = 1;
 
 function resetEstimationWizard() {
     estStep = 1;
-    uploadedFiles = { brd: null, prd: null, hld: null, deps: [], infra: null };
+    uploadedFiles = { brd: [], prd: [], hld: null, deps: [], infra: null, sizing: null };
     document.querySelectorAll('.est-step').forEach(s => s.classList.add('hidden'));
     document.getElementById('est-step-1').classList.remove('hidden');
     document.querySelectorAll('#estimation-stepper .step-dot').forEach((dot, i) => {
@@ -2201,11 +2236,13 @@ function resetEstimationWizard() {
     document.getElementById('est-project-desc').value = '';
     document.getElementById('est-domain').value = '';
     document.getElementById('est-stream').value = '';
-    // Reset upload cards
+    // Reset upload cards and clear file inputs
     document.querySelectorAll('#page-new-estimation .doc-upload-card').forEach(card => {
         card.classList.remove('uploaded');
         const statusEl = card.querySelector('.doc-status');
         if (statusEl) statusEl.textContent = 'Click to upload';
+        const fileInput = card.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
     });
     document.getElementById('tier-display').className = 'tier-badge tier-1';
     document.getElementById('tier-display').textContent = 'Input Tier 1 — BRD + PRD';
@@ -2214,6 +2251,9 @@ function resetEstimationWizard() {
     // Clear text input
     const textInput = document.getElementById('est-text-input');
     if (textInput) textInput.value = '';
+    // Clear tribal knowledge
+    const tribalInput = document.getElementById('est-tribal-knowledge');
+    if (tribalInput) tribalInput.value = '';
     // Clear uploaded files list
     const filesList = document.getElementById('uploaded-files-list');
     if (filesList) filesList.innerHTML = '';
@@ -2231,9 +2271,9 @@ function estGoStep(step) {
     }
     if (step === 3 && estStep === 2) {
         if (inputMode === 'docs') {
-            if (!uploadedFiles.brd && !uploadedFiles.prd) { showEstMsg('Please upload at least a BRD or PRD document.', 'error'); return; }
-            if (!uploadedFiles.prd && !uploadedFiles.brd) { /* already caught above */ }
-            else if (!uploadedFiles.prd) { showEstMsg('No PRD uploaded — estimation will be Tier 0 (ballpark, ±40-50% accuracy). Upload a PRD for better results.', 'info'); }
+            if (!uploadedFiles.brd.length && !uploadedFiles.prd.length) { showEstMsg('Please upload at least a BRD or PRD document.', 'error'); return; }
+            if (!uploadedFiles.prd.length && !uploadedFiles.brd.length) { /* already caught above */ }
+            else if (!uploadedFiles.prd.length) { showEstMsg('No PRD uploaded — estimation will be Tier 0 (ballpark, ±40-50% accuracy). Upload a PRD for better results.', 'info'); }
         } else {
             const textInput = document.getElementById('est-text-input').value.trim();
             if (!textInput || textInput.length < 50) { showEstMsg('Please provide at least a few sentences describing the project scope.', 'error'); return; }
@@ -2303,11 +2343,30 @@ function handleFileUpload(input, type) {
             card.classList.add('uploaded');
             card.querySelector('.doc-status').textContent = `✓ ${files[0].name}`;
         }
+    } else if (type === 'brd' || type === 'prd') {
+        const files = Array.from(input.files);
+        for (const f of files) {
+            const ext = f.name.split('.').pop().toLowerCase();
+            if (!validExts.includes(ext)) {
+                showToast(`Unsupported format: ${f.name}`, 'warning');
+                input.value = '';
+                return;
+            }
+        }
+        uploadedFiles[type] = [...uploadedFiles[type], ...files];
+        const card = input.parentElement;
+        card.classList.add('uploaded');
+        card.querySelector('.doc-status').textContent = uploadedFiles[type].length === 1
+            ? `✓ ${uploadedFiles[type][0].name}`
+            : `✓ ${uploadedFiles[type].length} file(s)`;
+        // Validate doc type for first file
+        if (files.length > 0) validateDocType(files[0], type);
     } else {
         const file = input.files[0];
         const ext = file.name.split('.').pop().toLowerCase();
-        if (!validExts.includes(ext)) {
-            showToast('Unsupported format. Please use PDF, DOCX, or Markdown files.', 'warning');
+        const allowedExts = type === 'sizing' ? ['xlsx','xls','csv'] : validExts;
+        if (!allowedExts.includes(ext)) {
+            showToast(`Unsupported format for ${type}. ${type === 'sizing' ? 'Please use .xlsx, .xls, or .csv' : 'Please use PDF, DOCX, or Markdown files.'}`, 'warning');
             input.value = '';
             return;
         }
@@ -2315,11 +2374,6 @@ function handleFileUpload(input, type) {
         uploadedFiles[type] = file;
         card.classList.add('uploaded');
         card.querySelector('.doc-status').textContent = `✓ ${file.name}`;
-
-        // Validate document type via filename and content (for .md/.txt files)
-        if (type === 'brd' || type === 'prd') {
-            validateDocType(file, type);
-        }
     }
     updateTierDisplay();
     renderUploadedFilesList();
@@ -2380,6 +2434,15 @@ function removeFile(type, index) {
         } else {
             card.querySelector('.doc-status').textContent = `✓ ${uploadedFiles.deps.length} file(s)`;
         }
+    } else if (type === 'brd' || type === 'prd') {
+        uploadedFiles[type].splice(index, 1);
+        const card = document.getElementById('upload-' + type);
+        if (uploadedFiles[type].length === 0) {
+            card.classList.remove('uploaded');
+            card.querySelector('.doc-status').textContent = 'Click to upload';
+        } else {
+            card.querySelector('.doc-status').textContent = `✓ ${uploadedFiles[type].length} file(s)`;
+        }
     } else {
         uploadedFiles[type] = null;
         const card = document.getElementById('upload-' + type);
@@ -2394,17 +2457,21 @@ function renderUploadedFilesList() {
     const container = document.getElementById('uploaded-files-list');
     let html = '';
     
-    if (uploadedFiles.brd) {
-        html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f1f8e9;border-radius:6px;margin-bottom:4px;font-size:12px;">
-            <span>📄 <strong>BRD:</strong> ${esc(uploadedFiles.brd.name)}</span>
-            <span style="cursor:pointer;color:#c62828;font-weight:bold;padding:0 6px;" onclick="removeFile('brd')">✕</span>
-        </div>`;
+    if (uploadedFiles.brd.length) {
+        uploadedFiles.brd.forEach((f, idx) => {
+            html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f1f8e9;border-radius:6px;margin-bottom:4px;font-size:12px;">
+                <span>📄 <strong>BRD:</strong> ${esc(f.name)}</span>
+                <span style="cursor:pointer;color:#c62828;font-weight:bold;padding:0 6px;" onclick="removeFile('brd',${idx})">✕</span>
+            </div>`;
+        });
     }
-    if (uploadedFiles.prd) {
-        html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f1f8e9;border-radius:6px;margin-bottom:4px;font-size:12px;">
-            <span>📄 <strong>PRD:</strong> ${esc(uploadedFiles.prd.name)}</span>
-            <span style="cursor:pointer;color:#c62828;font-weight:bold;padding:0 6px;" onclick="removeFile('prd')">✕</span>
-        </div>`;
+    if (uploadedFiles.prd.length) {
+        uploadedFiles.prd.forEach((f, idx) => {
+            html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f1f8e9;border-radius:6px;margin-bottom:4px;font-size:12px;">
+                <span>📄 <strong>PRD:</strong> ${esc(f.name)}</span>
+                <span style="cursor:pointer;color:#c62828;font-weight:bold;padding:0 6px;" onclick="removeFile('prd',${idx})">✕</span>
+            </div>`;
+        });
     }
     if (uploadedFiles.hld) {
         html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#e3f2fd;border-radius:6px;margin-bottom:4px;font-size:12px;">
@@ -2432,9 +2499,9 @@ function renderUploadedFilesList() {
 
 function updateTierDisplay() {
     let tier = 0, label = 'BRD only (ballpark)';
-    if (uploadedFiles.prd) { tier = 1; label = 'BRD + PRD'; }
-    if (uploadedFiles.prd && uploadedFiles.hld) { tier = 2; label = 'BRD + PRD + HLD'; }
-    if (uploadedFiles.prd && uploadedFiles.hld && uploadedFiles.deps && uploadedFiles.deps.length > 0) { tier = 3; label = 'BRD + PRD + HLD + Deps'; }
+    if (uploadedFiles.prd.length) { tier = 1; label = 'BRD + PRD'; }
+    if (uploadedFiles.prd.length && uploadedFiles.hld) { tier = 2; label = 'BRD + PRD + HLD'; }
+    if (uploadedFiles.prd.length && uploadedFiles.hld && uploadedFiles.deps && uploadedFiles.deps.length > 0) { tier = 3; label = 'BRD + PRD + HLD + Deps'; }
     const el = document.getElementById('tier-display');
     el.className = `tier-badge tier-${tier === 0 ? '0' : tier}`;
     el.textContent = `Input Tier ${tier} — ${label}`;
@@ -2458,18 +2525,18 @@ function renderEstSummary() {
         `;
     } else {
         let tier = 0;
-        if (uploadedFiles.brd && uploadedFiles.prd) tier = 1;
+        if (uploadedFiles.brd.length && uploadedFiles.prd.length) tier = 1;
         if (tier >= 1 && uploadedFiles.hld) tier = 2;
         if (tier >= 2 && uploadedFiles.deps.length > 0) tier = 3;
-        if (!uploadedFiles.prd) tier = 0;
+        if (!uploadedFiles.prd.length) tier = 0;
 
         document.getElementById('est-summary-pills').innerHTML = `
             <span class="pill">📁 ${esc(name)}</span>
             <span class="pill">🏷️ ${esc(domain)}</span>
             <span class="pill">📡 ${esc(stream)}</span>
             <span class="pill">📄 Tier ${tier}</span>
-            ${uploadedFiles.brd ? `<span class="pill">📄 BRD: ${esc(uploadedFiles.brd.name)}</span>` : ''}
-            ${uploadedFiles.prd ? `<span class="pill">📄 PRD: ${esc(uploadedFiles.prd.name)}</span>` : ''}
+            ${uploadedFiles.brd.length ? `<span class="pill">📄 BRD: ${uploadedFiles.brd.map(f=>esc(f.name)).join(', ')}</span>` : ''}
+            ${uploadedFiles.prd.length ? `<span class="pill">📄 PRD: ${uploadedFiles.prd.map(f=>esc(f.name)).join(', ')}</span>` : ''}
             ${uploadedFiles.hld ? `<span class="pill">📐 HLD: ${esc(uploadedFiles.hld.name)}</span>` : ''}
             ${uploadedFiles.deps.length ? `<span class="pill">🔗 Deps: ${uploadedFiles.deps.length} file(s)</span>` : ''}
         `;
@@ -2526,23 +2593,26 @@ async function submitEstimation() {
             // Text mode: create a BRD from the text input
             const textContent = document.getElementById('est-text-input').value.trim();
             const brdBlob = new Blob([textContent], { type: 'text/plain' });
-            formData.append('brd_file', brdBlob, 'guesstimate-input.md');
+            formData.append('brd_files', brdBlob, 'guesstimate-input.md');
             // No PRD in text mode
         } else {
             // Docs mode: upload actual files
-            if (uploadedFiles.brd) {
-                formData.append('brd_file', uploadedFiles.brd);
+            if (uploadedFiles.brd.length > 0) {
+                uploadedFiles.brd.forEach(f => formData.append('brd_files', f));
             } else {
                 // No BRD — create a placeholder from PRD content
                 const placeholder = new Blob(['[No BRD provided]'], { type: 'text/plain' });
-                formData.append('brd_file', placeholder, 'no-brd.md');
+                formData.append('brd_files', placeholder, 'no-brd.md');
             }
-            if (uploadedFiles.prd) formData.append('prd_file', uploadedFiles.prd);
+            if (uploadedFiles.prd.length > 0) {
+                uploadedFiles.prd.forEach(f => formData.append('prd_files', f));
+            }
             if (uploadedFiles.hld) formData.append('hld_file', uploadedFiles.hld);
             if (uploadedFiles.deps && uploadedFiles.deps.length > 0) {
                 uploadedFiles.deps.forEach(f => formData.append('dep_files', f));
             }
             if (uploadedFiles.infra) formData.append('dep_files', uploadedFiles.infra);
+            if (uploadedFiles.sizing) formData.append('reference_sizing_file', uploadedFiles.sizing);
         }
 
         // Submit — returns jobId immediately
@@ -2577,12 +2647,12 @@ async function submitEstimation() {
         currentEstimation = pollResult;
         currentEstimation._enrichmentPending = true; // Enrichment is running in background on server
         // Attach uploaded filenames for display
-        currentEstimation._brdFilename = uploadedFiles.brd?.name || '';
-        currentEstimation._prdFilename = uploadedFiles.prd?.name || '';
+        currentEstimation._brdFilename = uploadedFiles.brd.map(f=>f.name).join(', ') || '';
+        currentEstimation._prdFilename = uploadedFiles.prd.map(f=>f.name).join(', ') || '';
         // Save to session for dashboard display (since SharePoint may be unavailable)
         const _docNames = [
-            uploadedFiles.brd?.name,
-            uploadedFiles.prd?.name,
+            ...uploadedFiles.brd.map(f=>f.name),
+            ...uploadedFiles.prd.map(f=>f.name),
             uploadedFiles.hld?.name,
             ...(uploadedFiles.deps || []).map(f => f.name),
         ].filter(Boolean);
@@ -3458,7 +3528,12 @@ let _auditPage = 1;
 let _auditItems = [];
 
 function renderGlobalAuditLog(entries) {
-    _auditItems = entries;
+    // Sort newest first by timestamp
+    _auditItems = [...entries].sort((a, b) => {
+        const da = new Date(a.timestamp || a.generatedAt || 0);
+        const db = new Date(b.timestamp || b.generatedAt || 0);
+        return db - da;
+    });
     _auditPage = 1;
     _renderAuditPage();
 }
@@ -4241,13 +4316,38 @@ async function loadPrdCheckAudit(selectedMonth) {
                 <td style="color:#e65100;">${e.placeholderSections}</td>
                 <td style="color:#c62828;">${e.missingSections}</td>
                 <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#666;" title="${esc(missNames)}">${esc(missNames)}</td>
-                <td><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();showPrdAuditDetail(${idx})">View</button> <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();downloadPrdAuditPdf(${idx})" title="Download PDF">📥 PDF</button></td>
+                <td><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();showPrdAuditDetail(${idx})">View</button> <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();downloadPrdAuditPdf(${idx})" title="Download PDF">📥 PDF</button>${currentUser.role === 'Admin' ? ` <button class="btn btn-sm" style="background:#ffebee;color:#c62828;" onclick="event.stopPropagation();deletePrdAudit('${e.auditId}','${month}','${esc(e.filename).replace(/'/g, "\\'")}')" title="Delete">🗑</button>` : ''}</td>
             </tr>`;
         }).join('');
         // Store entries for detail view
         window._prdAuditEntries = data.entries;
+        window._prdAuditMonth = month;
     } catch(e) {
         loading.textContent = 'Could not load audit log.';
+    }
+}
+
+async function deletePrdAudit(auditId, month, filename) {
+    if (!confirm(`Delete completeness check for "${filename}"?\n\nThis permanently removes it from the audit log and cannot be undone.`)) {
+        return;
+    }
+    try {
+        const resp = await fetch(`${API_BASE}/api/prd-check/audit/${auditId}?month=${month}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + getToken() },
+        });
+        if (resp.status === 401 || resp.status === 403) {
+            showToast('Admin access required to delete audit entries.', 'error');
+            return;
+        }
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || 'Delete failed');
+        }
+        showToast('Completeness check deleted', 'success');
+        loadPrdCheckAudit(month);
+    } catch (e) {
+        showToast('Failed to delete: ' + e.message, 'error');
     }
 }
 

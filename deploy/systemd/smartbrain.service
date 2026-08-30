@@ -1,0 +1,15 @@
+[Unit]
+Description=SmartBrain API (Engineering Memory Graph)
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=smartbrainuser
+WorkingDirectory=/home/smartbrainuser/tvsm-ai-platform/smartbrain-v2
+ExecStart=/home/smartbrainuser/tvsm-ai-platform/smartbrain-v2/.venv/bin/uvicorn api.app:app --host 0.0.0.0 --port 8000 --root-path /brain
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

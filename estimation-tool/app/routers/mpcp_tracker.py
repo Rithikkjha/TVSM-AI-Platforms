@@ -16,7 +16,7 @@ Requirements: 13, 14
 import logging
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, UploadFile, File, status
 
 from app.middleware.auth import AuthenticatedUser, get_current_user, require_admin
 from app.models.mpcp_schemas import (
@@ -315,6 +315,25 @@ async def update_project(
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Project {project_id} not found")
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+
+
+@router.put("/projects/{project_id}/move", response_model=Project)
+async def move_project(
+    project_id: str,
+    body: dict = Body(...),
+    user: AuthenticatedUser = Depends(get_current_user),
+    admin: AuthenticatedUser = Depends(require_admin),
+):
+    """Move a Project to a different Check Point (reassign its parent MP/CP)."""
+    sp = _get_sp()
+    target_cp_id = (body or {}).get("target_cp_id", "").strip()
+    if not target_cp_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "target_cp_id is required")
+    user_name = user.identity.displayName if user.identity else (user.email or "")
+    try:
+        return await tracker.move_project(project_id, target_cp_id, user_name, sp)
+    except tracker.EntityNotFoundError as e:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))
 
 
 @router.delete("/projects/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -223,6 +223,7 @@ class DocumentSet(BaseModel):
     prd: ExtractedDocument
     hld: Optional[ExtractedDocument] = None
     dependentServiceDocs: Optional[list[ExtractedDocument]] = None
+    referenceSizing: Optional[str] = Field(None, description="Markdown table of team's reference t-shirt sizing from uploaded Excel")
 
 
 # --- SLM Engine Models ---

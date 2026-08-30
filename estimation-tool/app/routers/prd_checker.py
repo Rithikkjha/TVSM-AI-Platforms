@@ -5,8 +5,8 @@ import os
 import re
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
-from app.middleware.auth import AuthenticatedUser, get_current_user
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from app.middleware.auth import AuthenticatedUser, get_current_user, require_admin
 from app.services.document_readiness import assess_document_readiness, DocumentReadinessResult
 from app.services.document_processor import extract_text, extract_text_markdown
 from app.services.sharepoint_client import SharePointClient, FOLDER_PRD_CHECK, FOLDER_PRD_CHECK_AUDIT
@@ -381,6 +381,9 @@ async def get_prd_check_audit(
         headers = rows[0]
         entries = []
         for row in rows[1:]:
+            # Skip empty/phantom rows (no auditId)
+            if not row or len(row) < 11 or not str(row[0]).strip():
+                continue
             if len(row) >= 11:
                 entries.append({
                     "auditId": row[0],
@@ -405,6 +408,56 @@ async def get_prd_check_audit(
     except Exception as e:
         logger.warning(f"Failed to read PRD check audit: {e}")
         return {"entries": []}
+
+
+@router.delete("/audit/{audit_id}")
+async def delete_prd_check_audit(
+    audit_id: str,
+    month: Optional[str] = Query(None, description="Month in YYYY-MM format"),
+    admin: AuthenticatedUser = Depends(require_admin),
+):
+    """Delete a PRD completeness check audit entry (admin only).
+
+    Removes the entry from the monthly PrdCheckAudit_YYYY-MM.xlsx file.
+    If month is not provided, the current month is used.
+    """
+    from datetime import datetime, timezone
+
+    sp = SharePointClient()
+    target_month = month or datetime.now(timezone.utc).strftime("%Y-%m")
+    audit_filename = f"{FOLDER_PRD_CHECK_AUDIT}/PrdCheckAudit_{target_month}.xlsx"
+
+    try:
+        if not await sp.file_exists(audit_filename):
+            raise HTTPException(status_code=404, detail="Audit file not found for that month.")
+
+        rows = await sp.read_workbook(audit_filename, "Sheet1")
+        if not rows:
+            raise HTTPException(status_code=404, detail="No audit entries found.")
+
+        header = rows[0]
+        kept = [header]
+        found = False
+        for row in rows[1:]:
+            if len(row) > 0 and str(row[0]).strip() == audit_id:
+                found = True
+                continue
+            kept.append(row)
+
+        if not found:
+            raise HTTPException(status_code=404, detail=f"Audit entry '{audit_id}' not found.")
+
+        await sp.write_rows(audit_filename, "Sheet1", kept)
+
+        admin_name = admin.identity.displayName if admin.identity else (admin.email or "admin")
+        logger.info(f"PRD check audit '{audit_id}' deleted by {admin_name} from {target_month}")
+        return {"success": True, "audit_id": audit_id, "month": target_month}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to delete PRD check audit: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete audit entry.")
 
 
 def _check_doc_type_match(text: str, expected_type: str) -> Optional[str]:

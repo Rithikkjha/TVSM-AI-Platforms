@@ -511,10 +511,10 @@ class SharePointClient:
 
             if sheet in wb.sheetnames:
                 ws = wb[sheet]
-                # Clear existing data in the sheet before writing
-                for row in ws.iter_rows():
-                    for cell in row:
-                        cell.value = None
+                # Physically delete all existing rows so no phantom empty rows remain.
+                # (Clearing cell values alone leaves blank rows that read back as empty.)
+                if ws.max_row and ws.max_row > 0:
+                    ws.delete_rows(1, ws.max_row)
             else:
                 ws = wb.create_sheet(sheet)
 

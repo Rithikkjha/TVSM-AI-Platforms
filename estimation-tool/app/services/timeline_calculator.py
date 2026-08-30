@@ -123,18 +123,59 @@ def _parse_team_composition_response(
         # Validate we have at least one member for each discipline
         discipline_names = {e.discipline for e in effort_breakdown}
         covered = {t.discipline for t in team}
-        if discipline_names.issubset(covered):
-            return team
 
         # Add missing disciplines with count 1
         for d in discipline_names - covered:
             team.append(TeamMember(discipline=d, count=1))
+
+        # Sanity-correct team sizes to be proportional to effort share.
+        # The LLM often returns uniform counts (e.g., 5/5/5) which is unrealistic —
+        # a discipline with 1/10th the effort shouldn't have the same headcount.
+        team = _normalize_team_to_effort(team, effort_breakdown)
 
         return team if team else None
 
     except (json.JSONDecodeError, KeyError, ValueError, IndexError) as exc:
         logger.warning(f"Failed to parse team composition response: {exc}")
         return None
+
+
+def _normalize_team_to_effort(
+    team: list[TeamMember],
+    effort_breakdown: list[DisciplineEffort],
+) -> list[TeamMember]:
+    """Correct team sizes so headcount is proportional to each discipline's effort.
+
+    Anchors on the largest-effort discipline (usually Digital Engineering) and its
+    LLM-suggested count, then scales other disciplines' headcount by their effort ratio.
+    This prevents unrealistic uniform staffing (e.g., 5 devs + 5 QA + 5 DevOps when
+    QA effort is 1/10th of Dev effort).
+    """
+    effort_map = {e.discipline: e.personMonths for e in effort_breakdown}
+    if not effort_map:
+        return team
+
+    # Find the anchor: discipline with the most effort
+    anchor_disc = max(effort_map, key=effort_map.get)
+    anchor_effort = effort_map[anchor_disc]
+    if anchor_effort <= 0:
+        return team
+
+    # Anchor's headcount (from LLM, capped to a sane range 1-10)
+    anchor_count = next((t.count for t in team if t.discipline == anchor_disc), 5)
+    anchor_count = max(1, min(anchor_count, 10))
+
+    corrected: list[TeamMember] = []
+    for t in team:
+        eff = effort_map.get(t.discipline, 0)
+        if t.discipline == anchor_disc:
+            corrected.append(TeamMember(discipline=t.discipline, count=anchor_count))
+        else:
+            # Scale headcount by effort ratio, always at least 1
+            ratio = eff / anchor_effort
+            scaled = max(1, round(anchor_count * ratio))
+            corrected.append(TeamMember(discipline=t.discipline, count=scaled))
+    return corrected
 
 
 def _heuristic_team_composition(

@@ -366,6 +366,9 @@ async def load_hierarchy(sp: SharePointClient) -> None:
     except Exception:
         pass  # Sheet may not exist yet
 
+    # Seed the "Others (Non-MPCP)" theme Z hierarchy if missing
+    await _seed_others_theme(sp)
+
     # Recompute counts and propagated RAG
     _recompute_counts()
     _recompute_all_propagation()
@@ -373,6 +376,83 @@ async def load_hierarchy(sp: SharePointClient) -> None:
         f"Loaded MPCP hierarchy: {len(_managing_points)} MPs, "
         f"{len(_check_points)} CPs, {len(_projects)} Projects"
     )
+
+
+async def _seed_others_theme(sp: SharePointClient) -> None:
+    """Auto-create the Theme Z 'Others (Non-MPCP)' hierarchy if it doesn't exist.
+
+    Creates 3 MPs (Z1/Z2/Z3) each with one CP, to hold non-MPCP initiatives:
+      Z1 NPI/CFT              → Z1.1 New Product Launches      (SOP Type 2)
+      Z2 Business-led 3P–D&AI → Z2.1 3P Solutions             (SOP Type 4)
+      Z3 Unplanned Initiative → Z3.1 Others                   (SOP Type 5)
+
+    Idempotent: keyed by MP/CP code, so restarts won't duplicate.
+    Uses deterministic IDs so references stay stable.
+    Owner and LoB/BU are placeholders ('TBD' / IND-2W) to be edited later.
+    """
+    global _managing_points, _check_points
+
+    seed_spec = [
+        # (mp_code, mp_name, cp_code, cp_name)
+        ("Z1", "NPI/CFT", "Z1.1", "New Product Launches"),
+        ("Z2", "Business-led 3P — D&AI", "Z2.1", "3P Solutions"),
+        ("Z3", "Unplanned Initiative", "Z3.1", "Others"),
+    ]
+
+    existing_mp_codes = {mp.code for mp in _managing_points.values()}
+    existing_cp_codes = {cp.code for cp in _check_points.values()}
+    now = datetime.now(timezone.utc)
+    changed = False
+
+    for mp_code, mp_name, cp_code, cp_name in seed_spec:
+        mp_id = f"mp-seed-{mp_code.lower()}"
+        cp_id = f"cp-seed-{cp_code.lower().replace('.', '-')}"
+
+        if mp_code not in existing_mp_codes:
+            _managing_points[mp_id] = ManagingPoint(
+                id=mp_id,
+                code=mp_code,
+                name=mp_name,
+                theme=MPTheme.Z,
+                owner="TBD",
+                lob=BusinessUnit.IND_2W,
+                bu=BusinessUnit.IND_2W,
+                rag_status=RAGStatus.GREEN,
+                created_at=now,
+                updated_at=now,
+                created_by="system-seed",
+            )
+            changed = True
+
+        # Resolve the MP id in case it already existed under a different id
+        parent_mp_id = mp_id
+        for mp in _managing_points.values():
+            if mp.code == mp_code:
+                parent_mp_id = mp.id
+                break
+
+        if cp_code not in existing_cp_codes:
+            _check_points[cp_id] = CheckPoint(
+                id=cp_id,
+                code=cp_code,
+                name=cp_name,
+                owner="TBD",
+                description="Auto-created bucket for Non-MPCP initiatives.",
+                parent_mp_id=parent_mp_id,
+                rag_status=RAGStatus.GREEN,
+                created_at=now,
+                updated_at=now,
+                created_by="system-seed",
+            )
+            changed = True
+
+    if changed:
+        try:
+            await _persist_mps(sp)
+            await _persist_cps(sp)
+            logger.info("Seeded Theme Z (Others / Non-MPCP) hierarchy.")
+        except Exception as e:
+            logger.warning(f"Failed to persist seeded Theme Z hierarchy: {e}")
 
 
 # =============================================================================
@@ -726,6 +806,56 @@ async def update_project(
     if request.revised_target_date is not None:
         await _log_project_change(project_id, "project.revised_target_date", "", str(request.revised_target_date), user, "Target date revised", sp)
     await _log_audit("updated", "Project", project_id, user, f"Updated Project {project.name}", sp)
+    return project
+
+
+async def move_project(
+    project_id: str,
+    target_cp_id: str,
+    user_name: str,
+    sp: SharePointClient,
+) -> Project:
+    """Move a Project to a different Check Point (reassign parent_cp_id).
+
+    Recomputes counts and RAG propagation for both the old and new CPs.
+    All project track data (process, milestones, dependencies, budget) stays
+    with the project since they are keyed by project_id, not CP.
+    """
+    await ensure_loaded(sp)
+    if project_id not in _projects:
+        raise EntityNotFoundError(f"Project {project_id} not found")
+    if target_cp_id not in _check_points:
+        raise EntityNotFoundError(f"Check Point {target_cp_id} not found")
+
+    project = _projects[project_id]
+    old_cp_id = project.parent_cp_id
+    if old_cp_id == target_cp_id:
+        return project  # no-op
+
+    old_cp = _check_points.get(old_cp_id)
+    new_cp = _check_points.get(target_cp_id)
+    old_label = old_cp.code if old_cp else old_cp_id
+    new_label = new_cp.code if new_cp else target_cp_id
+
+    project.parent_cp_id = target_cp_id
+    project.updated_at = datetime.now(timezone.utc)
+    _projects[project_id] = project
+
+    _recompute_counts()
+    # Re-propagate RAG for both old and new parent CPs
+    if old_cp_id:
+        _propagate_for_cp(old_cp_id)
+    _propagate_for_cp(target_cp_id)
+
+    await _persist_projects(sp)
+    await _persist_cps(sp)
+    await _persist_mps(sp)
+    await _log_project_change(
+        project_id, "project.parent_cp", old_label, new_label,
+        user_name, "Project moved to a different Check Point", sp,
+    )
+    await _log_audit("moved", "Project", project_id, user_name,
+                     f"Moved Project {project.name} from {old_label} to {new_label}", sp)
     return project
 
 

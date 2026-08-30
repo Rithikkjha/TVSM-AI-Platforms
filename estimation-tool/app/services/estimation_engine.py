@@ -371,6 +371,76 @@ def _get_tier_instructions(input_tier: InputTier) -> str:
         )
 
 
+def _extract_reference_ceiling(reference_sizing_text: str) -> Optional[float]:
+    """Extract total effort from reference sizing using regex heuristics.
+    Kept as fast fallback. See _extract_reference_ceiling_llm for LLM-based approach.
+    """
+    # Simple fallback - not used in main flow anymore
+    return None
+
+
+async def _extract_reference_ceiling_llm(reference_sizing_text: str, slm_engine) -> Optional[float]:
+    """Use LLM to extract total effort in person-days from any reference sizing format.
+    
+    Handles: t-shirt sizes, weeks, months, days, story points, FTEs, any format.
+    Sends first 5000 chars of the sizing markdown to the LLM with a targeted prompt.
+    Returns total person-days or None if extraction fails.
+    """
+    import json as _json
+    if not reference_sizing_text or not slm_engine:
+        return None
+    
+    # Send up to 40000 chars — enough to capture all rows of most sizing sheets
+    sample = reference_sizing_text[:40000]
+    truncated_note = ""
+    if len(reference_sizing_text) > 40000:
+        truncated_note = "\n\n(NOTE: Data was truncated. Estimate the total proportionally based on the rows shown and the apparent total row count.)"
+    
+    prompt = f"""You are analyzing a reference sizing spreadsheet to extract the TOTAL effort in person-days across the ENTIRE sheet.
+
+The data may use ANY format:
+- T-shirt sizes: S=7.5 person-days, M=20, L=40, XL=55, XXL=75 (based on S=1-2 weeks, M=3-5 weeks, L=6-10 weeks, XL=10-12 weeks, XXL=>3 months)
+- Weeks: multiply by 5 (working days)
+- Months: multiply by 22 (working days)  
+- Days: use directly
+- Story points: SP×2 days (rough conversion)
+- Ignore "NA", "N/A", blanks
+
+CRITICAL INSTRUCTIONS:
+1. Process EVERY data row in the table, not just the first few.
+2. If a single cell has MULTIPLE estimates (e.g., "Digi -M UMS - S DMS -M"), count EACH one separately (that row = 20+7.5+20 = 47.5 days).
+3. Sum across ALL rows to get the grand total.{truncated_note}
+
+Here is the reference sizing data:
+
+{sample}
+
+Return ONLY a JSON object (no other text):
+{{"total_person_days": <number>, "row_count": <number_of_data_rows_processed>, "item_count": <total_size_entries_counted>, "reasoning": "<brief explanation>"}}"""
+
+    try:
+        from app.models.schemas import SLMOptions
+        resp = await slm_engine.inference(prompt, options=SLMOptions(temperature=0.1, maxTokens=400))
+        content = resp.content.strip()
+        
+        # Extract JSON from response
+        start = content.find('{')
+        end = content.rfind('}') + 1
+        if start >= 0 and end > start:
+            data = _json.loads(content[start:end])
+            total = float(data.get("total_person_days", 0))
+            item_count = data.get("item_count", 0)
+            row_count = data.get("row_count", 0)
+            reasoning = data.get("reasoning", "")
+            if total > 0:
+                logger.info(f"Reference ceiling (LLM): {total:.0f} person-days from {row_count} rows, {item_count} items")
+                return total
+    except Exception as e:
+        logger.warning(f"LLM reference ceiling extraction failed: {e}")
+    
+    return None
+
+
 def _parse_estimation_response(content: str) -> Optional[dict[str, Any]]:
     """Parse the SLM structured JSON response.
 
@@ -830,6 +900,15 @@ async def _generate_estimation_catalog(
         if request.documents.hld:
             prd_text += "\n\n" + request.documents.hld.textContent
 
+        # Inject reference sizing as calibration context if provided
+        if request.documents.referenceSizing:
+            prd_text += f"\n\n---\n## TEAM REFERENCE SIZING (use as calibration anchor)\nThe team has provided the following t-shirt sizing estimates as a reference. Some items may directly map to features in the BRD/PRD, some may be broader, and some may not overlap. Use these as calibration anchors for complexity and effort ranges — not as ground truth to copy.\n\n{request.documents.referenceSizing}\n"
+
+        # Extract reference ceiling from sizing data using LLM (handles any format)
+        _ref_ceiling_days = None
+        if request.documents.referenceSizing:
+            _ref_ceiling_days = await _extract_reference_ceiling_llm(request.documents.referenceSizing, slm_engine)
+
         # Phase detection
         phase_result = detect_phases(request.documents.prd.textContent)
         if not phase_result.phases and request.documents.brd:
@@ -886,11 +965,22 @@ async def _generate_estimation_catalog(
                 for d in phase.effortBreakdown:
                     discipline_totals[d.discipline] = discipline_totals.get(d.discipline, 0) + d.personDays
 
-            # Scale discipline breakdown to match total (includes overhead, surcharges, scope factor)
-            raw_sum = sum(discipline_totals.values())
-            if raw_sum > 0 and abs(raw_sum - total_effort_days) > 1:
-                scale_factor = total_effort_days / raw_sum
-                discipline_totals = {k: v * scale_factor for k, v in discipline_totals.items()}
+            # De-duplicate shared infrastructure effort across phases.
+            # DevOps (CI/CD, env setup, monitoring) is largely one-time setup that
+            # should NOT scale linearly with phase count. When many phases exist,
+            # cap DevOps at ~8% of total to avoid over-counting shared setup.
+            num_phases = len(phases_list)
+            if num_phases > 3 and "DevOps" in discipline_totals:
+                de_total = discipline_totals.get("Digital Engineering", 0)
+                # DevOps should be at most ~10% of Digital Engineering effort
+                devops_cap = de_total * 0.12
+                if discipline_totals["DevOps"] > devops_cap and devops_cap > 0:
+                    logger.info(f"DevOps de-duplication: {discipline_totals['DevOps']:.0f} → {devops_cap:.0f} pd (capped for {num_phases} phases)")
+                    discipline_totals["DevOps"] = devops_cap
+
+            # Recompute total after de-duplication
+            total_effort_days = sum(discipline_totals.values())
+            total_effort_months = round(total_effort_days / 22.0, 2)
 
             effort_breakdown = [
                 DisciplineEffort(discipline=name, personDays=round(days, 2), personMonths=round(days / 22.0, 2))
@@ -970,12 +1060,19 @@ async def _generate_estimation_catalog(
                 } if graph_result.added_systems or graph_result.cross_domain_detected else None,
             )
 
-        # Team composition from discipline breakdown
-        # Reasonable team size: 1 person per ~40 person-days of effort in that discipline
-        team_composition = [
-            TeamMember(discipline=d.discipline, count=max(1, min(5, round(d.personDays / 40))))
-            for d in effort_breakdown
-        ]
+        # Team composition proportional to effort share.
+        # Anchor on the largest-effort discipline, scale others by effort ratio.
+        _sorted_eff = sorted(effort_breakdown, key=lambda d: -d.personDays)
+        _anchor_pd = _sorted_eff[0].personDays if _sorted_eff else 1
+        _anchor_count = max(1, min(6, round(_anchor_pd / 45)))  # ~45 pd per dev for anchor
+        team_composition = []
+        for d in effort_breakdown:
+            if _anchor_pd > 0 and d.personDays == _anchor_pd:
+                cnt = _anchor_count
+            else:
+                ratio = d.personDays / _anchor_pd if _anchor_pd > 0 else 0
+                cnt = max(1, round(_anchor_count * ratio))
+            team_composition.append(TeamMember(discipline=d.discipline, count=cnt))
 
         # Cost calculation (reuse existing)
         rate_card = await load_rate_card(sharepoint_client)
@@ -1030,6 +1127,41 @@ async def _generate_estimation_catalog(
             f"Catalog estimation complete: {total_effort_days:.1f} pd, "
             f"confidence={confidence_level}, {elapsed:.1f}s elapsed (scope/doc readiness backfilling async)"
         )
+
+        # Apply reference sizing ceiling if available
+        if _ref_ceiling_days and total_effort_days > _ref_ceiling_days * 1.1:
+            scale = (_ref_ceiling_days * 1.1) / total_effort_days
+            logger.info(f"Reference sizing ceiling applied: {total_effort_days:.0f} pd → {total_effort_days * scale:.0f} pd (ceiling: {_ref_ceiling_days:.0f} × 1.1)")
+            total_effort_days = round(total_effort_days * scale, 2)
+            total_effort_months = round(total_effort_days / 22.0, 2)
+            effort_breakdown = [
+                DisciplineEffort(discipline=e.discipline, personDays=round(e.personDays * scale, 2), personMonths=round(e.personDays * scale / 22.0, 2))
+                for e in effort_breakdown
+            ]
+            if phases_list:
+                for phase in phases_list:
+                    phase.totalPersonDays = round(phase.totalPersonDays * scale, 2)
+                    phase.totalPersonMonths = round(phase.totalPersonDays / 22.0, 2)
+                    phase.effortBreakdown = [
+                        DisciplineEffort(discipline=d.discipline, personDays=round(d.personDays * scale, 2), personMonths=round(d.personDays * scale / 22.0, 2))
+                        for d in phase.effortBreakdown
+                    ]
+            assumptions.append(f"Estimate capped to align with team reference sizing (~{_ref_ceiling_days:.0f} person-days ±10%)")
+
+            # Recompute team composition and duration on the scaled effort
+            _sorted_eff = sorted(effort_breakdown, key=lambda d: -d.personDays)
+            _anchor_pd = _sorted_eff[0].personDays if _sorted_eff else 1
+            _anchor_count = max(1, min(6, round(_anchor_pd / 45)))
+            team_composition = []
+            for d in effort_breakdown:
+                if _anchor_pd > 0 and d.personDays == _anchor_pd:
+                    cnt = _anchor_count
+                else:
+                    ratio = d.personDays / _anchor_pd if _anchor_pd > 0 else 0
+                    cnt = max(1, round(_anchor_count * ratio))
+                team_composition.append(TeamMember(discipline=d.discipline, count=cnt))
+            duration_result = calculate_duration(effort_breakdown, team_composition)
+            cost_projection = calculate_cost(effort_breakdown, rate_card)
 
         return EstimationResult(
             id=estimation_id,

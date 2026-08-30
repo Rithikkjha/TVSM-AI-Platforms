@@ -27,3 +27,12 @@ smartbrain-v2/data/
 dist/
 build/
 *.egg-info/
+
+# --- archives (may bundle .env / secrets) ---
+*.zip
+*.tar.gz
+*.tgz
+*.bak
+
+# --- stray junk ---
+estimation-tool/1

@@ -201,7 +201,7 @@ async function renderMPList(container) {
             </div>
             <table class="data-table"><thead><tr><th>Code</th><th>Theme</th><th>Name</th><th>Owner</th><th>BU</th><th>RAG</th><th>CPs</th><th>Projects</th><th></th></tr></thead><tbody>
             ${mpcp.mps.filter(mp => !mpcp.buFilter || mp.bu === mpcp.buFilter).map(mp => `<tr style="cursor:pointer" onclick="navigateTo('#mpcp-tracker/mps/${mp.id}')">
-                <td><strong>${mp.code}</strong></td><td>${{A:'Customer Satisfaction',B:'Profit & Profitability',C:'Business Growth',D:'New Product Development',E:'Effectiveness of People & System',F:'Digitalization & AI'}[mp.theme] || mp.theme}</td><td>${mp.name}</td><td>${mp.owner}</td><td>${mp.bu}</td>
+                <td><strong>${mp.code}</strong></td><td>${{A:'Customer Satisfaction',B:'Profit & Profitability',C:'Business Growth',D:'New Product Development',E:'Effectiveness of People & System',F:'Digitalization & AI',Z:'Others (Non-MPCP)'}[mp.theme] || mp.theme}</td><td>${mp.name}</td><td>${mp.owner}</td><td>${mp.bu}</td>
                 <td><span class="rag-badge ${(mp.propagated_rag || mp.rag_status).toLowerCase()}">${mp.propagated_rag || mp.rag_status}</span></td>
                 <td>${mp.cp_count}</td><td>${mp.project_count}</td>
                 <td><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();showEditMPModal('${mp.id}')">✏️</button></td>
@@ -444,6 +444,7 @@ async function renderProjectDetail(container, projectId) {
                         return `<span style="font-size:11px;padding:4px 10px;border-radius:10px;background:${pct > 100 ? '#ffebee' : pct > 80 ? '#fff3e0' : '#e8f5e9'};color:${color};font-weight:600">${icon} ₹${b.total_committed}/${b.approved_budget} (${pct}%) — ${label}</span>`;
                     })()}
                     <button class="btn btn-sm btn-secondary" onclick="showEditProjectModal('${p.id}')">✏️ Edit</button>
+                    <button class="btn btn-sm btn-secondary" onclick="showMoveProjectModal('${p.id}')">↔️ Move</button>
                     <button class="btn btn-sm btn-secondary" onclick="showRAGModal('Project','${p.id}','${p.rag_status}')">Update RAG</button>
                 </div>
             </div>
@@ -1077,7 +1078,7 @@ function showCreateMPModal() {
         <div class="form-group"><label>Code <span class="required">*</span></label><input id="mp-code" placeholder="e.g. A3, B1"></div>
         <div class="form-group"><label>Name <span class="required">*</span></label><input id="mp-name" placeholder="MP name"></div>
         <div class="form-row">
-            <div class="form-group"><label>Theme <span class="required">*</span></label><select id="mp-theme"><option value="A">A - Customer Satisfaction</option><option value="B">B - Profit & Profitability</option><option value="C">C - Business Growth</option><option value="D">D - New Product Development</option><option value="E">E - Effectiveness</option><option value="F">F - Digitalization & AI</option></select></div>
+            <div class="form-group"><label>Theme <span class="required">*</span></label><select id="mp-theme"><option value="A">A - Customer Satisfaction</option><option value="B">B - Profit & Profitability</option><option value="C">C - Business Growth</option><option value="D">D - New Product Development</option><option value="E">E - Effectiveness</option><option value="F">F - Digitalization & AI</option><option value="Z">Z - Others (Non-MPCP)</option></select></div>
             <div class="form-group"><label>Owner <span class="required">*</span></label><input id="mp-owner" placeholder="Owner name"></div>
         </div>
         <div class="form-row">
@@ -1120,8 +1121,8 @@ function showCreateCPModal(mpId) {
         <div class="form-group"><label>Owner <span class="required">*</span></label><input id="cp-owner" placeholder="Owner name"></div>
         <div class="form-group"><label>Description</label><textarea id="cp-desc" rows="2"></textarea></div>
         <div class="form-row">
-            <div class="form-group"><label>Domain</label><select id="cp-domain"><option value="">-</option><option>Shop</option><option>Buy</option><option>Own</option><option>Parts</option></select></div>
-            <div class="form-group"><label>Stream</label><select id="cp-stream"><option value="">-</option><option>D2C</option><option>Channel Partner</option><option>Platform Services</option></select></div>
+            <div class="form-group"><label>Domain</label><select id="cp-domain"><option value="">-</option><option>All</option><option>Shop</option><option>Buy</option><option>Own</option><option>Parts</option></select></div>
+            <div class="form-group"><label>Stream</label><select id="cp-stream"><option value="">-</option><option>All</option><option>D2C</option><option>Channel Partner</option><option>Platform Services</option></select></div>
         </div>
         <div class="form-group"><label>Target Quarter</label><select id="cp-quarter"><option value="">-</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option></select></div>
         <div class="btn-group"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitCreateCP('${mpId}','${prefix}')">Create</button></div>
@@ -1669,7 +1670,7 @@ function showEditMPModal(mpId) {
         <div class="form-group"><label>Code</label><input id="emp-code" value="${mp.code}"></div>
         <div class="form-group"><label>Name</label><input id="emp-name" value="${mp.name}"></div>
         <div class="form-row">
-            <div class="form-group"><label>Theme</label><select id="emp-theme"><option value="A" ${mp.theme==='A'?'selected':''}>A - Customer Satisfaction</option><option value="B" ${mp.theme==='B'?'selected':''}>B - Profit & Profitability</option><option value="C" ${mp.theme==='C'?'selected':''}>C - Business Growth</option><option value="D" ${mp.theme==='D'?'selected':''}>D - New Product Development</option><option value="E" ${mp.theme==='E'?'selected':''}>E - Effectiveness</option><option value="F" ${mp.theme==='F'?'selected':''}>F - Digitalization & AI</option></select></div>
+            <div class="form-group"><label>Theme</label><select id="emp-theme"><option value="A" ${mp.theme==='A'?'selected':''}>A - Customer Satisfaction</option><option value="B" ${mp.theme==='B'?'selected':''}>B - Profit & Profitability</option><option value="C" ${mp.theme==='C'?'selected':''}>C - Business Growth</option><option value="D" ${mp.theme==='D'?'selected':''}>D - New Product Development</option><option value="E" ${mp.theme==='E'?'selected':''}>E - Effectiveness</option><option value="F" ${mp.theme==='F'?'selected':''}>F - Digitalization & AI</option><option value="Z" ${mp.theme==='Z'?'selected':''}>Z - Others (Non-MPCP)</option></select></div>
             <div class="form-group"><label>Owner</label><input id="emp-owner" value="${mp.owner}"></div>
         </div>
         <div class="form-row">
@@ -1725,8 +1726,8 @@ function showEditCPModal(cpId) {
         <div class="form-group"><label>Owner</label><input id="ecp-owner" value="${cp.owner}"></div>
         <div class="form-group"><label>Description</label><textarea id="ecp-desc" rows="2">${cp.description||''}</textarea></div>
         <div class="form-row">
-            <div class="form-group"><label>Domain</label><select id="ecp-domain"><option value="">-</option><option ${cp.domain==='Shop'?'selected':''}>Shop</option><option ${cp.domain==='Buy'?'selected':''}>Buy</option><option ${cp.domain==='Own'?'selected':''}>Own</option><option ${cp.domain==='Parts'?'selected':''}>Parts</option></select></div>
-            <div class="form-group"><label>Stream</label><select id="ecp-stream"><option value="">-</option><option ${cp.stream==='D2C'?'selected':''}>D2C</option><option ${cp.stream==='Channel Partner'?'selected':''}>Channel Partner</option><option ${cp.stream==='Platform Services'?'selected':''}>Platform Services</option></select></div>
+            <div class="form-group"><label>Domain</label><select id="ecp-domain"><option value="">-</option><option ${cp.domain==='All'?'selected':''}>All</option><option ${cp.domain==='Shop'?'selected':''}>Shop</option><option ${cp.domain==='Buy'?'selected':''}>Buy</option><option ${cp.domain==='Own'?'selected':''}>Own</option><option ${cp.domain==='Parts'?'selected':''}>Parts</option></select></div>
+            <div class="form-group"><label>Stream</label><select id="ecp-stream"><option value="">-</option><option ${cp.stream==='All'?'selected':''}>All</option><option ${cp.stream==='D2C'?'selected':''}>D2C</option><option ${cp.stream==='Channel Partner'?'selected':''}>Channel Partner</option><option ${cp.stream==='Platform Services'?'selected':''}>Platform Services</option></select></div>
         </div>
         <div class="form-row">
             <div class="form-group"><label>UOM</label><input id="ecp-uom" value="${cp.uom||''}"></div>
@@ -1783,8 +1784,8 @@ function showCreateProjectModal(cpId) {
             <div class="form-group"><label>BU <span class="required">*</span></label><select id="proj-bu"><option value="">-</option><option value="IND-2W">IND-2W</option><option value="3W/CMB">3W/CMB</option><option value="IB">IB</option></select></div>
         </div>
         <div class="form-row">
-            <div class="form-group"><label>Domain <span class="required">*</span></label><select id="proj-domain"><option value="">-</option><option>Shop</option><option>Buy</option><option>Own</option><option>Parts</option></select></div>
-            <div class="form-group"><label>Stream <span class="required">*</span></label><select id="proj-stream"><option value="">-</option><option>D2C</option><option>Channel Partner</option><option>Platform Services</option></select></div>
+            <div class="form-group"><label>Domain <span class="required">*</span></label><select id="proj-domain"><option value="">-</option><option>All</option><option>Shop</option><option>Buy</option><option>Own</option><option>Parts</option></select></div>
+            <div class="form-group"><label>Stream <span class="required">*</span></label><select id="proj-stream"><option value="">-</option><option>All</option><option>D2C</option><option>Channel Partner</option><option>Platform Services</option></select></div>
         </div>
         <div class="form-group"><label>Description</label><textarea id="proj-desc" rows="2"></textarea></div>
         <div class="form-group"><label>TVSM Engg POC</label><input id="proj-engg-poc" placeholder="e.g., Rithik Kumar, Ashish T (comma-separated)"></div>
@@ -1837,8 +1838,8 @@ function showEditProjectModal(projectId) {
             <div class="form-group"><label>BU</label><select id="eproj-bu"><option value="">-</option><option value="IND-2W" ${p.bu==='IND-2W'?'selected':''}>IND-2W</option><option value="3W/CMB" ${p.bu==='3W/CMB'?'selected':''}>3W/CMB</option><option value="IB" ${p.bu==='IB'?'selected':''}>IB</option></select></div>
         </div>
         <div class="form-row">
-            <div class="form-group"><label>Domain</label><select id="eproj-domain"><option value="">-</option><option ${p.domain==='Shop'?'selected':''}>Shop</option><option ${p.domain==='Buy'?'selected':''}>Buy</option><option ${p.domain==='Own'?'selected':''}>Own</option><option ${p.domain==='Parts'?'selected':''}>Parts</option></select></div>
-            <div class="form-group"><label>Stream</label><select id="eproj-stream"><option value="">-</option><option ${p.stream==='D2C'?'selected':''}>D2C</option><option ${p.stream==='Channel Partner'?'selected':''}>Channel Partner</option><option ${p.stream==='Platform Services'?'selected':''}>Platform Services</option></select></div>
+            <div class="form-group"><label>Domain</label><select id="eproj-domain"><option value="">-</option><option ${p.domain==='All'?'selected':''}>All</option><option ${p.domain==='Shop'?'selected':''}>Shop</option><option ${p.domain==='Buy'?'selected':''}>Buy</option><option ${p.domain==='Own'?'selected':''}>Own</option><option ${p.domain==='Parts'?'selected':''}>Parts</option></select></div>
+            <div class="form-group"><label>Stream</label><select id="eproj-stream"><option value="">-</option><option ${p.stream==='All'?'selected':''}>All</option><option ${p.stream==='D2C'?'selected':''}>D2C</option><option ${p.stream==='Channel Partner'?'selected':''}>Channel Partner</option><option ${p.stream==='Platform Services'?'selected':''}>Platform Services</option></select></div>
         </div>
         <div class="form-group"><label>Description</label><textarea id="eproj-desc" rows="2">${p.description||''}</textarea></div>
         <div class="form-group"><label>TVSM Engg POC</label><input id="eproj-engg-poc" value="${p.engg_poc||''}" placeholder="e.g., Rithik Kumar, Ashish T (comma-separated)"></div>
@@ -1872,6 +1873,56 @@ async function deleteProjectConfirm(projectId) {
         const resp = await fetch(`${MPCP_API}/projects/${projectId}`, { method: 'DELETE', headers: mpHeaders() });
         if (!resp.ok) { const e = await resp.json(); throw new Error(Array.isArray(e.detail) ? e.detail.map(d=>d.msg||d.error).join(', ') : e.detail || 'Failed'); }
         closeModal();
+        refreshCurrentMPCPView();
+    } catch (e) { showToastNotification(e.message, 'error'); }
+}
+
+
+// ============ MOVE PROJECT (reassign parent MP/CP) ============
+async function showMoveProjectModal(projectId) {
+    try {
+        const resp = await fetch(`${MPCP_API}/mps`, { headers: mpHeaders() });
+        if (!resp.ok) throw new Error('Failed to load MPs');
+        const mps = await resp.json();
+
+        const currentCpId = (mpcp.currentProject && mpcp.currentProject.parent_cp_id) || '';
+        let cpOptions = '';
+        for (const mp of mps) {
+            const cpsResp = await fetch(`${MPCP_API}/mps/${mp.id}/cps`, { headers: mpHeaders() });
+            if (cpsResp.ok) {
+                const cps = await cpsResp.json();
+                for (const cp of cps) {
+                    const sel = cp.id === currentCpId ? ' selected' : '';
+                    cpOptions += `<option value="${cp.id}"${sel}>${mp.code} > ${cp.code} - ${cp.name}</option>`;
+                }
+            }
+        }
+        if (!cpOptions) {
+            showToastNotification('No Check Points available to move to.', 'warning');
+            return;
+        }
+        showModal('Move Project', `
+            <p style="font-size:12px;color:#666;margin-bottom:10px;">Reassign this project to a different Managing Point / Check Point. All track data (process, milestones, dependencies, budget) moves with it.</p>
+            <div class="form-group"><label>Target Check Point <span class="required">*</span></label>
+                <select id="move-cp" style="width:100%">${cpOptions}</select>
+            </div>
+            <div class="btn-group"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitMoveProject('${projectId}')">Move</button></div>
+        `);
+    } catch (e) {
+        showToastNotification(e.message, 'error');
+    }
+}
+
+async function submitMoveProject(projectId) {
+    const targetCpId = document.getElementById('move-cp').value;
+    if (!targetCpId) { showToastNotification('Please select a target Check Point', 'warning'); return; }
+    try {
+        const resp = await fetch(`${MPCP_API}/projects/${projectId}/move`, {
+            method: 'PUT', headers: mpHeadersJson(), body: JSON.stringify({ target_cp_id: targetCpId }),
+        });
+        if (!resp.ok) { const e = await resp.json(); throw new Error(Array.isArray(e.detail) ? e.detail.map(d=>d.msg||d.error).join(', ') : e.detail || 'Failed'); }
+        closeModal();
+        showToastNotification('Project moved successfully', 'success');
         refreshCurrentMPCPView();
     } catch (e) { showToastNotification(e.message, 'error'); }
 }

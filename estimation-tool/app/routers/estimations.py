@@ -26,6 +26,7 @@ from app.middleware.auth import (
     AuthenticatedUser,
     get_current_user,
     get_sharepoint_client,
+    require_admin,
 )
 from app.models.schemas import (
     AuditEntry,
@@ -167,15 +168,17 @@ async def create_estimation_upload(
     domain: str = Form(...),
     stream: str = Form(...),
     additional_context: Optional[str] = Form(None),
-    brd_file: UploadFile = File(...),
-    prd_file: Optional[UploadFile] = File(None),
+    brd_files: list[UploadFile] = File(...),
+    prd_files: Optional[list[UploadFile]] = File(None),
     hld_file: Optional[UploadFile] = File(None),
     dep_files: Optional[list[UploadFile]] = File(None),
+    reference_sizing_file: Optional[UploadFile] = File(None),
     user: AuthenticatedUser = Depends(get_current_user),
     sharepoint_client: SharePointClient = Depends(get_sharepoint_client),
 ) -> JobResponse:
     """Generate estimation from uploaded files (multipart form data).
     
+    Supports multiple BRD and PRD files — text from all files is concatenated.
     PRD is optional — if only BRD is provided, produces a Tier 0 (ballpark) estimate.
 
     Extracts text from DOCX/PDF/MD files server-side using python-docx/PyPDF2.
@@ -183,30 +186,56 @@ async def create_estimation_upload(
     Launches estimation as a background job and returns immediately with a jobId.
     """
 
-    # Step 1: Read and extract text from uploaded files
-    brd_bytes = await brd_file.read()
-    brd_text = extract_text(brd_bytes, brd_file.filename)
-    brd_readiness_text = extract_text_markdown(brd_bytes, brd_file.filename)
-    brd_validation = validate(brd_file.filename, brd_bytes)
-    if not brd_validation.valid:
-        raise HTTPException(status_code=400, detail=f"BRD: {brd_validation.error}")
+    # Step 1: Read and extract text from uploaded BRD file(s)
+    brd_text_parts = []
+    brd_readiness_parts = []
+    brd_filenames = []
+    for brd_file in brd_files:
+        if brd_file and brd_file.filename:
+            brd_bytes = await brd_file.read()
+            text = extract_text(brd_bytes, brd_file.filename)
+            readiness_text = extract_text_markdown(brd_bytes, brd_file.filename)
+            validation = validate(brd_file.filename, brd_bytes)
+            if not validation.valid:
+                raise HTTPException(status_code=400, detail=f"BRD ({brd_file.filename}): {validation.error}")
+            brd_text_parts.append(text)
+            brd_readiness_parts.append(readiness_text)
+            brd_filenames.append(brd_file.filename)
 
+    if not brd_text_parts:
+        raise HTTPException(status_code=400, detail="At least one BRD file is required.")
+
+    brd_text = "\n\n---\n\n".join(brd_text_parts)
+    brd_readiness_text = "\n\n---\n\n".join(brd_readiness_parts)
+
+    # Step 1b: Read and extract text from uploaded PRD file(s)
     prd_doc = None
     prd_text = ""
-    if prd_file and prd_file.filename:
-        prd_bytes = await prd_file.read()
-        prd_text = extract_text(prd_bytes, prd_file.filename)
-        prd_readiness_text = extract_text_markdown(prd_bytes, prd_file.filename)
-        prd_validation = validate(prd_file.filename, prd_bytes)
-        if not prd_validation.valid:
-            raise HTTPException(status_code=400, detail=f"PRD: {prd_validation.error}")
-        prd_doc = ExtractedDocument(
-            filename=prd_file.filename,
-            format=prd_file.filename.rsplit('.', 1)[-1].lower() if '.' in prd_file.filename else 'md',
-            pageCount=max(1, len(prd_text) // 3000),
-            textContent=prd_text,
-            readinessText=prd_readiness_text,
-        )
+    prd_filenames = []
+    if prd_files:
+        prd_text_parts = []
+        prd_readiness_parts = []
+        for prd_file in prd_files:
+            if prd_file and prd_file.filename:
+                prd_bytes = await prd_file.read()
+                text = extract_text(prd_bytes, prd_file.filename)
+                readiness_text = extract_text_markdown(prd_bytes, prd_file.filename)
+                validation = validate(prd_file.filename, prd_bytes)
+                if not validation.valid:
+                    raise HTTPException(status_code=400, detail=f"PRD ({prd_file.filename}): {validation.error}")
+                prd_text_parts.append(text)
+                prd_readiness_parts.append(readiness_text)
+                prd_filenames.append(prd_file.filename)
+        if prd_text_parts:
+            prd_text = "\n\n---\n\n".join(prd_text_parts)
+            prd_readiness_text = "\n\n---\n\n".join(prd_readiness_parts)
+            prd_doc = ExtractedDocument(
+                filename=", ".join(prd_filenames),
+                format=prd_filenames[0].rsplit('.', 1)[-1].lower() if '.' in prd_filenames[0] else 'md',
+                pageCount=max(1, len(prd_text) // 3000),
+                textContent=prd_text,
+                readinessText=prd_readiness_text,
+            )
 
     hld_doc = None
     if hld_file and hld_file.filename:
@@ -238,8 +267,8 @@ async def create_estimation_upload(
 
     # Build extracted documents
     brd_doc = ExtractedDocument(
-        filename=brd_file.filename,
-        format=brd_file.filename.rsplit('.', 1)[-1].lower() if '.' in brd_file.filename else 'md',
+        filename=", ".join(brd_filenames),
+        format=brd_filenames[0].rsplit('.', 1)[-1].lower() if '.' in brd_filenames[0] else 'md',
         pageCount=max(1, len(brd_text) // 3000),
         textContent=brd_text,
         readinessText=brd_readiness_text,
@@ -270,8 +299,19 @@ async def create_estimation_upload(
             textContent=f"[No PRD provided. Estimation based on BRD only.]\n\n{brd_text[:5000]}",
         )
 
+    # Step 2b: Process reference sizing Excel if provided
+    reference_sizing_text = None
+    if reference_sizing_file and reference_sizing_file.filename:
+        try:
+            sizing_bytes = await reference_sizing_file.read()
+            reference_sizing_text = _parse_xlsx_to_markdown(sizing_bytes, reference_sizing_file.filename)
+            logger.info(f"Reference sizing parsed: '{reference_sizing_file.filename}', {len(reference_sizing_text) if reference_sizing_text else 0} chars")
+        except Exception as exc:
+            logger.warning(f"Failed to parse reference sizing file: {exc}")
+            # Non-fatal — continue without it
+
     # Step 3: Build request
-    document_set = DocumentSet(brd=brd_doc, prd=prd_doc, hld=hld_doc, dependentServiceDocs=dep_docs)
+    document_set = DocumentSet(brd=brd_doc, prd=prd_doc, hld=hld_doc, dependentServiceDocs=dep_docs, referenceSizing=reference_sizing_text)
 
     # Map string domain/stream to enums
     try:
@@ -305,10 +345,8 @@ async def create_estimation_upload(
 
     # Collect uploaded document filenames for persistence
     _doc_names: list[str] = []
-    if brd_file and brd_file.filename and not brd_file.filename.startswith("no-brd"):
-        _doc_names.append(brd_file.filename)
-    if prd_file and prd_file.filename:
-        _doc_names.append(prd_file.filename)
+    _doc_names.extend(brd_filenames)
+    _doc_names.extend(prd_filenames)
     if hld_file and hld_file.filename:
         _doc_names.append(hld_file.filename)
     if dep_files:
@@ -635,6 +673,129 @@ async def list_estimations(
         estimations = [e for e in estimations if e.generatedAt <= date_to]
 
     return EstimationListResponse(estimations=estimations, total=len(estimations))
+
+
+@router.delete("/{estimation_id}")
+async def delete_estimation(
+    estimation_id: str,
+    admin: AuthenticatedUser = Depends(require_admin),
+    sharepoint_client: SharePointClient = Depends(get_sharepoint_client),
+) -> dict:
+    """Delete an estimation (admin only).
+
+    Removes the estimation from:
+    1. EstimationIndex.xlsx (dashboard listing)
+    2. The monthly Estimations_YYYY-MM.xlsx detail file
+    3. The AuditLog_YYYY-MM.xlsx entries
+
+    This is a hard delete and cannot be undone.
+    """
+    from app.services.sharepoint_client import FOLDER_ESTIMATIONS_AUDIT
+
+    index_file = f"{FOLDER_ESTIMATIONS}/EstimationIndex.xlsx"
+    deleted_from = []
+    monthly_file_ref = None
+
+    # --- Step 1: Read index, find the row, capture MonthlyFileRef ---
+    try:
+        index_rows = await sharepoint_client.read_workbook(index_file, sheet="Sheet1")
+    except Exception as exc:
+        logger.error(f"Failed to read EstimationIndex.xlsx: {exc}")
+        raise HTTPException(status_code=503, detail="Data source unavailable.")
+
+    if not index_rows:
+        raise HTTPException(status_code=404, detail="No estimations found.")
+
+    header = index_rows[0]
+    # Find column indices
+    id_idx = 0
+    ref_idx = None
+    for i, h in enumerate(header):
+        h_low = str(h).strip().lower()
+        if h_low == "estimationid":
+            id_idx = i
+        elif h_low == "monthlyfileref":
+            ref_idx = i
+
+    # Filter out the matching row
+    kept_rows = [header]
+    found = False
+    for row in index_rows[1:]:
+        if len(row) > id_idx and str(row[id_idx]).strip() == estimation_id:
+            found = True
+            if ref_idx is not None and len(row) > ref_idx:
+                monthly_file_ref = str(row[ref_idx]).strip()
+            continue
+        kept_rows.append(row)
+
+    if not found:
+        raise HTTPException(status_code=404, detail=f"Estimation '{estimation_id}' not found.")
+
+    # Write back index without the deleted row
+    try:
+        await sharepoint_client.write_rows(index_file, "Sheet1", kept_rows)
+        deleted_from.append("index")
+    except Exception as exc:
+        logger.error(f"Failed to update index: {exc}")
+        raise HTTPException(status_code=500, detail="Failed to update estimation index.")
+
+    # --- Step 2: Remove from monthly detail file ---
+    if monthly_file_ref:
+        # Normalize path (old entries may store bare filename)
+        if not monthly_file_ref.startswith(FOLDER_ESTIMATIONS):
+            monthly_file_ref = f"{FOLDER_ESTIMATIONS_DATA}/{monthly_file_ref}"
+        try:
+            monthly_rows = await sharepoint_client.read_workbook(monthly_file_ref, sheet="Sheet1")
+            if monthly_rows:
+                m_header = monthly_rows[0]
+                m_id_idx = 0
+                for i, h in enumerate(m_header):
+                    if str(h).strip().lower() == "estimationid":
+                        m_id_idx = i
+                        break
+                m_kept = [m_header] + [
+                    r for r in monthly_rows[1:]
+                    if not (len(r) > m_id_idx and str(r[m_id_idx]).strip() == estimation_id)
+                ]
+                await sharepoint_client.write_rows(monthly_file_ref, "Sheet1", m_kept)
+                deleted_from.append("monthly")
+        except Exception as exc:
+            logger.warning(f"Failed to remove from monthly file '{monthly_file_ref}': {exc}")
+
+    # --- Step 3: Remove from audit logs ---
+    # The estimation's month determines which audit file to touch
+    audit_month = None
+    if monthly_file_ref and "_" in monthly_file_ref:
+        # Extract YYYY-MM from Estimations_2026-07.xlsx
+        import re as _re
+        m = _re.search(r"(\d{4}-\d{2})", monthly_file_ref)
+        if m:
+            audit_month = m.group(1)
+    if audit_month:
+        audit_file = f"{FOLDER_ESTIMATIONS_AUDIT}/AuditLog_{audit_month}.xlsx"
+        try:
+            audit_rows = await sharepoint_client.read_workbook(audit_file, sheet="Sheet1")
+            if audit_rows:
+                a_header = audit_rows[0]
+                a_id_idx = None
+                for i, h in enumerate(a_header):
+                    if str(h).strip().lower() == "estimationid":
+                        a_id_idx = i
+                        break
+                if a_id_idx is not None:
+                    a_kept = [a_header] + [
+                        r for r in audit_rows[1:]
+                        if not (len(r) > a_id_idx and str(r[a_id_idx]).strip() == estimation_id)
+                    ]
+                    await sharepoint_client.write_rows(audit_file, "Sheet1", a_kept)
+                    deleted_from.append("audit")
+        except Exception as exc:
+            logger.warning(f"Failed to remove from audit log '{audit_file}': {exc}")
+
+    admin_name = admin.identity.displayName if admin.identity else (admin.email or "admin")
+    logger.info(f"Estimation '{estimation_id}' deleted by {admin_name}. Removed from: {', '.join(deleted_from)}")
+
+    return {"success": True, "estimation_id": estimation_id, "deleted_from": deleted_from}
 
 
 @router.get("/{estimation_id}", response_model=EstimationResult)
@@ -1166,6 +1327,55 @@ def _compute_changes(
 
 
 # --- Helper Functions ---
+
+
+def _parse_xlsx_to_markdown(file_bytes: bytes, filename: str) -> str:
+    """Parse an Excel file into a markdown table for LLM consumption.
+
+    Reads all sheets, converts each to a markdown table.
+    Handles .xlsx files using openpyxl.
+    Replaces newlines within cells with spaces to preserve table structure.
+    """
+    import io
+    try:
+        from openpyxl import load_workbook
+        wb = load_workbook(io.BytesIO(file_bytes), read_only=True, data_only=True)
+    except Exception:
+        # Fallback: try to read as CSV
+        text = file_bytes.decode("utf-8", errors="ignore")
+        return f"## Reference Sizing Data ({filename})\n\n```\n{text[:8000]}\n```"
+
+    result_parts = []
+    for sheet_name in wb.sheetnames:
+        ws = wb[sheet_name]
+        rows = []
+        for row in ws.iter_rows(values_only=True):
+            # Skip completely empty rows
+            if all(c is None or str(c).strip() == "" for c in row):
+                continue
+            # Replace newlines and pipes in cell values to preserve markdown table structure
+            rows.append([str(c).strip().replace('\n', ' ').replace('\r', ' ').replace('|', '/') if c is not None else "" for c in row])
+
+        if not rows:
+            continue
+
+        # Build markdown table
+        headers = rows[0]
+        md = f"### Sheet: {sheet_name}\n\n"
+        md += "| " + " | ".join(headers) + " |\n"
+        md += "| " + " | ".join(["---"] * len(headers)) + " |\n"
+        for row in rows[1:]:
+            # Pad row to header length
+            padded = row + [""] * (len(headers) - len(row))
+            md += "| " + " | ".join(padded[:len(headers)]) + " |\n"
+        result_parts.append(md)
+
+    wb.close()
+
+    if not result_parts:
+        return ""
+
+    return f"## Reference Sizing Data ({filename})\n\n" + "\n\n".join(result_parts)
 
 
 async def _write_estimation_to_sharepoint(

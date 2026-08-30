@@ -7,7 +7,15 @@ const ApiClient = (() => {
     }
 
     function getBaseUrl() {
-        return localStorage.getItem('emg_base_url') || '';
+        // Manual override wins if the user set one in Settings.
+        const stored = localStorage.getItem('emg_base_url');
+        if (stored && stored !== '/') {
+            return stored;
+        }
+        // Otherwise auto-derive the prefix from where the UI is served:
+        //   /brain/chatbot/... -> "/brain"   (behind nginx)
+        //   /chatbot/...       -> ""          (served at root, e.g. :8000)
+        return window.location.pathname.replace(/\/chatbot(\/.*)?$/, '');
     }
 
     function buildUrl(path) {

@@ -51,6 +51,7 @@ MP_THEME_NAMES: Dict[str, str] = {
     "D": "New Product Development",
     "E": "Effectiveness of People & System",
     "F": "Digitalization & AI",
+    "Z": "Others (Non-MPCP)",
 }
 
 
@@ -67,6 +68,7 @@ class MPTheme(str, Enum):
     D = "D"
     E = "E"
     F = "F"
+    Z = "Z"
 
 
 class BusinessUnit(str, Enum):
@@ -120,6 +122,7 @@ class StageStatus(str, Enum):
 
 class TrackerDomain(str, Enum):
     """Business domain grouping for projects."""
+    ALL = "All"
     SHOP = "Shop"
     BUY = "Buy"
     OWN = "Own"
@@ -128,6 +131,7 @@ class TrackerDomain(str, Enum):
 
 class TrackerStream(str, Enum):
     """Business stream / delivery channel."""
+    ALL = "All"
     D2C = "D2C"
     CHANNEL_PARTNER = "Channel Partner"
     PLATFORM_SERVICES = "Platform Services"
