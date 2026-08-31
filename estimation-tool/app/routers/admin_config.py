@@ -222,6 +222,17 @@ async def list_templates(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Template service temporarily unavailable. Please retry.",
         )
+    except SharePointError as exc:
+        # Templates.xlsx is optional — if it doesn't exist yet, there simply
+        # are no base templates configured. Return an empty list, not an error.
+        if "not found" in str(exc).lower():
+            logger.info("Templates.xlsx does not exist yet; returning empty template list.")
+            return TemplateListResponse(templates=[], total=0)
+        logger.error(f"Failed to read Templates.xlsx: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to load templates. Please retry.",
+        )
     except Exception as exc:
         logger.error(f"Failed to read Templates.xlsx: {exc}")
         raise HTTPException(

@@ -382,6 +382,19 @@
 <!-- Toast notifications -->
 <div class="toast-container" id="toast-container"></div>
 
+<!-- Global in-progress estimation indicator (visible on any page) -->
+<div id="global-jobs-indicator" onclick="navigateTo('#estimate/dashboard')"
+     style="display:none; position:fixed; bottom:20px; right:20px; z-index:9999; cursor:pointer;
+            background:linear-gradient(135deg,#fff3e0,#fff8e1); border:1px solid #ffcc80;
+            border-left:4px solid #ff9800; border-radius:10px; padding:12px 16px;
+            box-shadow:0 4px 16px rgba(0,0,0,0.15); display:flex; align-items:center; gap:10px; max-width:280px;">
+    <div class="spinner-dot" style="width:12px;height:12px;border-radius:50%;background:#ff9800;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
+    <div>
+        <div style="font-weight:600;font-size:13px;color:#e65100;" id="global-jobs-title">Estimation in progress</div>
+        <div style="font-size:11px;color:#999;" id="global-jobs-sub">Click to view on dashboard</div>
+    </div>
+</div>
+
 <!-- Confirm modal -->
 <div class="modal-overlay" id="app-modal" onclick="if(event.target===this)appModalResolve(false)">
     <div class="modal-box">
@@ -1235,6 +1248,11 @@
 <!-- ============ PRD COMPLETENESS PAGE (#prd-check) ============ -->
 <div class="page" id="page-prd-check">
     <div class="container">
+        <!-- Non-blocking notice: a previous check is still running -->
+        <div id="prd-check-inprogress-notice" style="display:none; background:linear-gradient(135deg,#fff3e0,#fff8e1); border-left:4px solid #ff9800; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">
+            <div class="spinner-dot" style="width:10px;height:10px;border-radius:50%;background:#ff9800;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
+            <div style="font-size:13px;color:#e65100;">A previous completeness check is still running. It will appear in the <a href="#prd-check/audit" style="color:#e65100;font-weight:600;">Audit Log</a> when done. You can start a new check below.</div>
+        </div>
         <div class="card">
             <h2 style="font-size:17px;color:#1a237e;margin-bottom:4px;">📋 Document Completeness Checker</h2>
             <p class="subtitle" style="margin-bottom:20px;">Upload a PRD, BRD, or HLD document to check its completeness against the TVS Digital Engineering template</p>
@@ -1631,6 +1649,7 @@ async function doLogin() {
         populateMonthDropdown();
         hideLoginPage();
         router();
+        startGlobalJobsPolling();
     } catch(e) {
         msg.textContent = 'Connection error. Please try again.';
         msg.style.display = 'block';
@@ -1643,6 +1662,7 @@ function doLogout() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
     currentUser = null;
+    stopGlobalJobsPolling();
     showLoginPage();
 }
 
@@ -1890,7 +1910,8 @@ function router() {
         loadGlobalAuditLog();
     } else if (hash === 'prd-check') {
         showPage('prd-check');
-        // Reset PRD checker to fresh state
+        // Always open a fresh, usable PRD checker page. Completed results live in the Audit Log.
+        _prdCheckLastResult = null;
         document.getElementById('prd-check-results').classList.add('hidden');
         document.getElementById('prd-check-loading').classList.add('hidden');
         document.getElementById('prd-check-file-status').textContent = 'Click to upload (.pdf, .docx, .md)';
@@ -1898,6 +1919,8 @@ function router() {
         document.getElementById('prd-check-file').value = '';
         document.getElementById('btn-prd-analyze').disabled = true;
         prdCheckFile = null;
+        // If a previous check is still running, show a non-blocking notice at the top.
+        document.getElementById('prd-check-inprogress-notice').style.display = _prdCheckInProgress ? 'flex' : 'none';
     } else if (hash === 'prd-check/audit') {
         showPage('prd-check-audit');
         loadPrdCheckAudit();
@@ -2016,9 +2039,11 @@ async function refreshActiveJobs() {
     const list = document.getElementById('active-jobs-list');
     try {
         const resp = await fetch(`${API_BASE}/api/estimations/jobs`, { headers: getAuthHeaders() });
-        if (!resp.ok) { banner.style.display = 'none'; return; }
+        if (!resp.ok) { if (banner) banner.style.display = 'none'; updateGlobalJobsIndicator(0); return; }
         const data = await resp.json();
         const processingJobs = (data.jobs || []).filter(j => j.status === 'processing');
+        updateGlobalJobsIndicator(processingJobs.length);
+        if (!banner || !list) return;
         if (processingJobs.length === 0) {
             banner.style.display = 'none';
             return;
@@ -2039,7 +2064,23 @@ async function refreshActiveJobs() {
             </div>`;
         }).join('');
     } catch(e) {
-        banner.style.display = 'none';
+        if (banner) banner.style.display = 'none';
+        updateGlobalJobsIndicator(0);
+    }
+}
+
+// Show/hide the global floating in-progress indicator (visible on every page)
+function updateGlobalJobsIndicator(count) {
+    const el = document.getElementById('global-jobs-indicator');
+    if (!el) return;
+    if (count > 0) {
+        const title = document.getElementById('global-jobs-title');
+        if (title) title.textContent = count === 1
+            ? 'Estimation in progress'
+            : `${count} estimations in progress`;
+        el.style.display = 'flex';
+    } else {
+        el.style.display = 'none';
     }
 }
 
@@ -2051,6 +2092,18 @@ function startActiveJobsPolling() {
 }
 function stopActiveJobsPolling() {
     if (_activeJobsInterval) { clearInterval(_activeJobsInterval); _activeJobsInterval = null; }
+}
+
+// Global poller — runs app-wide (any page) so a running estimation is always visible
+let _globalJobsInterval = null;
+function startGlobalJobsPolling() {
+    stopGlobalJobsPolling();
+    refreshActiveJobs();
+    _globalJobsInterval = setInterval(refreshActiveJobs, 10000);
+}
+function stopGlobalJobsPolling() {
+    if (_globalJobsInterval) { clearInterval(_globalJobsInterval); _globalJobsInterval = null; }
+    updateGlobalJobsIndicator(0);
 }
 
 // Pagination state
@@ -4257,6 +4310,8 @@ function loadDocTemplates() {
 
 // ============ PRD COMPLETENESS CHECKER ============
 let prdCheckFile = null;
+let _prdCheckInProgress = false;
+let _prdCheckLastResult = null;
 
 async function loadPrdCheckAudit(selectedMonth) {
     const loading = document.getElementById('prd-audit-loading');
@@ -4605,6 +4660,11 @@ async function analyzePrdCompleteness() {
     btn.disabled = true;
     loading.classList.remove('hidden');
     results.classList.add('hidden');
+    _prdCheckInProgress = true;
+    _prdCheckLastResult = null;
+    // A fresh check started on this page — hide any stale "previous check running" notice
+    const _ipNotice = document.getElementById('prd-check-inprogress-notice');
+    if (_ipNotice) _ipNotice.style.display = 'none';
 
     // Rotating progress messages
     const progressMsgs = [
@@ -4640,14 +4700,27 @@ async function analyzePrdCompleteness() {
         }
         
         const data = await resp.json();
-        renderPrdCheckResults(data);
-        
-    } catch(e) {
-        showToast('Analysis failed: ' + (e.message || 'Unknown error'), 'error');
-    } finally {
+        _prdCheckLastResult = data;
+        _prdCheckInProgress = false;
         clearInterval(msgTimer);
         btn.disabled = false;
         loading.classList.add('hidden');
+        const _ipn = document.getElementById('prd-check-inprogress-notice');
+        if (_ipn) _ipn.style.display = 'none';
+        // Only render inline if the user is still on the PRD check page.
+        // If they navigated away, the result is available in the Audit Log.
+        if (location.hash.replace(/^#/, '') === 'prd-check') {
+            renderPrdCheckResults(data);
+        }
+        return;
+    } catch(e) {
+        _prdCheckInProgress = false;
+        clearInterval(msgTimer);
+        btn.disabled = false;
+        loading.classList.add('hidden');
+        const _ipn = document.getElementById('prd-check-inprogress-notice');
+        if (_ipn) _ipn.style.display = 'none';
+        showToast('Analysis failed: ' + (e.message || 'Unknown error'), 'error');
     }
 }
 
@@ -5367,6 +5440,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUIForRole();
                 populateMonthDropdown();
                 router();
+                startGlobalJobsPolling();
             } else {
                 showLoginPage();
             }
@@ -5397,6 +5471,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // No separate pre-load needed
 
     router();
+    startGlobalJobsPolling();
 });
 </script>
 </body>
