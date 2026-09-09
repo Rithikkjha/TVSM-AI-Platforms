@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVS Motor - 3W Dealer Network Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<style>
+:root{
+  --bg-primary:#0d1117;--bg-secondary:#161b22;--bg-card:#1c2128;
+  --text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#484f58;
+  --border:#30363d;--accent:#0033A0;--accent-light:#1a5cc8;--accent-red:#E31837;
+  --chip-active-bg:#0033A0;--chip-active-fg:#ffffff;
+  --map-tile:dark;
+}
+[data-theme="light"]{
+  --bg-primary:#f6f8fa;--bg-secondary:#ffffff;--bg-card:#ffffff;
+  --text-primary:#1f2328;--text-secondary:#656d76;--text-muted:#8b949e;
+  --border:#d0d7de;--accent:#0033A0;--accent-light:#1a5cc8;--accent-red:#E31837;
+  --chip-active-bg:#0033A0;--chip-active-fg:#ffffff;
+  --map-tile:light;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg-primary);color:var(--text-primary);transition:background .3s,color .3s}
+.app{display:flex;height:100vh}
+.sidebar{width:360px;background:var(--bg-secondary);display:flex;flex-direction:column;
+  border-right:2px solid var(--border);overflow:hidden}
+.sidebar-header{padding:14px 20px;border-bottom:1px solid var(--border);
+  background:var(--accent);display:flex;align-items:center;justify-content:space-between}
+.sidebar-header h1{font-size:15px;color:#ffffff;margin-bottom:0}
+.sidebar-header p{font-size:10px;color:rgba(255,255,255,0.7)}
+.tvs-logo{display:flex;align-items:center;gap:8px}
+.tvs-badge{background:var(--accent-red);color:#fff;font-size:9px;font-weight:800;
+  padding:3px 7px;border-radius:4px;letter-spacing:0.5px}
+.theme-toggle{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);
+  color:#fff;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:14px;transition:all .2s}
+.theme-toggle:hover{background:rgba(255,255,255,0.25)}
+.search-wrap{padding:12px 20px}
+.search-input{width:100%;padding:10px 14px;background:var(--bg-primary);
+  border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+.search-input:focus{outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(0,51,160,0.15)}
+.search-input::placeholder{color:var(--text-muted)}
+.filters{padding:8px 20px 12px}
+.filter-label{font-size:10px;color:var(--text-secondary);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:8px;font-weight:600}
+.filter-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;
+  cursor:pointer;border:2px solid transparent;transition:all .2s;
+  display:flex;align-items:center;gap:5px;user-select:none}
+.chip .dot{width:9px;height:9px;border-radius:50%}
+.chip.active{opacity:1;border-color:rgba(0,51,160,0.3)}
+.chip.inactive{opacity:.35;filter:grayscale(0.5)}
+.chip:hover{transform:scale(1.05)}
+.stats{padding:12px 20px;border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);background:var(--bg-primary)}
+.stats-title{font-size:11px;color:var(--text-secondary);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:6px;font-weight:600}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-card{background:var(--bg-secondary);border-radius:8px;padding:10px 12px;
+  border:1px solid var(--border)}
+.stat-card .val{font-size:20px;font-weight:700;color:var(--accent)}
+.stat-card .lbl{font-size:10px;color:var(--text-secondary);margin-top:2px}
+.results-header{padding:10px 20px 4px;font-size:11px;color:var(--text-secondary);
+  text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.results{flex:1;overflow-y:auto;padding:4px 20px 20px}
+.results::-webkit-scrollbar{width:6px}
+.results::-webkit-scrollbar-track{background:var(--bg-secondary)}
+.results::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.result-item{padding:10px 12px;background:var(--bg-primary);border-radius:8px;
+  margin-bottom:6px;cursor:pointer;border-left:3px solid transparent;
+  transition:all .15s}
+.result-item:hover{background:var(--bg-card);transform:translateX(2px)}
+.result-item.highlighted{border-left-color:var(--accent-red);background:var(--bg-card);
+  box-shadow:0 2px 8px rgba(227,24,55,0.1)}
+.result-item .r-name{font-size:12px;font-weight:600;color:var(--text-primary)}
+.result-item .r-meta{font-size:11px;color:var(--text-secondary);margin-top:2px}
+.result-item .r-badge{display:inline-block;padding:1px 6px;border-radius:8px;
+  font-size:9px;font-weight:700;margin-left:6px}
+#map{flex:1}
+.leaflet-popup-content-wrapper{background:var(--bg-secondary);color:var(--text-primary);
+  border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.leaflet-popup-tip{background:var(--bg-secondary)}
+.leaflet-popup-content{margin:12px 16px}
+.popup-title{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.popup-row{font-size:12px;color:var(--text-secondary);line-height:1.8}
+.popup-row b{color:var(--text-primary)}
+.popup-badge{display:inline-block;padding:3px 10px;border-radius:12px;
+  font-size:10px;font-weight:700;margin-top:6px}
+.no-results{text-align:center;padding:30px;color:var(--text-muted);font-size:13px}
+/* Tab navigation */
+.tab-nav{display:flex;border-bottom:2px solid var(--border);background:var(--bg-card)}
+.tab-btn{flex:1;padding:10px;text-align:center;font-size:11px;font-weight:600;
+  cursor:pointer;background:transparent;color:var(--text-secondary);border:none;transition:all .2s;
+  text-transform:uppercase;letter-spacing:0.5px}
+.tab-btn.active{color:var(--accent);border-bottom:2px solid var(--accent);background:var(--bg-primary)}
+.tab-btn:hover{color:var(--text-primary)}
+.tab-content{display:none;flex-direction:column;flex:1;overflow:hidden}
+.tab-content.active{display:flex}
+/* Map controls */
+.map-controls{position:absolute;top:10px;right:10px;z-index:1000;display:flex;flex-direction:column;gap:6px}
+.map-ctrl-btn{width:34px;height:34px;background:var(--bg-secondary);border:1px solid var(--border);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:16px;color:var(--text-primary);transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.map-ctrl-btn:hover{background:var(--accent);color:#fff}
+.product-filters{padding:8px 20px 12px}
+.product-card{padding:12px;background:#1e1e2e;border-radius:10px;margin-bottom:8px;
+  border-left:4px solid #313244;transition:all .15s}
+.product-card:hover{background:#313244;transform:translateX(2px)}
+.product-card .pc-name{font-size:12px;font-weight:700;color:#cdd6f4}
+.product-card .pc-code{font-size:11px;color:#cba6f7;margin-top:2px}
+.product-card .pc-desc{font-size:11px;color:#6c7086;margin-top:4px}
+.product-card .pc-badges{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap}
+.product-card .pc-badge{padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700}
+.product-summary{padding:12px 20px;border-top:1px solid #313244;
+  border-bottom:1px solid #313244;background:#1e1e2e}
+.product-summary .ps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.product-summary .ps-card{background:#181825;border-radius:6px;padding:8px;
+  text-align:center;border:1px solid #313244}
+.product-summary .ps-val{font-size:16px;font-weight:700}
+.product-summary .ps-lbl{font-size:9px;color:#6c7086;margin-top:2px}
+.product-list{flex:1;overflow-y:auto;padding:8px 20px 20px}
+.product-list::-webkit-scrollbar{width:6px}
+.product-list::-webkit-scrollbar-track{background:#181825}
+.product-list::-webkit-scrollbar-thumb{background:#313244;border-radius:3px}
+.product-panel{flex:1;display:flex;flex-direction:column;background:var(--bg-primary);overflow:hidden}
+.product-panel.hidden{display:none}
+.product-table-header{padding:16px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.pth-title{font-size:16px;font-weight:700;color:var(--accent)}
+.pth-count{font-size:13px;color:var(--text-secondary);background:var(--bg-primary);padding:4px 12px;border-radius:16px}
+.product-table-wrap{flex:1;overflow:auto;padding:0}
+.product-table{width:100%;border-collapse:collapse;font-size:12px}
+.product-table thead{position:sticky;top:0;z-index:10}
+.product-table th{background:var(--bg-secondary);color:var(--accent);padding:10px 14px;text-align:left;
+  font-size:11px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;
+  border-bottom:2px solid var(--border);white-space:nowrap}
+.product-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-primary);
+  vertical-align:middle}
+.product-table tr:hover td{background:var(--bg-card)}
+.product-table .fuel-badge{display:inline-block;padding:2px 8px;border-radius:10px;
+  font-size:10px;font-weight:700}
+.product-table .color-swatch{display:inline-flex;align-items:center;gap:5px}
+.product-table .color-dot{width:10px;height:10px;border-radius:50%;border:1px solid #6c7086}
+.product-table .product-name-cell{font-weight:600}
+.product-table .hierarchy-cell{font-size:11px;color:#a6adc8;max-width:220px}
+#map.map-hidden{display:none}
+.state-filter{padding:0 20px 12px}
+.state-select{width:100%;padding:8px 12px;background:var(--bg-primary);border:1px solid var(--border);
+  border-radius:8px;color:var(--text-primary);font-size:12px;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b949e'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center}
+.state-select:focus{outline:none;border-color:var(--accent)}
+.state-select option{background:var(--bg-secondary);color:var(--text-primary)}
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{
+  background:rgba(203,166,247,0.3) !important}
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{
+  background:rgba(203,166,247,0.7) !important;color:#1e1e2e !important;
+  font-weight:700 !important;font-size:12px !important}
+/* Sales tab styles */
+.sales-panel{flex:1;display:flex;flex-direction:column;background:var(--bg-primary);overflow:hidden}
+.sales-panel.hidden{display:none}
+.sales-header{padding:12px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.sales-header .sh-title{font-size:15px;font-weight:700;color:var(--accent)}
+.sales-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sales-legend .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#a6adc8}
+.sales-legend .legend-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,0.2)}
+#salesMap{flex:1}
+.sales-summary-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:12px 20px;
+  border-bottom:1px solid var(--border);background:var(--bg-primary)}
+.sales-summary-cards .sc{background:var(--bg-secondary);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center}
+.sales-summary-cards .sc .sc-val{font-size:18px;font-weight:700}
+.sales-summary-cards .sc .sc-lbl{font-size:9px;color:var(--text-secondary);margin-top:2px}
+.top-dealers{flex:1;overflow-y:auto;padding:8px 20px 20px}
+.top-dealers::-webkit-scrollbar{width:6px}
+.top-dealers::-webkit-scrollbar-track{background:var(--bg-secondary)}
+.top-dealers::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.top-dealer-item{padding:8px 10px;background:var(--bg-primary);border-radius:8px;margin-bottom:5px;
+  display:flex;align-items:center;gap:8px;border-left:3px solid transparent;transition:all .15s}
+.top-dealer-item:hover{background:var(--bg-card)}
+.top-dealer-item .td-rank{font-size:10px;color:var(--text-muted);width:18px;text-align:center;font-weight:700}
+.top-dealer-item .td-info{flex:1;overflow:hidden}
+.top-dealer-item .td-name{font-size:11px;color:var(--text-primary);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-dealer-item .td-city{font-size:9px;color:var(--text-secondary)}
+.top-dealer-item .td-count{font-size:14px;font-weight:700;min-width:40px;text-align:right}
+.top-dealer-item .td-bar{height:3px;border-radius:2px;margin-top:4px}
+/* Product detail modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);
+  z-index:9999;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg-secondary);border-radius:16px;width:100%;max-width:800px;
+  max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:1px solid var(--border)}
+.modal::-webkit-scrollbar{width:8px}
+.modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.modal-header{position:relative;padding:0;border-radius:16px 16px 0 0;overflow:hidden}
+.modal-header img{width:100%;height:220px;object-fit:cover;display:block}
+.modal-header .modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;
+  background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:50%;font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-header .modal-close:hover{background:var(--accent-red)}
+.modal-body{padding:24px}
+.modal-body .mb-title{font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.modal-body .mb-tagline{font-size:13px;color:var(--text-secondary);margin-bottom:16px;font-style:italic}
+.modal-body .mb-section{margin-bottom:16px}
+.modal-body .mb-section-title{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;
+  font-weight:700;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.modal-body .spec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.modal-body .spec-item{background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:10px}
+.modal-body .spec-item .spec-val{font-size:14px;font-weight:700;color:var(--text-primary)}
+.modal-body .spec-item .spec-lbl{font-size:9px;color:var(--text-secondary);margin-top:2px;text-transform:uppercase}
+.modal-body .features-list{display:flex;flex-wrap:wrap;gap:6px}
+.modal-body .feature-tag{background:var(--bg-primary);border:1px solid var(--border);padding:4px 10px;
+  border-radius:14px;font-size:11px;color:var(--text-primary)}
+.modal-body .color-gallery{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.modal-body .color-thumb{width:80px;height:60px;border-radius:8px;border:2px solid var(--border);
+  overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.modal-body .color-thumb:hover{border-color:var(--accent);transform:scale(1.05)}
+.modal-body .color-thumb img{width:100%;height:100%;object-fit:cover}
+.modal-body .color-thumb .ct-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);
+  color:#fff;font-size:8px;text-align:center;padding:2px;text-transform:uppercase}
+.modal-body .tvs-link{display:inline-block;margin-top:12px;padding:10px 20px;background:var(--accent);
+  color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:all .2s}
+.modal-body .tvs-link:hover{background:var(--accent-red)}
+.product-table tr{cursor:pointer}
+.product-table tr:hover td{background:var(--bg-card);border-left:2px solid var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="tvs-logo">
+      <div><h1>TVS Motor</h1><p>3W Dealer Network Dashboard</p></div>
+      <span class="tvs-badge">3W</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="index.html" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;text-decoration:none;font-weight:600">&#8962; Home</a>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">&#9788;</button>
+    </div>
+  </div>
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('dealers')">Dealers</button>
+    <button class="tab-btn" onclick="switchTab('products')">3W Products</button>
+    <button class="tab-btn" onclick="switchTab('sales')">Sales 2026</button>
+    <button class="tab-btn" onclick="switchTab('service')">Service 2026</button>
+  </div>
+  <!-- DEALERS TAB -->
+  <div class="tab-content active" id="tab-dealers">
+    <div class="search-wrap">
+      <input class="search-input" id="search" 
+        placeholder="Search by Dealer ID or Name..."/>
+    </div>
+    <div class="filters">
+      <div class="filter-label">Business Type Filter</div>
+      <div class="filter-chips" id="chips"></div>
+    </div>
+    <div class="state-filter">
+      <div class="filter-label">Filter by State</div>
+      <select class="state-select" id="stateSelect">
+        <option value="">All States</option>
+      </select>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="results-header" id="resultsHeader">All Dealers</div>
+    <div class="results" id="results"></div>
+  </div>
+  <!-- PRODUCTS TAB (sidebar filters only) -->
+  <div class="tab-content" id="tab-products">
+    <div class="search-wrap">
+      <input class="search-input" id="productSearch" 
+        placeholder="Search by SKU, Code or Description..."/>
+    </div>
+    <div class="product-filters">
+      <div class="filter-label">Filter by Product</div>
+      <div class="filter-chips" id="productChips"></div>
+      <div class="filter-label" style="margin-top:10px">Filter by Fuel Type</div>
+      <div class="filter-chips" id="fuelChips"></div>
+    </div>
+    <div class="product-summary" id="productSummary"></div>
+  </div>
+  <!-- SALES TAB (sidebar) -->
+  <div class="tab-content" id="tab-sales">
+    <div class="search-wrap">
+      <input class="search-input" id="salesSearch" placeholder="Search dealer by ID or Name..."/>
+    </div>
+    <div class="filters" style="padding:8px 20px">
+      <div class="filter-label">Region</div>
+      <div class="filter-chips" id="regionChips"></div>
+    </div>
+    <div class="filters" style="padding:4px 20px">
+      <div class="filter-label">Performance</div>
+      <div class="filter-chips" id="perfChips"></div>
+    </div>
+    <div class="filters" style="padding:4px 20px">
+      <div class="filter-label">Quick View</div>
+      <div class="filter-chips" id="quickViewChips"></div>
+    </div>
+    <div class="state-filter" style="padding:4px 20px 8px">
+      <div class="filter-label">State</div>
+      <select class="state-select" id="salesStateSelect">
+        <option value="">All States</option>
+      </select>
+    </div>
+    <div class="sales-summary-cards" id="salesSummary"></div>
+    <div class="results-header" id="salesListHeader">Top Performers</div>
+    <div class="top-dealers" id="topDealers"></div>
+  </div>
+  <!-- SERVICE 2026 TAB (sidebar) -->
+  <div class="tab-content" id="tab-service">
+    <div class="search-wrap">
+      <input class="search-input" id="serviceSearch" placeholder="Search dealer by ID or Name..."/>
+    </div>
+    <div class="filters" style="padding:8px 20px">
+      <div class="filter-label">Quick View</div>
+      <div class="filter-chips" id="serviceQuickChips"></div>
+    </div>
+    <div class="filters" style="padding:4px 20px">
+      <div class="filter-label">Channel</div>
+      <div class="filter-chips" id="serviceChannelChips"></div>
+    </div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg-primary)">
+      <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600">Overview</div>
+      <div class="stat-grid" id="serviceStats"></div>
+    </div>
+    <div class="results-header" id="serviceListHeader">Dealers by JobCards</div>
+    <div class="top-dealers" id="serviceDealers"></div>
+  </div>
+</div>
+<div id="map" style="position:relative">
+  <div class="map-controls" id="mapControls">
+    <div class="map-ctrl-btn" onclick="resetMapView()" title="Reset to India view">&#8962;</div>
+    <div class="map-ctrl-btn" onclick="map.zoomIn()" title="Zoom In">+</div>
+    <div class="map-ctrl-btn" onclick="map.zoomOut()" title="Zoom Out">&minus;</div>
+  </div>
+</div>
+<!-- PRODUCTS FULL VIEW -->
+<div id="productPanel" class="product-panel hidden">
+  <div class="product-table-header">
+    <div class="pth-title">3W Vehicle Product Catalog</div>
+    <div class="pth-count" id="productCount">71 SKUs</div>
+  </div>
+  <div class="product-table-wrap">
+    <table class="product-table" id="productTable">
+      <thead>
+        <tr>
+          <th>SR</th>
+          <th>Code</th>
+          <th>SKU</th>
+          <th>Part Description</th>
+          <th>Product Name</th>
+          <th>Fuel</th>
+          <th>Color</th>
+          <th>Product Hierarchy</th>
+          <th>Hierarchy Code</th>
+        </tr>
+      </thead>
+      <tbody id="productTableBody"></tbody>
+    </table>
+  </div>
+</div>
+<!-- SALES FULL VIEW -->
+<div id="salesPanel" class="sales-panel hidden">
+  <div class="sales-header">
+    <div class="sh-title">Sales Performance 2026 - Invoice Count</div>
+    <div class="sales-legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#f38ba8"></span>High (500+)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#fab387"></span>Medium (200-499)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#a6e3a1"></span>Good (100-199)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#89b4fa"></span>Low (&lt;100)</div>
+    </div>
+  </div>
+  <div id="salesMap"></div>
+</div>
+<!-- SERVICE 2026 FULL VIEW -->
+<div id="servicePanel" class="sales-panel hidden" style="overflow-y:auto">
+  <div class="sales-header" style="flex-wrap:wrap;gap:8px">
+    <div class="sh-title">Service 2026 - JobCard Analysis (August)</div>
+    <div class="sales-legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#0033A0"></span>DMS</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#E31837"></span>Digi</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#F59E0B"></span>Combined Size</div>
+    </div>
+  </div>
+  <div id="serviceMap" style="height:55vh;min-height:400px;border-bottom:2px solid var(--border)"></div>
+  <!-- Collapsible Bottom Section -->
+  <div id="serviceBottomToggle" style="display:flex;align-items:center;justify-content:center;padding:6px;background:var(--bg-secondary);border-bottom:1px solid var(--border);cursor:pointer" onclick="toggleServiceBottom()">
+    <span id="serviceToggleIcon" style="font-size:18px;color:var(--text-secondary);transition:transform .3s">&#9660;</span>
+    <span style="font-size:11px;color:var(--text-secondary);margin-left:8px;font-weight:600;text-transform:uppercase;letter-spacing:1px" id="serviceToggleLabel">Show Details</span>
+  </div>
+  <div id="serviceBottomPanel" style="display:none">
+  <!-- Bar Chart Area -->
+  <div id="serviceChartArea" style="padding:20px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">
+    <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:12px" id="chartTitle">Click a dealer on map to see DMS vs Digi breakdown</div>
+    <div id="serviceBarChart" style="display:flex;gap:12px;align-items:flex-end;height:160px;padding:10px 0"></div>
+  </div>
+  <!-- Table -->
+  <!-- Table Filters -->
+  <div style="padding:14px 24px;background:var(--bg-primary);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Dealer-wise JobCard Detail</div>
+    <div style="flex:1"></div>
+    <select id="serviceStateFilter" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:11px;cursor:pointer" onchange="refreshService()">
+      <option value="">All States</option>
+    </select>
+    <select id="serviceDigiFilter" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:11px;cursor:pointer" onchange="refreshService()">
+      <option value="">All Digi %</option>
+      <option value="high">Digi ≥ 50% (Champions)</option>
+      <option value="mid">Digi 20-49%</option>
+      <option value="low">Digi < 20% (Needs Push)</option>
+    </select>
+    <select id="serviceSortBy" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:11px;cursor:pointer" onchange="refreshService()">
+      <option value="total_desc">Sort: Total ↓</option>
+      <option value="total_asc">Sort: Total ↑</option>
+      <option value="digi_desc">Sort: Digi JC ↓</option>
+      <option value="dms_desc">Sort: DMS JC ↓</option>
+      <option value="pct_desc">Sort: Digi % ↓</option>
+      <option value="pct_asc">Sort: Digi % ↑</option>
+    </select>
+    <div style="font-size:12px;color:var(--text-secondary)" id="serviceTableCount"></div>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="product-table" id="serviceTable">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Dealer ID</th>
+          <th>Branch</th>
+          <th>Dealer Name</th>
+          <th>City</th>
+          <th>DMS JC</th>
+          <th>Digi JC</th>
+          <th>Total</th>
+          <th>Digi %</th>
+          <th style="min-width:140px">DMS vs Digi</th>
+        </tr>
+      </thead>
+      <tbody id="serviceTableBody"></tbody>
+    </table>
+  </div>
+  </div><!-- end serviceBottomPanel -->
+</div>
+</div>
+<script src="dealer-data.js"></script>
+<script>
+// Color scheme for business types
+const TYPE_COLORS = {
+  "Main dealer": {bg:"#a6e3a1",fg:"#1e1e2e",marker:"#40a02b"},
+  "APS":         {bg:"#89b4fa",fg:"#1e1e2e",marker:"#1e66f5"},
+  "Direct AD":   {bg:"#fab387",fg:"#1e1e2e",marker:"#fe640b"},
+  "Indirect AD": {bg:"#f5c2e7",fg:"#1e1e2e",marker:"#ea76cb"}
+};
+
+// Theme management
+var currentTheme = 'dark';
+var mapTileLayer = null;
+var TILE_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+var TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme === 'light' ? 'light' : '');
+  document.getElementById('themeToggle').innerHTML = currentTheme === 'dark' ? '&#9788;' : '&#9790;';
+  // Switch map tiles
+  if (map && mapTileLayer) {
+    map.removeLayer(mapTileLayer);
+    mapTileLayer = L.tileLayer(currentTheme === 'dark' ? TILE_DARK : TILE_LIGHT, {maxZoom:19}).addTo(map);
+  }
+  if (salesMap) {
+    salesMap.eachLayer(function(l){ if(l._url && l._url.indexOf('basemaps') > -1) salesMap.removeLayer(l); });
+    L.tileLayer(currentTheme === 'dark' ? TILE_DARK : TILE_LIGHT, {maxZoom:19}).addTo(salesMap);
+  }
+}
+
+function resetMapView() { if(map) map.setView([22.5,80],5); }
+
+// State
+let activeFilters = new Set(Object.keys(TYPE_COLORS));
+let markers = [];
+let highlightedMarker = null;
+let map, markerGroup;
+
+// Initialize map
+function initMap() {
+  map = L.map('map',{zoomControl:false}).setView([22.5,80],5);
+  mapTileLayer = L.tileLayer(TILE_DARK,{
+    attribution:'&copy; OpenStreetMap contributors &copy; CARTO',
+    maxZoom:19
+  }).addTo(map);
+  markerGroup = L.markerClusterGroup({
+    maxClusterRadius: 40,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    iconCreateFunction: function(cluster) {
+      var count = cluster.getChildCount();
+      var size = count < 10 ? 'small' : count < 30 ? 'medium' : 'large';
+      return L.divIcon({html:'<div>'+count+'</div>',
+        className:'marker-cluster marker-cluster-'+size,iconSize:[40,40]});
+    }
+  });
+  map.addLayer(markerGroup);
+}
+
+// Create circle marker for a branch
+function createBranchMarker(dealer, branch, coords) {
+  var color = TYPE_COLORS[dealer.type] ? TYPE_COLORS[dealer.type].marker : "#cdd6f4";
+  var marker = L.circleMarker(coords, {
+    radius: 7, fillColor: color, color: "#1e1e2e",
+    weight: 2, opacity: 1, fillOpacity: 0.9
+  });
+  var displayName = dealer.name + ' - ' + branch.bname;
+  var stateName = STATE_MAP[dealer.state] || dealer.state || '';
+  marker.bindPopup(
+    '<div class="popup-title">' + displayName + '</div>'
+    +'<div class="popup-row"><b>Dealer ID:</b> ' + dealer.id + '</div>'
+    +'<div class="popup-row"><b>Branch ID:</b> ' + branch.bid + '</div>'
+    +'<div class="popup-row"><b>Branch City:</b> ' + branch.bcity + '</div>'
+    +'<div class="popup-row"><b>State:</b> ' + stateName + ' (' + dealer.state + ')</div>'
+    +'<div class="popup-row"><b>PIN:</b> ' + dealer.pin + '</div>'
+    +'<div class="popup-row"><b>Territory:</b> ' + dealer.territory + '</div>'
+    +'<div class="popup-badge" style="background:' + (TYPE_COLORS[dealer.type]?TYPE_COLORS[dealer.type].bg:'#313244') + ';color:' + (TYPE_COLORS[dealer.type]?TYPE_COLORS[dealer.type].fg:'#cdd6f4') + '">' + dealer.type + '</div>'
+  ,{maxWidth:300});
+  marker.dealerData = dealer;
+  marker.branchData = branch;
+  return marker;
+}
+
+// Find coordinates - uses pincode first (exact), then city name as fallback
+function findCoords(cityName, pin) {
+  // Try pincode first (most accurate)
+  if (pin && PIN_COORDS && PIN_COORDS[pin]) {
+    return PIN_COORDS[pin];
+  }
+  // Fallback to CITY_COORDS if it exists
+  if (typeof CITY_COORDS !== 'undefined') {
+    var upper = cityName ? cityName.toUpperCase() : '';
+    var coords = CITY_COORDS[upper] || CITY_COORDS[cityName];
+    if (!coords) {
+      var key = Object.keys(CITY_COORDS).find(function(k) {
+        return upper.includes(k) || k.includes(upper);
+      });
+      if (key) coords = CITY_COORDS[key];
+    }
+    return coords || null;
+  }
+  return null;
+}
+
+// Render markers - one per branch at branch city location
+function renderMarkers(filteredDealers) {
+  markerGroup.clearLayers();
+  markers = [];
+  var jitter = function() { return (Math.random()-0.5)*0.015; };
+  filteredDealers.forEach(function(d) {
+    if (d.branches && d.branches.length > 0) {
+      d.branches.forEach(function(branch) {
+        // Try branch city first with dealer pin, fall back to dealer city
+        var coords = findCoords(branch.bcity, d.pin) || findCoords(d.city, d.pin);
+        if (coords) {
+          var m = createBranchMarker(d, branch, [coords[0]+jitter(), coords[1]+jitter()]);
+          markers.push(m);
+          markerGroup.addLayer(m);
+        }
+      });
+    } else {
+      // No branches - just plot dealer
+      var coords = findCoords(d.city, d.pin);
+      if (coords) {
+        var m = createBranchMarker(d, {bid:1,bname:d.name,bcity:d.city}, [coords[0]+jitter(), coords[1]+jitter()]);
+        markers.push(m);
+        markerGroup.addLayer(m);
+      }
+    }
+  });
+}
+
+// Get filtered dealers
+function getFilteredDealers(searchTerm) {
+  let list = DEALERS.filter(d => activeFilters.has(d.type));
+  // State filter
+  var selectedState = document.getElementById('stateSelect').value;
+  if (selectedState) {
+    list = list.filter(d => d.state === selectedState);
+  }
+  if (searchTerm) {
+    const s = searchTerm.toLowerCase();
+    list = list.filter(d => 
+      d.id.toString().includes(s) || 
+      d.name.toLowerCase().includes(s) ||
+      d.city.toLowerCase().includes(s)
+    );
+  }
+  return list;
+}
+
+// Render filter chips
+function renderChips() {
+  const container = document.getElementById('chips');
+  container.innerHTML = '';
+  Object.entries(TYPE_COLORS).forEach(([type, colors]) => {
+    const chip = document.createElement('div');
+    const isActive = activeFilters.has(type);
+    chip.className = `chip ${isActive ? 'active' : 'inactive'}`;
+    chip.style.background = isActive ? colors.bg : '#313244';
+    chip.style.color = isActive ? colors.fg : '#6c7086';
+    chip.innerHTML = `<span class="dot" style="background:${colors.marker}"></span>${type}`;
+    chip.onclick = () => {
+      if (activeFilters.has(type)) activeFilters.delete(type);
+      else activeFilters.add(type);
+      refresh();
+    };
+    container.appendChild(chip);
+  });
+}
+
+// Render stats
+function renderStats(filtered) {
+  const stats = document.getElementById('stats');
+  const counts = {};
+  Object.keys(TYPE_COLORS).forEach(t => counts[t] = 0);
+  var totalBranches = 0;
+  filtered.forEach(d => {
+    if(counts[d.type] !== undefined) counts[d.type]++;
+    if(d.type === 'Main dealer' && d.branches) totalBranches += d.branches.length;
+  });
+  stats.innerHTML = `
+    <div class="stats-title">Showing ${filtered.length} Dealers | ${totalBranches} Branches (Main Dealer)</div>
+    <div class="stat-grid">
+      ${Object.entries(counts).map(([type,count]) => {
+        var extra = '';
+        if (type === 'Main dealer') extra = ' <span style="font-size:11px;color:#6c7086">/ '+totalBranches+'B</span>';
+        return '<div class="stat-card"><div class="val" style="color:'+TYPE_COLORS[type].marker+'">'+count+extra+'</div><div class="lbl">'+type+'</div></div>';
+      }).join('')}
+    </div>`;
+}
+
+// Render results list
+function renderResults(filtered) {
+  const container = document.getElementById('results');
+  const header = document.getElementById('resultsHeader');
+  header.textContent = `Dealers (${filtered.length})`;
+  
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No dealers found</div>';
+    return;
+  }
+  // Limit display to 50 for performance
+  const display = filtered.slice(0, 50);
+  container.innerHTML = display.map(d => {
+    const colors = TYPE_COLORS[d.type] || {bg:'#313244',fg:'#cdd6f4'};
+    return `<div class="result-item" data-id="${d.id}">
+      <div class="r-name">${d.name}
+        <span class="r-badge" style="background:${colors.bg};color:${colors.fg}">${d.type}</span>
+      </div>
+      <div class="r-meta">${d.id} | ${d.city} | ${d.territory}</div>
+    </div>`;
+  }).join('');
+  
+  if (filtered.length > 50) {
+    container.innerHTML += `<div class="no-results">Showing 50 of ${filtered.length}. Refine your search.</div>`;
+  }
+
+  // Click handlers
+  container.querySelectorAll('.result-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = parseInt(el.dataset.id);
+      highlightDealer(id);
+    });
+  });
+}
+
+// Highlight a specific dealer on the map
+function highlightDealer(dealerId) {
+  // Reset previous highlight
+  if (highlightedMarker) {
+    const prevColor = TYPE_COLORS[highlightedMarker.dealerData.type]?.marker || "#cdd6f4";
+    highlightedMarker.setStyle({radius:6, fillColor:prevColor, weight:1.5});
+  }
+  
+  // Find marker
+  const marker = markers.find(m => m.dealerData.id === dealerId);
+  if (marker) {
+    highlightedMarker = marker;
+    marker.setStyle({radius:14, fillColor:"#f9e2af", weight:3, color:"#f9e2af"});
+    map.setView(marker.getLatLng(), 10, {animate:true});
+    marker.openPopup();
+    
+    // Highlight in list
+    document.querySelectorAll('.result-item').forEach(el => {
+      el.classList.toggle('highlighted', parseInt(el.dataset.id) === dealerId);
+    });
+  }
+}
+
+// Main refresh function
+function refresh() {
+  const searchTerm = document.getElementById('search').value.trim();
+  const filtered = getFilteredDealers(searchTerm);
+  renderChips();
+  renderStats(filtered);
+  renderResults(filtered);
+  renderMarkers(filtered);
+}
+
+// Initialize
+initMap();
+renderChips();
+// Populate state dropdown
+(function populateStates() {
+  var states = new Set();
+  DEALERS.forEach(function(d) {
+    if (d.state) states.add(d.state);
+  });
+  var select = document.getElementById('stateSelect');
+  Array.from(states).sort().forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = (STATE_MAP[s] || s) + ' (' + s + ')';
+    select.appendChild(opt);
+  });
+})();
+refresh();
+
+// Search with debounce
+let debounceTimer;
+document.getElementById('search').addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(refresh, 250);
+});
+
+// State filter change
+document.getElementById('stateSelect').addEventListener('change', refresh);
+
+// ===== TAB SWITCHING =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector('#tab-'+tab).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if((tab==='dealers' && b.textContent==='Dealers') || 
+       (tab==='products' && b.textContent==='3W Products') ||
+       (tab==='sales' && b.textContent==='Sales 2026') ||
+       (tab==='service' && b.textContent==='Service 2026')) b.classList.add('active');
+  });
+  var mapEl = document.getElementById('map');
+  var productPanel = document.getElementById('productPanel');
+  var salesPanel = document.getElementById('salesPanel');
+  var servicePanel = document.getElementById('servicePanel');
+  mapEl.classList.add('map-hidden');
+  productPanel.classList.add('hidden');
+  salesPanel.classList.add('hidden');
+  servicePanel.classList.add('hidden');
+  if (tab === 'products') {
+    productPanel.classList.remove('hidden');
+    refreshProducts();
+  } else if (tab === 'sales') {
+    salesPanel.classList.remove('hidden');
+    initSalesMap();
+    refreshSales();
+  } else if (tab === 'service') {
+    servicePanel.classList.remove('hidden');
+    initServiceMap();
+    refreshService();
+  } else {
+    mapEl.classList.remove('map-hidden');
+  }
+}
+
+// ===== PRODUCTS SECTION =====
+let activeProductFilters = new Set(Object.keys(PRODUCT_COLORS));
+let activeFuelFilters = new Set(Object.keys(FUEL_COLORS));
+
+function getFilteredProducts(searchTerm) {
+  let list = PRODUCTS.filter(p => 
+    activeProductFilters.has(p.product) && activeFuelFilters.has(p.fuel)
+  );
+  if (searchTerm) {
+    const s = searchTerm.toLowerCase();
+    list = list.filter(p =>
+      p.sku.toLowerCase().includes(s) ||
+      p.code.toLowerCase().includes(s) ||
+      p.desc.toLowerCase().includes(s) ||
+      p.product.toLowerCase().includes(s) ||
+      p.color.toLowerCase().includes(s)
+    );
+  }
+  return list;
+}
+
+function renderProductChips() {
+  const container = document.getElementById('productChips');
+  container.innerHTML = '';
+  Object.entries(PRODUCT_COLORS).forEach(([name, color]) => {
+    const chip = document.createElement('div');
+    const isActive = activeProductFilters.has(name);
+    chip.className = 'chip '+(isActive ? 'active' : 'inactive');
+    chip.style.background = isActive ? color : '#313244';
+    chip.style.color = isActive ? '#1e1e2e' : '#6c7086';
+    chip.innerHTML = '<span class="dot" style="background:'+color+'"></span>'+name.replace('TVS KING ','');
+    chip.onclick = () => {
+      if (activeProductFilters.has(name)) activeProductFilters.delete(name);
+      else activeProductFilters.add(name);
+      refreshProducts();
+    };
+    container.appendChild(chip);
+  });
+}
+
+function renderFuelChips() {
+  const container = document.getElementById('fuelChips');
+  container.innerHTML = '';
+  Object.entries(FUEL_COLORS).forEach(([fuel, colors]) => {
+    const chip = document.createElement('div');
+    const isActive = activeFuelFilters.has(fuel);
+    chip.className = 'chip '+(isActive ? 'active' : 'inactive');
+    chip.style.background = isActive ? colors.bg : '#313244';
+    chip.style.color = isActive ? colors.fg : '#6c7086';
+    chip.innerHTML = '<span class="dot" style="background:'+colors.accent+'"></span>'+fuel;
+    chip.onclick = () => {
+      if (activeFuelFilters.has(fuel)) activeFuelFilters.delete(fuel);
+      else activeFuelFilters.add(fuel);
+      refreshProducts();
+    };
+    container.appendChild(chip);
+  });
+}
+
+function renderProductSummary(filtered) {
+  const summary = document.getElementById('productSummary');
+  const fuelCounts = {};
+  Object.keys(FUEL_COLORS).forEach(f => fuelCounts[f] = 0);
+  filtered.forEach(p => { if(fuelCounts[p.fuel] !== undefined) fuelCounts[p.fuel]++; });
+  const uniqueCodes = new Set(filtered.map(p => p.code)).size;
+  summary.innerHTML = '<div class="stats-title">Showing '+filtered.length+' of '+PRODUCTS.length+' SKUs | '+uniqueCodes+' Unique Codes</div>'
+    +'<div class="ps-grid">'
+    +Object.entries(fuelCounts).map(([fuel,count]) => 
+      '<div class="ps-card"><div class="ps-val" style="color:'+FUEL_COLORS[fuel].accent+'">'+count+'</div><div class="ps-lbl">'+fuel+'</div></div>'
+    ).join('')
+    +'</div>';
+}
+
+function renderProductList(filtered) {
+  var tbody = document.getElementById('productTableBody');
+  var countEl = document.getElementById('productCount');
+  countEl.textContent = filtered.length + ' SKUs';
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#6c7086">No products found</td></tr>';
+    return;
+  }
+  var colorMap = {"BLACK":"#333","WHITE":"#eee","YELLOW":"#f9e2af","WINE RED":"#a0153e",
+    "ECO GREEN":"#40a02b","BLUE":"#1e66f5","PETAL PINK":"#f5c2e7"};
+  tbody.innerHTML = filtered.map(function(p) {
+    var fuelColor = FUEL_COLORS[p.fuel] || {bg:'#313244',fg:'#cdd6f4'};
+    var dotColor = colorMap[p.color] || '#6c7086';
+    return '<tr onclick="openProductModal(PRODUCTS['+(p.sr-1)+'])" title="Click for details">'
+      +'<td>'+p.sr+'</td>'
+      +'<td><strong>'+p.code+'</strong></td>'
+      +'<td style="font-family:monospace;font-size:11px">'+p.sku+'</td>'
+      +'<td>'+p.desc+'</td>'
+      +'<td class="product-name-cell" style="color:'+(PRODUCT_COLORS[p.product]||'#cdd6f4')+'">'+p.product+'</td>'
+      +'<td><span class="fuel-badge" style="background:'+fuelColor.bg+';color:'+fuelColor.fg+'">'+p.fuel+'</span></td>'
+      +'<td><span class="color-swatch"><span class="color-dot" style="background:'+dotColor+'"></span>'+p.color+'</span></td>'
+      +'<td class="hierarchy-cell">'+p.hierarchy+'</td>'
+      +'<td style="font-family:monospace;font-size:10px;color:#a6adc8">'+(p.hierarchyCode||'')+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function refreshProducts() {
+  const searchTerm = document.getElementById('productSearch').value.trim();
+  const filtered = getFilteredProducts(searchTerm);
+  renderProductChips();
+  renderFuelChips();
+  renderProductSummary(filtered);
+  renderProductList(filtered);
+}
+
+// Product search debounce
+let productDebounce;
+document.getElementById('productSearch').addEventListener('input', () => {
+  clearTimeout(productDebounce);
+  productDebounce = setTimeout(refreshProducts, 250);
+});
+
+// ===== SALES 2026 SECTION =====
+var salesMap = null;
+var salesMarkerGroup = null;
+var salesInitialized = false;
+var activeRegions = new Set(['North','South','East','West']);
+var activePerfTiers = new Set(['High','Medium','Good','Low']);
+var salesQuickView = 'all'; // 'all','top5','bottom5','top10','bottom10'
+
+const PERF_TIERS = {
+  "High":{min:500,color:"#f38ba8",label:"500+"},
+  "Medium":{min:200,color:"#fab387",label:"200-499"},
+  "Good":{min:100,color:"#a6e3a1",label:"100-199"},
+  "Low":{min:0,color:"#89b4fa",label:"<100"}
+};
+
+function initSalesMap() {
+  if (salesInitialized) return;
+  salesMap = L.map('salesMap',{zoomControl:true}).setView([22.5,80],5);
+  L.tileLayer(currentTheme === 'dark' ? TILE_DARK : TILE_LIGHT,{
+    attribution:'&copy; OpenStreetMap',maxZoom:19
+  }).addTo(salesMap);
+  salesMarkerGroup = L.layerGroup().addTo(salesMap);
+  salesInitialized = true;
+  setTimeout(function(){ salesMap.invalidateSize(); },200);
+  // Populate sales state dropdown
+  var states = new Set();
+  DEALERS.forEach(function(d){ if(d.state) states.add(d.state); });
+  var sel = document.getElementById('salesStateSelect');
+  Array.from(states).sort().forEach(function(s){
+    var opt = document.createElement('option');
+    opt.value = s; opt.textContent = (STATE_MAP[s]||s)+' ('+s+')';
+    sel.appendChild(opt);
+  });
+}
+
+function getSalesColor(count) {
+  if (count >= 500) return '#f38ba8';
+  if (count >= 200) return '#fab387';
+  if (count >= 100) return '#a6e3a1';
+  return '#89b4fa';
+}
+
+function getSalesRadius(count) {
+  if (count >= 500) return 18;
+  if (count >= 200) return 13;
+  if (count >= 100) return 9;
+  return 6;
+}
+
+function getTier(count) {
+  if (count >= 500) return 'High';
+  if (count >= 200) return 'Medium';
+  if (count >= 100) return 'Good';
+  return 'Low';
+}
+
+function renderRegionChips() {
+  var container = document.getElementById('regionChips');
+  var regionColors = {North:'#89dceb',South:'#a6e3a1',East:'#fab387',West:'#cba6f7'};
+  container.innerHTML = '';
+  ['North','South','East','West'].forEach(function(r){
+    var isActive = activeRegions.has(r);
+    var chip = document.createElement('div');
+    chip.className = 'chip '+(isActive?'active':'inactive');
+    chip.style.background = isActive ? regionColors[r] : '#313244';
+    chip.style.color = isActive ? '#1e1e2e' : '#6c7086';
+    chip.innerHTML = '<span class="dot" style="background:'+regionColors[r]+'"></span>'+r;
+    chip.onclick = function(){ if(activeRegions.has(r)) activeRegions.delete(r); else activeRegions.add(r); refreshSales(); };
+    container.appendChild(chip);
+  });
+}
+
+function renderPerfChips() {
+  var container = document.getElementById('perfChips');
+  container.innerHTML = '';
+  Object.entries(PERF_TIERS).forEach(function(entry){
+    var tier = entry[0], conf = entry[1];
+    var isActive = activePerfTiers.has(tier);
+    var chip = document.createElement('div');
+    chip.className = 'chip '+(isActive?'active':'inactive');
+    chip.style.background = isActive ? conf.color : '#313244';
+    chip.style.color = isActive ? '#1e1e2e' : '#6c7086';
+    chip.innerHTML = '<span class="dot" style="background:'+conf.color+'"></span>'+tier+' ('+conf.label+')';
+    chip.onclick = function(){ if(activePerfTiers.has(tier)) activePerfTiers.delete(tier); else activePerfTiers.add(tier); refreshSales(); };
+    container.appendChild(chip);
+  });
+}
+
+function renderQuickViewChips() {
+  var container = document.getElementById('quickViewChips');
+  var views = [{id:'all',label:'All'},{id:'top5',label:'Top 5'},{id:'top10',label:'Top 10'},{id:'bottom5',label:'Bottom 5'},{id:'bottom10',label:'Bottom 10'}];
+  container.innerHTML = '';
+  views.forEach(function(v){
+    var isActive = salesQuickView === v.id;
+    var chip = document.createElement('div');
+    chip.className = 'chip '+(isActive?'active':'inactive');
+    chip.style.background = isActive ? '#cba6f7' : '#313244';
+    chip.style.color = isActive ? '#1e1e2e' : '#6c7086';
+    chip.textContent = v.label;
+    chip.onclick = function(){ salesQuickView = v.id; refreshSales(); };
+    container.appendChild(chip);
+  });
+}
+
+function refreshSales() {
+  if (!salesMap) return;
+  salesMarkerGroup.clearLayers();
+  renderRegionChips();
+  renderPerfChips();
+  renderQuickViewChips();
+  var searchTerm = document.getElementById('salesSearch').value.trim().toLowerCase();
+  var selectedState = document.getElementById('salesStateSelect').value;
+
+  // Build sales entries
+  var salesEntries = [];
+  Object.keys(INVOICE_DATA).forEach(function(key) {
+    var parts = key.split('_');
+    var dealerId = parseInt(parts[0]);
+    var branchId = parseInt(parts[1]);
+    var count = INVOICE_DATA[key];
+    var dealer = DEALERS.find(function(d){ return d.id === dealerId; });
+    if (!dealer) return;
+    var branch = null;
+    if (dealer.branches) branch = dealer.branches.find(function(b){ return b.bid === branchId; });
+    var bcity = branch ? branch.bcity : dealer.city;
+    var bname = branch ? branch.bname : dealer.name;
+    var region = STATE_REGION[dealer.state] || 'Other';
+    salesEntries.push({
+      dealerId:dealerId, branchId:branchId, count:count,
+      name:dealer.name, bname:bname, bcity:bcity,
+      city:dealer.city, state:dealer.state, type:dealer.type,
+      territory:dealer.territory, region:region, pin:dealer.pin
+    });
+  });
+
+  // Apply filters
+  // Region filter
+  salesEntries = salesEntries.filter(function(e){ return activeRegions.has(e.region); });
+  // Performance tier filter
+  salesEntries = salesEntries.filter(function(e){ return activePerfTiers.has(getTier(e.count)); });
+  // State filter
+  if (selectedState) salesEntries = salesEntries.filter(function(e){ return e.state === selectedState; });
+  // Search
+  if (searchTerm) {
+    salesEntries = salesEntries.filter(function(e) {
+      return e.dealerId.toString().includes(searchTerm) ||
+        e.name.toLowerCase().includes(searchTerm) ||
+        e.bname.toLowerCase().includes(searchTerm) ||
+        e.city.toLowerCase().includes(searchTerm);
+    });
+  }
+
+  // Sort by count descending
+  salesEntries.sort(function(a,b){ return b.count - a.count; });
+
+  // Quick view filter (applied after sort)
+  var displayEntries = salesEntries;
+  var headerText = 'All Dealers ('+salesEntries.length+')';
+  if (salesQuickView === 'top5') { displayEntries = salesEntries.slice(0,5); headerText = 'Top 5 Performers'; }
+  else if (salesQuickView === 'top10') { displayEntries = salesEntries.slice(0,10); headerText = 'Top 10 Performers'; }
+  else if (salesQuickView === 'bottom5') { displayEntries = salesEntries.slice(-5).reverse(); headerText = 'Bottom 5 Performers'; }
+  else if (salesQuickView === 'bottom10') { displayEntries = salesEntries.slice(-10).reverse(); headerText = 'Bottom 10 Performers'; }
+
+  // Summary
+  var totalInvoices = salesEntries.reduce(function(s,e){ return s+e.count; },0);
+  var avgInvoices = salesEntries.length > 0 ? Math.round(totalInvoices/salesEntries.length) : 0;
+  var highPerformers = salesEntries.filter(function(e){ return e.count>=500; }).length;
+  var maxDealer = salesEntries.length > 0 ? salesEntries[0] : null;
+  document.getElementById('salesSummary').innerHTML =
+    '<div class="sc"><div class="sc-val" style="color:#cba6f7">'+totalInvoices.toLocaleString()+'</div><div class="sc-lbl">Total Invoices</div></div>'
+    +'<div class="sc"><div class="sc-val" style="color:#a6e3a1">'+avgInvoices+'</div><div class="sc-lbl">Avg / Dealer</div></div>'
+    +'<div class="sc"><div class="sc-val" style="color:#f38ba8">'+highPerformers+'</div><div class="sc-lbl">High (500+)</div></div>'
+    +'<div class="sc"><div class="sc-val" style="color:#89dceb">'+salesEntries.length+'</div><div class="sc-lbl">Dealers Shown</div></div>';
+
+  // List header
+  document.getElementById('salesListHeader').textContent = headerText;
+
+  // Render list
+  var listEntries = displayEntries.slice(0,30);
+  var maxCount = listEntries.length > 0 ? Math.max(listEntries[0].count, 1) : 1;
+  if (salesQuickView === 'bottom5' || salesQuickView === 'bottom10') {
+    // For bottom, reverse sort to show worst first
+    listEntries = salesEntries.slice(-parseInt(salesQuickView.replace('bottom',''))); 
+    listEntries.sort(function(a,b){ return a.count - b.count; });
+    maxCount = salesEntries.length > 0 ? salesEntries[0].count : 1;
+  }
+  document.getElementById('topDealers').innerHTML = listEntries.map(function(e, i) {
+    var color = getSalesColor(e.count);
+    var barWidth = Math.max(5, Math.round((e.count/maxCount)*100));
+    var regionColors = {North:'#89dceb',South:'#a6e3a1',East:'#fab387',West:'#cba6f7'};
+    var regionDot = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+(regionColors[e.region]||'#6c7086')+';margin-right:3px"></span>';
+    return '<div class="top-dealer-item" style="border-left-color:'+color+'">'
+      +'<div class="td-rank">#'+(i+1)+'</div>'
+      +'<div class="td-info">'
+      +'<div class="td-name">'+e.name+' - '+e.bname+'</div>'
+      +'<div class="td-city">'+regionDot+e.region+' | '+e.bcity+' | '+(STATE_MAP[e.state]||e.state)+'</div>'
+      +'<div class="td-bar" style="width:'+barWidth+'%;background:'+color+'"></div>'
+      +'</div>'
+      +'<div class="td-count" style="color:'+color+'">'+e.count+'</div>'
+      +'</div>';
+  }).join('');
+
+  // Render map bubbles (use full filtered set, not quick view)
+  salesEntries.forEach(function(e) {
+    var coords = findCoords(e.bcity, e.pin) || findCoords(e.city, e.pin);
+    if (!coords) return;
+    var jitter = (Math.random()-0.5)*0.015;
+    var color = getSalesColor(e.count);
+    var radius = getSalesRadius(e.count);
+    var marker = L.circleMarker([coords[0]+jitter, coords[1]+jitter], {
+      radius: radius, fillColor: color, color: '#1e1e2e',
+      weight: 2, opacity: 1, fillOpacity: 0.75
+    });
+    var regionColors = {North:'#89dceb',South:'#a6e3a1',East:'#fab387',West:'#cba6f7'};
+    marker.bindPopup(
+      '<div class="popup-title">'+e.name+' - '+e.bname+'</div>'
+      +'<div class="popup-row"><b>Invoices:</b> <span style="color:'+color+';font-weight:700;font-size:16px">'+e.count+'</span></div>'
+      +'<div class="popup-row"><b>Tier:</b> '+getTier(e.count)+' | <b>Region:</b> <span style="color:'+(regionColors[e.region]||'#cdd6f4')+'">'+e.region+'</span></div>'
+      +'<div class="popup-row"><b>Dealer ID:</b> '+e.dealerId+' | <b>Branch:</b> '+e.branchId+'</div>'
+      +'<div class="popup-row"><b>City:</b> '+e.bcity+' | <b>State:</b> '+(STATE_MAP[e.state]||e.state)+'</div>'
+      +'<div class="popup-row"><b>Territory:</b> '+e.territory+'</div>'
+    ,{maxWidth:280});
+    salesMarkerGroup.addLayer(marker);
+  });
+
+  setTimeout(function(){ if(salesMap) salesMap.invalidateSize(); },100);
+}
+
+// Sales search debounce
+var salesDebounce;
+document.getElementById('salesSearch').addEventListener('input', function() {
+  clearTimeout(salesDebounce);
+  salesDebounce = setTimeout(refreshSales, 300);
+});
+document.getElementById('salesStateSelect').addEventListener('change', refreshSales);
+
+// ===== PRODUCT DETAIL MODAL =====
+function openProductModal(product) {
+  var details = PRODUCT_DETAILS[product.product];
+  if (!details) { alert('No detailed info available for ' + product.product); return; }
+  var colorImg = details.colors[product.color] || details.image;
+  var modal = document.getElementById('modalContent');
+  var specsHtml = '<div class="spec-grid">'
+    +'<div class="spec-item"><div class="spec-val">'+details.engine+'</div><div class="spec-lbl">Engine</div></div>'
+    +'<div class="spec-item"><div class="spec-val">'+details.power+'</div><div class="spec-lbl">Max Power</div></div>'
+    +'<div class="spec-item"><div class="spec-val">'+details.torque+'</div><div class="spec-lbl">Max Torque</div></div>'
+    +'<div class="spec-item"><div class="spec-val">'+details.topSpeed+'</div><div class="spec-lbl">Top Speed</div></div>'
+    +'<div class="spec-item"><div class="spec-val">'+details.fuelTank+'</div><div class="spec-lbl">'+(product.fuel==='EV'?'Battery':'Fuel Tank')+'</div></div>'
+    +'<div class="spec-item"><div class="spec-val">'+details.seating+'</div><div class="spec-lbl">Seating</div></div>';
+  if (details.range) specsHtml += '<div class="spec-item"><div class="spec-val">'+details.range+'</div><div class="spec-lbl">Range</div></div>';
+  if (details.chargingTime) specsHtml += '<div class="spec-item"><div class="spec-val">'+details.chargingTime+'</div><div class="spec-lbl">Charging</div></div>';
+  if (details.loadDeck) specsHtml += '<div class="spec-item"><div class="spec-val">'+details.loadDeck+'</div><div class="spec-lbl">Load Deck</div></div>';
+  specsHtml += '</div>';
+
+  var featuresHtml = details.features.map(function(f){ return '<span class="feature-tag">'+f+'</span>'; }).join('');
+
+  var colorsHtml = '';
+  if (details.colors) {
+    Object.entries(details.colors).forEach(function(entry){
+      var cName = entry[0], cUrl = entry[1];
+      colorsHtml += '<div class="color-thumb" onclick="changeModalImage(\''+cUrl+'\')">'
+        +'<img src="'+cUrl+'" alt="'+cName+'" onerror="this.style.display=\'none\'">'
+        +'<div class="ct-label">'+cName+'</div></div>';
+    });
+  }
+
+  modal.innerHTML = '<div class="modal-header">'
+    +'<img src="'+colorImg+'" id="modalMainImage" onerror="this.src=\'https://www.tvsmotor.com/three-wheelers/-/media/Feature/tvs-three-wheeler/og-image.jpg\'">'
+    +'<button class="modal-close" onclick="closeProductModal()">&times;</button>'
+    +'</div>'
+    +'<div class="modal-body">'
+    +'<div class="mb-title">'+product.product+'</div>'
+    +'<div class="mb-tagline">'+details.tagline+'</div>'
+    +'<div class="mb-section"><div class="mb-section-title">Selected Variant</div>'
+    +'<div class="spec-grid"><div class="spec-item"><div class="spec-val">'+product.code+'</div><div class="spec-lbl">Code</div></div>'
+    +'<div class="spec-item"><div class="spec-val">'+product.sku+'</div><div class="spec-lbl">SKU</div></div>'
+    +'<div class="spec-item"><div class="spec-val" style="color:var(--accent-red)">'+product.color+'</div><div class="spec-lbl">Color</div></div></div></div>'
+    +'<div class="mb-section"><div class="mb-section-title">Specifications</div>'+specsHtml+'</div>'
+    +'<div class="mb-section"><div class="mb-section-title">Key Features</div><div class="features-list">'+featuresHtml+'</div></div>'
+    +'<div class="mb-section"><div class="mb-section-title">Available Colors</div><div class="color-gallery">'+colorsHtml+'</div></div>'
+    +'<div class="mb-section"><div class="mb-section-title">Product Hierarchy</div>'
+    +'<div class="spec-grid"><div class="spec-item"><div class="spec-val">'+product.hierarchy+'</div><div class="spec-lbl">Description</div></div>'
+    +'<div class="spec-item"><div class="spec-val" style="font-family:monospace;font-size:11px">'+(product.hierarchyCode||'-')+'</div><div class="spec-lbl">Code</div></div></div></div>'
+    +'<a class="tvs-link" href="'+details.url+'" target="_blank">View on TVS Motor Website &rarr;</a>'
+    +'</div>';
+
+  document.getElementById('productModal').classList.add('show');
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('show');
+}
+
+function changeModalImage(url) {
+  var img = document.getElementById('modalMainImage');
+  if (img) img.src = url;
+}
+
+// Close modal on overlay click
+document.getElementById('productModal').addEventListener('click', function(e) {
+  if (e.target === this) closeProductModal();
+});
+
+// Close modal on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeProductModal();
+});
+
+// ===== SERVICE 2026 SECTION =====
+var serviceMap2 = null;
+var serviceMarkerGroup = null;
+var serviceInitialized = false;
+var serviceQuickView = 'all';
+var serviceChannel = 'both'; // 'both','dms','digi'
+
+function initServiceMap() {
+  if (serviceInitialized) {
+    serviceMap2.invalidateSize();
+    return;
+  }
+  var indiaBounds = L.latLngBounds([6, 67], [37, 98]);
+  serviceMap2 = L.map('serviceMap', {
+    center: [22.5, 80], zoom: 5, minZoom: 4, maxZoom: 18,
+    maxBounds: indiaBounds, maxBoundsViscosity: 0.9
+  });
+  L.tileLayer(currentTheme === 'dark' ? TILE_DARK : TILE_LIGHT, {
+    attribution: '&copy; OpenStreetMap', maxZoom: 19
+  }).addTo(serviceMap2);
+  serviceMarkerGroup = L.layerGroup().addTo(serviceMap2);
+  serviceInitialized = true;
+  setTimeout(function(){ serviceMap2.invalidateSize(); }, 200);
+}
+
+function getServiceFiltered() {
+  var list = SERVICE_DATA.slice();
+  var q = document.getElementById('serviceSearch').value.trim().toLowerCase();
+  if (q) {
+    list = list.filter(function(s) {
+      var dealerId = parseInt(s.dealerId);
+      var dealer = DEALERS.find(function(d){ return d.id === dealerId; });
+      var name = dealer ? dealer.name.toLowerCase() : '';
+      return s.dealerId.includes(q) || name.includes(q);
+    });
+  }
+  if (serviceQuickView === 'top10') list = list.slice(0, 10);
+  else if (serviceQuickView === 'top20') list = list.slice(0, 20);
+  else if (serviceQuickView === 'bottom10') list = list.filter(function(s){return s.total > 0;}).sort(function(a,b){return a.total - b.total;}).slice(0, 10);
+  return list;
+}
+
+function renderServiceMarkers() {
+  if (!serviceMarkerGroup) return;
+  serviceMarkerGroup.clearLayers();
+  var filtered = getServiceFiltered();
+
+  filtered.forEach(function(s) {
+    var dealerId = parseInt(s.dealerId);
+    var branchId = parseInt(s.branchId);
+    var dealer = DEALERS.find(function(d){ return d.id === dealerId; });
+    if (!dealer) return;
+
+    // Find branch city
+    var bcity = dealer.city;
+    if (dealer.branches) {
+      var branch = dealer.branches.find(function(b){ return b.bid === branchId; });
+      if (branch) bcity = branch.bcity;
+    }
+
+    // Get coordinates using the same method as the dealers tab
+    var coords = findCoords(bcity, dealer.pin) || findCoords(dealer.city, dealer.pin);
+    if (!coords) return;
+
+    // Validate within India bounds
+    var lat = coords[0] + (Math.random()-0.5)*0.008;
+    var lng = coords[1] + (Math.random()-0.5)*0.008;
+    if (lat < 7 || lat > 36 || lng < 68 || lng > 97.5) return;
+
+    var val = serviceChannel === 'dms' ? s.dms : serviceChannel === 'digi' ? s.digi : s.total;
+    var radius = Math.max(6, Math.min(28, Math.sqrt(val) * 0.25));
+    var dmsRatio = s.total > 0 ? s.dms / s.total : 0;
+    var color = dmsRatio > 0.7 ? '#0033A0' : dmsRatio < 0.4 ? '#E31837' : '#F59E0B';
+
+    var circle = L.circleMarker([lat, lng], {
+      radius: radius, fillColor: color, color: '#fff', weight: 1.5,
+      opacity: 0.9, fillOpacity: 0.7
+    });
+
+    // Build inline bar chart popup
+    var name = dealer.name || 'Unknown';
+    var digiPct = s.total > 0 ? Math.round((s.digi / s.total) * 100) : 0;
+    var maxVal = Math.max(s.dms, s.digi, 1);
+    var dmsBarH = Math.round((s.dms / maxVal) * 80);
+    var digiBarH = Math.round((s.digi / maxVal) * 80);
+
+    var popupHtml = 
+      '<div style="min-width:260px">' +
+      '<div class="popup-title">' + name + '</div>' +
+      '<div class="popup-row"><b>ID:</b> ' + s.dealerId + '-' + s.branchId + ' | <b>City:</b> ' + bcity + '</div>' +
+      '<div class="popup-row"><b>State:</b> ' + (dealer.state || '') + ' | <b>Territory:</b> ' + (dealer.territory || '') + '</div>' +
+      '<div style="display:flex;align-items:flex-end;gap:8px;margin-top:12px;padding:10px;background:rgba(0,0,0,0.15);border-radius:8px;justify-content:center">' +
+        '<div style="text-align:center">' +
+          '<div style="font-size:12px;font-weight:800;color:#0033A0">' + s.dms.toLocaleString() + '</div>' +
+          '<div style="width:40px;height:' + dmsBarH + 'px;background:linear-gradient(180deg,#0033A0,#3b82f6);border-radius:4px 4px 0 0;margin:4px auto"></div>' +
+          '<div style="font-size:9px;color:var(--text-secondary)">DMS</div>' +
+        '</div>' +
+        '<div style="text-align:center">' +
+          '<div style="font-size:12px;font-weight:800;color:#E31837">' + s.digi.toLocaleString() + '</div>' +
+          '<div style="width:40px;height:' + digiBarH + 'px;background:linear-gradient(180deg,#E31837,#f43f5e);border-radius:4px 4px 0 0;margin:4px auto"></div>' +
+          '<div style="font-size:9px;color:var(--text-secondary)">Digi</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding-left:8px;border-left:1px solid rgba(255,255,255,0.1)">' +
+          '<div style="font-size:18px;font-weight:900;color:' + (digiPct>=50?'#10B981':'#F59E0B') + '">' + digiPct + '%</div>' +
+          '<div style="font-size:9px;color:var(--text-secondary)">Digi</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:8px;font-size:13px;font-weight:700;color:#F59E0B">Total: ' + s.total.toLocaleString() + ' JobCards</div>' +
+      '</div>';
+
+    circle.bindPopup(popupHtml, {maxWidth: 320, className: 'service-popup'});
+    circle.on('click', function() { showServiceBarChart(s, dealer); });
+    serviceMarkerGroup.addLayer(circle);
+  });
+}
+
+function showServiceBarChart(s, dealer) {
+  var container = document.getElementById('serviceBarChart');
+  var title = document.getElementById('chartTitle');
+  var name = dealer ? dealer.name : s.dealerId;
+  title.innerHTML = '<span style="color:var(--accent)">' + name + '</span> — DMS vs Digi JobCards';
+
+  var maxVal = Math.max(s.dms, s.digi, 1);
+  var dmsH = Math.round((s.dms / maxVal) * 130);
+  var digiH = Math.round((s.digi / maxVal) * 130);
+  var digiPct = s.total > 0 ? Math.round((s.digi / s.total) * 100) : 0;
+
+  container.innerHTML = 
+    '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+      '<div style="font-size:14px;font-weight:800;color:#0033A0;margin-bottom:6px">' + s.dms.toLocaleString() + '</div>' +
+      '<div style="width:60px;height:' + dmsH + 'px;background:linear-gradient(180deg,#0033A0,#3b82f6);border-radius:6px 6px 0 0;transition:height .4s"></div>' +
+      '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:6px">DMS</div>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+      '<div style="font-size:14px;font-weight:800;color:#E31837;margin-bottom:6px">' + s.digi.toLocaleString() + '</div>' +
+      '<div style="width:60px;height:' + digiH + 'px;background:linear-gradient(180deg,#E31837,#f43f5e);border-radius:6px 6px 0 0;transition:height .4s"></div>' +
+      '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:6px">Digi</div>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+      '<div style="font-size:14px;font-weight:800;color:#F59E0B;margin-bottom:6px">' + s.total.toLocaleString() + '</div>' +
+      '<div style="width:60px;height:130px;background:linear-gradient(180deg,#F59E0B,#fbbf24);border-radius:6px 6px 0 0;transition:height .4s"></div>' +
+      '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:6px">Total</div>' +
+    '</div>' +
+    '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px">' +
+      '<div style="font-size:28px;font-weight:900;color:' + (digiPct >= 50 ? '#10B981' : '#F59E0B') + '">' + digiPct + '%</div>' +
+      '<div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px">Digi Adoption</div>' +
+    '</div>';
+}
+
+function renderServiceStats() {
+  var filtered = getServiceFiltered();
+  var totalDms = filtered.reduce(function(a, s){return a + s.dms;}, 0);
+  var totalDigi = filtered.reduce(function(a, s){return a + s.digi;}, 0);
+  var total = totalDms + totalDigi;
+  var digiPct = total > 0 ? Math.round((totalDigi / total) * 100) : 0;
+
+  document.getElementById('serviceStats').innerHTML =
+    '<div class="stat-card"><div class="val" style="color:#0033A0">' + (totalDms/1000).toFixed(0) + 'K</div><div class="lbl">DMS JC</div></div>' +
+    '<div class="stat-card"><div class="val" style="color:#E31837">' + (totalDigi/1000).toFixed(0) + 'K</div><div class="lbl">Digi JC</div></div>' +
+    '<div class="stat-card"><div class="val" style="color:#F59E0B">' + (total/1000).toFixed(0) + 'K</div><div class="lbl">Total</div></div>' +
+    '<div class="stat-card"><div class="val" style="color:#10B981">' + digiPct + '%</div><div class="lbl">Digi %</div></div>';
+}
+
+function renderServiceQuickChips() {
+  var views = [{id:'all',label:'All'},{id:'top10',label:'Top 10'},{id:'top20',label:'Top 20'},{id:'bottom10',label:'Low 10'}];
+  document.getElementById('serviceQuickChips').innerHTML = views.map(function(v) {
+    var active = serviceQuickView === v.id;
+    return '<div class="chip ' + (active ? 'active' : 'inactive') + '" onclick="setServiceQuick(\'' + v.id + '\')">' + v.label + '</div>';
+  }).join('');
+}
+
+function renderServiceChannelChips() {
+  var channels = [{id:'both',label:'Both'},{id:'dms',label:'DMS Only'},{id:'digi',label:'Digi Only'}];
+  var colors = {both:'#F59E0B', dms:'#0033A0', digi:'#E31837'};
+  document.getElementById('serviceChannelChips').innerHTML = channels.map(function(c) {
+    var active = serviceChannel === c.id;
+    return '<div class="chip ' + (active ? 'active' : 'inactive') + '" onclick="setServiceChannel(\'' + c.id + '\')">' +
+      '<span class="dot" style="background:' + colors[c.id] + '"></span>' + c.label + '</div>';
+  }).join('');
+}
+
+function renderServiceDealers() {
+  var filtered = getServiceFiltered();
+  var container = document.getElementById('serviceDealers');
+  var header = document.getElementById('serviceListHeader');
+  var limit = 50;
+  var showing = filtered.slice(0, limit);
+  header.textContent = showing.length + (filtered.length > limit ? ' of ' + filtered.length : '') + ' Dealers';
+
+  if (showing.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted)">No results</div>';
+    return;
+  }
+
+  var maxTotal = showing[0] ? showing[0].total : 1;
+  container.innerHTML = showing.map(function(s, i) {
+    var dealerId = parseInt(s.dealerId);
+    var dealer = DEALERS.find(function(d){ return d.id === dealerId; });
+    var name = dealer ? dealer.name : s.dealerId;
+    var city = dealer ? dealer.city : '';
+    var digiPct = s.total > 0 ? Math.round((s.digi / s.total) * 100) : 0;
+    var barW = Math.round((s.total / maxTotal) * 100);
+    return '<div class="top-dealer-item" style="border-left-color:' + (digiPct >= 50 ? '#10B981' : '#0033A0') + '">' +
+      '<div class="td-rank">' + (i+1) + '</div>' +
+      '<div class="td-info"><div class="td-name">' + name + '</div>' +
+      '<div class="td-city">' + s.dealerId + '-' + s.branchId + ' | ' + city + ' | Digi: ' + digiPct + '%</div>' +
+      '<div class="td-bar" style="background:var(--border)"><div style="height:100%;width:' + barW + '%;background:linear-gradient(90deg,#0033A0 ' + (100-digiPct) + '%,#E31837 ' + (100-digiPct) + '%);border-radius:2px"></div></div></div>' +
+      '<div class="td-count" style="color:#F59E0B">' + s.total.toLocaleString() + '</div></div>';
+  }).join('');
+}
+
+function renderServiceTable() {
+  var filtered = getServiceFiltered();
+  var tbody = document.getElementById('serviceTableBody');
+  var countEl = document.getElementById('serviceTableCount');
+
+  // Apply table-specific filters
+  var stateFilter = document.getElementById('serviceStateFilter').value;
+  var digiFilter = document.getElementById('serviceDigiFilter').value;
+  var sortBy = document.getElementById('serviceSortBy').value;
+
+  if (stateFilter) {
+    filtered = filtered.filter(function(s) {
+      var dealerId = parseInt(s.dealerId);
+      var dealer = DEALERS.find(function(d){ return d.id === dealerId; });
+      return dealer && dealer.state === stateFilter;
+    });
+  }
+
+  if (digiFilter) {
+    filtered = filtered.filter(function(s) {
+      var pct = s.total > 0 ? (s.digi / s.total) * 100 : 0;
+      if (digiFilter === 'high') return pct >= 50;
+      if (digiFilter === 'mid') return pct >= 20 && pct < 50;
+      if (digiFilter === 'low') return pct < 20;
+      return true;
+    });
+  }
+
+  // Sort
+  filtered.sort(function(a, b) {
+    if (sortBy === 'total_asc') return a.total - b.total;
+    if (sortBy === 'digi_desc') return b.digi - a.digi;
+    if (sortBy === 'dms_desc') return b.dms - a.dms;
+    if (sortBy === 'pct_desc') return (b.total?b.digi/b.total:0) - (a.total?a.digi/a.total:0);
+    if (sortBy === 'pct_asc') return (a.total?a.digi/a.total:0) - (b.total?b.digi/b.total:0);
+    return b.total - a.total; // default: total_desc
+  });
+
+  var display = filtered.slice(0, 300);
+  countEl.textContent = 'Showing ' + display.length + ' of ' + filtered.length;
+
+  if (display.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:#6c7086">No data matches filters</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = display.map(function(s, i) {
+    var dealerId = parseInt(s.dealerId);
+    var dealer = DEALERS.find(function(d){ return d.id === dealerId; });
+    var name = dealer ? dealer.name : 'Unknown';
+    var city = dealer ? dealer.city : '';
+    var digiPct = s.total > 0 ? Math.round((s.digi / s.total) * 100) : 0;
+    var dmsW = s.total > 0 ? Math.round((s.dms / s.total) * 100) : 0;
+    var pctColor = digiPct >= 50 ? '#10B981' : digiPct >= 20 ? '#F59E0B' : '#EF4444';
+    return '<tr>' +
+      '<td style="font-weight:700;color:var(--text-muted);text-align:center">' + (i+1) + '</td>' +
+      '<td style="font-family:monospace;font-weight:600">' + s.dealerId + '</td>' +
+      '<td style="text-align:center">' + s.branchId + '</td>' +
+      '<td><strong>' + name + '</strong></td>' +
+      '<td>' + city + '</td>' +
+      '<td style="font-weight:700;color:#0033A0">' + s.dms.toLocaleString() + '</td>' +
+      '<td style="font-weight:700;color:#E31837">' + s.digi.toLocaleString() + '</td>' +
+      '<td style="font-weight:800;color:#F59E0B">' + s.total.toLocaleString() + '</td>' +
+      '<td><span style="font-weight:700;color:' + pctColor + '">' + digiPct + '%</span></td>' +
+      '<td><div style="display:flex;height:10px;border-radius:5px;overflow:hidden;min-width:120px">' +
+        '<div style="width:' + dmsW + '%;background:#0033A0"></div>' +
+        '<div style="width:' + (100-dmsW) + '%;background:#E31837"></div></div></td></tr>';
+  }).join('');
+}
+
+function setServiceQuick(v) { serviceQuickView = v; refreshService(); }
+function setServiceChannel(c) { serviceChannel = c; refreshService(); }
+
+function toggleServiceBottom() {
+  var panel = document.getElementById('serviceBottomPanel');
+  var icon = document.getElementById('serviceToggleIcon');
+  var label = document.getElementById('serviceToggleLabel');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    icon.innerHTML = '&#9650;';
+    label.textContent = 'Hide Details';
+  } else {
+    panel.style.display = 'none';
+    icon.innerHTML = '&#9660;';
+    label.textContent = 'Show Details';
+  }
+}
+
+function refreshService() {
+  renderServiceQuickChips();
+  renderServiceChannelChips();
+  renderServiceStats();
+  renderServiceDealers();
+  renderServiceMarkers();
+  populateServiceStateFilter();
+  renderServiceTable();
+}
+
+var serviceStatePopulated = false;
+function populateServiceStateFilter() {
+  if (serviceStatePopulated) return;
+  var states = new Set();
+  SERVICE_DATA.forEach(function(s) {
+    var dealerId = parseInt(s.dealerId);
+    var dealer = DEALERS.find(function(d){ return d.id === dealerId; });
+    if (dealer && dealer.state) states.add(dealer.state);
+  });
+  var sel = document.getElementById('serviceStateFilter');
+  Array.from(states).sort().forEach(function(st) {
+    var opt = document.createElement('option');
+    opt.value = st;
+    opt.textContent = STATE_MAP[st] || st;
+    sel.appendChild(opt);
+  });
+  serviceStatePopulated = true;
+}
+
+document.getElementById('serviceSearch').addEventListener('input', function() {
+  clearTimeout(window._svcDebounce);
+  window._svcDebounce = setTimeout(refreshService, 300);
+});
+</script>
+<!-- Product Detail Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal" id="modalContent"></div>
+</div>
+</body>
+</html>

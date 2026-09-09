@@ -461,10 +461,12 @@ async def ask_question(question: str) -> dict[str, Any]:
 
     llm_client = _get_llm_client(settings)
     try:
+        # NOTE: no explicit temperature — GPT-5-family models (e.g. gpt-5.6-luna)
+        # only accept the default temperature and reject other values. Omitting it
+        # keeps this compatible with both gpt-4.1 and gpt-5.x deployments.
         completion = await llm_client.chat.completions.create(
             model=settings.azure_openai_deployment_gpt4o,
             messages=messages,
-            temperature=0.1,
         )
         answer_text = completion.choices[0].message.content or ""
     except Exception as exc:

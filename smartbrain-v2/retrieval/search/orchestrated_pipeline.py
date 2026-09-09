@@ -381,10 +381,11 @@ async def _llm_synthesize(system_prompt: str, context: str, question: str) -> st
     ]
 
     try:
+        # NOTE: no explicit temperature — GPT-5-family models (gpt-5.6-luna)
+        # only accept the default temperature and reject other values.
         completion = await client.chat.completions.create(
             model=settings.azure_openai_deployment_gpt4o,
             messages=messages,
-            temperature=0.1,
         )
         return completion.choices[0].message.content or ""
     finally:

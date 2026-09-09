@@ -59,6 +59,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 # Import tool implementations
 from mcp_server.tools.ask import ask_question as _ask_question
@@ -87,6 +88,14 @@ mcp = FastMCP(
     # Stateless Streamable HTTP (2026-07-28 spec): no persistent sessions,
     # so the server can be mounted into the FastAPI app and survives restarts.
     stateless_http=True,
+    # Behind nginx the Host header is the public domain (smartbrain.tvsmotor.net),
+    # which the Streamable HTTP transport rejects by default via DNS-rebinding
+    # protection ("Invalid Host header"). nginx is the trusted front door and MCP
+    # clients (Kiro/Claude) are not browsers, so we disable that check. To keep it
+    # enabled instead, set allowed_hosts/allowed_origins to the public domain.
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=False,
+    ),
 )
 
 

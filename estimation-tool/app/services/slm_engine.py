@@ -37,6 +37,8 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 AZURE_OPENAI_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
 AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT_GPT4O", "gpt-4o-mini")
+# API version — GPT-5.6 family (gpt-5.6-luna) needs a recent version. Overridable via env.
+AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2025-04-01-preview")
 
 
 class SLMEngineError(Exception):
@@ -224,12 +226,12 @@ class SLMEngine:
         # Try Azure OpenAI first (if configured)
         if AZURE_OPENAI_KEY and AZURE_OPENAI_ENDPOINT:
             try:
-                url = f"{AZURE_OPENAI_ENDPOINT.rstrip('/')}/openai/deployments/{AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=2024-02-15-preview"
+                url = f"{AZURE_OPENAI_ENDPOINT.rstrip('/')}/openai/deployments/{AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version={AZURE_OPENAI_API_VERSION}"
                 async with httpx.AsyncClient(timeout=10.0, verify=False) as client:
                     resp = await client.post(
                         url,
                         headers={"api-key": AZURE_OPENAI_KEY, "Content-Type": "application/json"},
-                        json={"messages": [{"role": "user", "content": "ping"}], "max_tokens": 5},
+                        json={"messages": [{"role": "user", "content": "ping"}], "max_completion_tokens": 5},
                     )
                     if resp.status_code == 200:
                         self._loaded = True
@@ -543,15 +545,16 @@ class SLMEngine:
             if options.maxTokens is not None:
                 max_tokens = options.maxTokens
 
-        url = f"{AZURE_OPENAI_ENDPOINT.rstrip('/')}/openai/deployments/{AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=2024-02-15-preview"
+        url = f"{AZURE_OPENAI_ENDPOINT.rstrip('/')}/openai/deployments/{AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version={AZURE_OPENAI_API_VERSION}"
         headers = {
             "api-key": AZURE_OPENAI_KEY,
             "Content-Type": "application/json",
         }
+        # GPT-5.6 family (gpt-5.6-luna): omit `temperature` (only default allowed)
+        # and use `max_completion_tokens` instead of `max_tokens`.
         body = {
             "messages": [{"role": "user", "content": prompt}],
-            "temperature": temperature,
-            "max_tokens": max_tokens,
+            "max_completion_tokens": max_tokens,
         }
 
         start = _time.time()
