@@ -1,0 +1,32 @@
+plugins {
+    id 'org.springframework.boot' version '3.3.3'
+    id 'io.spring.dependency-management' version '1.1.5'
+    id 'java'
+}
+
+group = 'com.tvsmotor.qrstatic'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+// Spring Boot's bootJar is the runnable artifact; skip the extra plain jar.
+jar {
+    enabled = false
+}
+
+dependencies {
+    // Web (serves the static page + the single generate endpoint; brings embedded Tomcat)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // ZXing — the QR renderer (same versions as the parent project so output matches)
+    implementation 'com.google.zxing:core:3.5.3'
+    implementation 'com.google.zxing:javase:3.5.3'
+}

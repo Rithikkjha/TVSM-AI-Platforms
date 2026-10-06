@@ -55,6 +55,8 @@ from app.models.mpcp_schemas import (
 )
 from app.services.sharepoint_client import (
     SharePointClient,
+    SharePointError,
+    SharePointUnavailableError,
     get_mpcp_tracker_file,
     get_mpcp_audit_folder,
 )
@@ -253,10 +255,20 @@ _budgets: Dict[str, BudgetData] = {}  # project_id → budget
 _rag_history: List[RAGHistoryEntry] = []
 _project_changelog: Dict[str, List[dict]] = {}  # project_id → list of change entries
 _loaded: bool = False
+# True only after a load that fully succeeded (no SharePoint read failures).
+# Persist helpers refuse to overwrite sheets when this is False, so a failed
+# load can never cause the in-memory (possibly empty) state to clobber the
+# real data in MPCPTracker.xlsx.
+_load_ok: bool = False
 
 
 async def ensure_loaded(sp: SharePointClient) -> None:
-    """Ensure hierarchy is loaded from SharePoint. Loads once per process."""
+    """Ensure hierarchy is loaded from SharePoint. Loads once per process.
+
+    If a prior load failed (SharePoint unavailable), ``_loaded`` stays False so
+    the next request retries the load rather than serving (and later persisting)
+    an empty in-memory state.
+    """
     global _loaded
     if not _loaded:
         await load_hierarchy(sp)
@@ -264,52 +276,53 @@ async def ensure_loaded(sp: SharePointClient) -> None:
 
 
 async def load_hierarchy(sp: SharePointClient) -> None:
-    """Load all data from SharePoint into memory."""
+    """Load all data from SharePoint into memory.
+
+    IMPORTANT — data-loss guard: a SharePoint read *failure* (connectivity /
+    service unavailable) must NEVER be silently treated as "the sheet is
+    empty". If it were, the empty in-memory state would later be persisted
+    with a full-sheet overwrite and wipe the real data in MPCPTracker.xlsx.
+
+    So on any ``SharePointError`` we abort the whole load and re-raise, leaving
+    ``_load_ok`` False (persist helpers then refuse to overwrite). A missing
+    sheet or a parse error on an otherwise-reachable file is a genuine "empty"
+    case (e.g. first run) and is handled per-sheet.
+    """
     global _managing_points, _check_points, _projects
     global _process_tracks, _milestones, _milestone_tasks, _rag_context_entries, _dependencies, _budgets, _rag_history
+    global _load_ok
+
+    _load_ok = False
+
+    async def _read_sheet(sheet: str) -> list:
+        """Read a sheet's rows. Re-raise on SharePoint failure (so the load
+        aborts); return [] only when the file/sheet is genuinely reachable but
+        absent/empty."""
+        try:
+            return await sp.read_workbook(_tracker_file(), sheet=sheet)
+        except SharePointError:
+            # Connectivity / service failure — do NOT treat as empty.
+            raise
+        except Exception as e:
+            # Missing sheet, parse issue, etc. — safe to treat as empty.
+            logger.warning(f"Sheet '{sheet}' unavailable, treating as empty: {e}")
+            return []
 
     try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_MPS)
-        _managing_points = _parse_mps(rows)
-    except Exception as e:
-        logger.warning(f"Could not load MPs: {e}")
-        _managing_points = {}
-
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_CPS)
-        _check_points = _parse_cps(rows)
-    except Exception:
-        _check_points = {}
-
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_PROJECTS)
-        _projects = _parse_projects(rows)
-    except Exception:
-        _projects = {}
-
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_PROCESS_TRACKS)
-        _process_tracks = _parse_process_tracks(rows)
-    except Exception:
-        _process_tracks = {}
-
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_MILESTONES)
-        _milestones = _parse_milestones(rows)
-    except Exception:
-        _milestones = {}
-
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_MILESTONE_TASKS)
-        _milestone_tasks = _parse_milestone_tasks(rows)
-    except Exception:
-        _milestone_tasks = {}
-
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_RAG_CONTEXT_ENTRIES)
-        _rag_context_entries = _parse_rag_context_entries(rows)
-    except Exception:
-        _rag_context_entries = {}
+        _managing_points = _parse_mps(await _read_sheet(SHEET_MPS))
+        _check_points = _parse_cps(await _read_sheet(SHEET_CPS))
+        _projects = _parse_projects(await _read_sheet(SHEET_PROJECTS))
+        _process_tracks = _parse_process_tracks(await _read_sheet(SHEET_PROCESS_TRACKS))
+        _milestones = _parse_milestones(await _read_sheet(SHEET_MILESTONES))
+        _milestone_tasks = _parse_milestone_tasks(await _read_sheet(SHEET_MILESTONE_TASKS))
+        _rag_context_entries = _parse_rag_context_entries(await _read_sheet(SHEET_RAG_CONTEXT_ENTRIES))
+    except SharePointError as e:
+        logger.error(
+            f"MPCP tracker load aborted — SharePoint read failed: {e}. "
+            f"In-memory state left untouched; persists are disabled until a "
+            f"successful reload."
+        )
+        raise
 
     # Attach RAG context entries to milestones and tasks
     for ms_list in _milestones.values():
@@ -320,26 +333,22 @@ async def load_hierarchy(sp: SharePointClient) -> None:
             t.rag_context = _rag_context_entries.get(t.id, [])
 
     try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_DEPENDENCIES)
-        _dependencies = _parse_dependencies(rows)
-    except Exception:
-        _dependencies = {}
+        _dependencies = _parse_dependencies(await _read_sheet(SHEET_DEPENDENCIES))
 
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_BUDGET)
-        _budgets = _parse_budgets(rows)
+        _budgets = _parse_budgets(await _read_sheet(SHEET_BUDGET))
         # Recompute budget fields to ensure correct formula
         from app.services.mpcp_budget_service import _recompute
         for b in _budgets.values():
             _recompute(b)
-    except Exception:
-        _budgets = {}
 
-    try:
-        rows = await sp.read_workbook(_tracker_file(), sheet=SHEET_RAG_HISTORY)
-        _rag_history = _parse_rag_history(rows)
-    except Exception:
-        _rag_history = []
+        _rag_history = _parse_rag_history(await _read_sheet(SHEET_RAG_HISTORY))
+    except SharePointError as e:
+        logger.error(
+            f"MPCP tracker load aborted — SharePoint read failed: {e}. "
+            f"In-memory state left untouched; persists are disabled until a "
+            f"successful reload."
+        )
+        raise
 
     # Load project changelog
     try:
@@ -372,6 +381,11 @@ async def load_hierarchy(sp: SharePointClient) -> None:
     # Recompute counts and propagated RAG
     _recompute_counts()
     _recompute_all_propagation()
+
+    # Load fully succeeded (all SharePoint reads returned without a transport
+    # failure). Only now is it safe for persist helpers to overwrite sheets.
+    _load_ok = True
+
     logger.info(
         f"Loaded MPCP hierarchy: {len(_managing_points)} MPs, "
         f"{len(_check_points)} CPs, {len(_projects)} Projects"
@@ -596,8 +610,7 @@ async def create_cp(
     _check_points[cp.id] = cp
     _recompute_counts()
     _propagate_for_cp(cp.id)
-    await _persist_cps(sp)
-    await _persist_mps(sp)
+    await _persist_sheets(sp, [SHEET_CPS, SHEET_MPS])
     await _log_audit("created", "CP", cp.id, user_name, f"Created CP {cp.code} - {cp.name} under MP {mp_id}", sp)
     return cp
 
@@ -670,8 +683,7 @@ async def delete_cp(cp_id: str, sp: SharePointClient) -> None:
     del _check_points[cp_id]
     _recompute_counts()
     _propagate_for_mp(mp_id)
-    await _persist_cps(sp)
-    await _persist_mps(sp)
+    await _persist_sheets(sp, [SHEET_CPS, SHEET_MPS])
     await _log_audit("deleted", "CP", cp_id, "", f"Deleted CP", sp)
 
 
@@ -732,11 +744,11 @@ async def create_project(
 
     _recompute_counts()
     _propagate_for_project(project.id)
-    await _persist_projects(sp)
-    await _persist_milestones(sp)
-    await _persist_process_tracks(sp)
-    await _persist_cps(sp)
-    await _persist_mps(sp)
+    # Atomic: all five affected sheets commit in one workbook write.
+    await _persist_sheets(sp, [
+        SHEET_PROJECTS, SHEET_MILESTONES, SHEET_PROCESS_TRACKS,
+        SHEET_CPS, SHEET_MPS,
+    ])
     await _log_audit("created", "Project", project.id, user_name, f"Created Project {project.name} under CP {cp_id}", sp)
     return project
 
@@ -847,9 +859,7 @@ async def move_project(
         _propagate_for_cp(old_cp_id)
     _propagate_for_cp(target_cp_id)
 
-    await _persist_projects(sp)
-    await _persist_cps(sp)
-    await _persist_mps(sp)
+    await _persist_sheets(sp, [SHEET_PROJECTS, SHEET_CPS, SHEET_MPS])
     await _log_project_change(
         project_id, "project.parent_cp", old_label, new_label,
         user_name, "Project moved to a different Check Point", sp,
@@ -875,14 +885,14 @@ async def delete_project(project_id: str, sp: SharePointClient) -> None:
     _budgets.pop(project_id, None)
     _recompute_counts()
     _propagate_for_cp(cp_id)
-    await _persist_projects(sp)
-    await _persist_process_tracks(sp)
-    await _persist_milestones(sp)
-    await _persist_milestone_tasks(sp)
-    await _persist_dependencies(sp)
-    await _persist_budgets(sp)
-    await _persist_cps(sp)
-    await _persist_mps(sp)
+    # Atomic: all eight affected sheets commit in one workbook write, so a
+    # delete can never leave orphaned child rows (process track, milestones,
+    # tasks, dependencies, budget) behind a removed project.
+    await _persist_sheets(sp, [
+        SHEET_PROJECTS, SHEET_PROCESS_TRACKS, SHEET_MILESTONES,
+        SHEET_MILESTONE_TASKS, SHEET_DEPENDENCIES, SHEET_BUDGET,
+        SHEET_CPS, SHEET_MPS,
+    ])
     await _log_audit("deleted", "Project", project_id, "", f"Deleted Project and all track data", sp)
 
 
@@ -899,7 +909,12 @@ async def get_process_track(
     await ensure_loaded(sp)
     if project_id not in _projects:
         raise EntityNotFoundError(f"Project {project_id} not found")
-    return _process_tracks.get(project_id, [])
+    # Always return the canonical, fully-ordered 8-stage set. Projects whose
+    # stored track is incomplete/mis-ordered are healed in memory so the UI
+    # renders all stages and later edits index safely.
+    stages = _reconcile_process_track(project_id, _process_tracks.get(project_id, []))
+    _process_tracks[project_id] = stages
+    return stages
 
 
 async def update_stage(
@@ -914,7 +929,13 @@ async def update_stage(
     if project_id not in _projects:
         raise EntityNotFoundError(f"Project {project_id} not found")
 
-    stages = _process_tracks.get(project_id, [])
+    # Reconcile the project's process track against the canonical 8-stage set.
+    # Historical/partial data (or a row that failed to parse) can leave a
+    # project with missing or mis-ordered stages. Operating on such a list by
+    # positional index raises IndexError and surfaces as a generic HTTP 500.
+    # Rebuild the full ordered set here, preserving any existing stage data,
+    # so the lookup below is always safe and the data self-heals on save.
+    stages = _reconcile_process_track(project_id, _process_tracks.get(project_id, []))
     target_idx = PROCESS_STAGES_ORDERED.index(stage.value)
 
     # Sequential validation: Can't advance a stage unless all preceding are Completed/Skipped
@@ -1396,17 +1417,17 @@ async def update_rag(
     elif entity_type == "CP":
         _propagate_for_cp(entity_id)
 
-    # Persist
+    # Persist atomically: the affected entity sheet(s) and the RAG history
+    # commit together, so a RAG change can't leave the status updated without
+    # its history entry (or vice versa).
     if entity_type == "MP":
-        await _persist_mps(sp)
+        _rag_sheets = [SHEET_MPS]
     elif entity_type == "CP":
-        await _persist_cps(sp)
-        await _persist_mps(sp)
+        _rag_sheets = [SHEET_CPS, SHEET_MPS]
     else:
-        await _persist_projects(sp)
-        await _persist_cps(sp)
-        await _persist_mps(sp)
-    await _persist_rag_history(sp)
+        _rag_sheets = [SHEET_PROJECTS, SHEET_CPS, SHEET_MPS]
+    _rag_sheets.append(SHEET_RAG_HISTORY)
+    await _persist_sheets(sp, _rag_sheets)
 
     await _log_audit("rag_changed", entity_type, entity_id, user_name, f"RAG changed from {previous_status.value} to {status.value}", sp)
 
@@ -1639,6 +1660,41 @@ def _initialize_process_track(project_id: str) -> List[ProcessTrackStage]:
     return stages
 
 
+def _reconcile_process_track(
+    project_id: str, existing: List[ProcessTrackStage]
+) -> List[ProcessTrackStage]:
+    """Return the canonical, fully-ordered 8-stage track for a project.
+
+    Guarantees exactly one entry per stage in ``PROCESS_STAGES_ORDERED`` order.
+    Any stage already present (keyed by its ``stage`` value) is preserved as-is;
+    missing stages are created as Not_Started. This heals projects whose stored
+    process track is incomplete or mis-ordered — the previous code indexed into
+    the stage list positionally and raised IndexError (surfacing as HTTP 500)
+    when a project had fewer than 8 stages.
+    """
+    by_stage = {}
+    for s in existing or []:
+        # Keep the first occurrence of each stage; ignore duplicates.
+        if s.stage.value not in by_stage:
+            by_stage[s.stage.value] = s
+
+    reconciled: List[ProcessTrackStage] = []
+    for i, stage_name in enumerate(PROCESS_STAGES_ORDERED):
+        s = by_stage.get(stage_name)
+        if s is None:
+            s = ProcessTrackStage(
+                project_id=project_id,
+                stage=ProcessStage(stage_name),
+                stage_order=i,
+                status=StageStatus.NOT_STARTED,
+            )
+        else:
+            # Normalise the order so positional access stays consistent.
+            s.stage_order = i
+        reconciled.append(s)
+    return reconciled
+
+
 def _compute_current_stage(stages: List[ProcessTrackStage]) -> Optional[ProcessStage]:
     """First In_Progress stage, or first Not_Started if none In_Progress."""
     for s in stages:
@@ -1798,214 +1854,308 @@ def _infer_milestone_dates_from_tasks(milestone_id: str, project_id: str) -> Non
 # =============================================================================
 
 
+def _assert_persist_safe() -> None:
+    """Guard against overwriting SharePoint sheets from an unverified state.
+
+    Every ``_persist_*`` helper does a FULL-SHEET overwrite from the in-memory
+    store. If the last load did not fully succeed (``_load_ok`` is False), the
+    in-memory store may be empty or partial, and overwriting would wipe the
+    real data in MPCPTracker.xlsx. In that case we refuse to persist and raise,
+    so the mutation fails loudly instead of silently destroying data.
+    """
+    if not _load_ok:
+        raise SharePointError(
+            "Refusing to persist MPCP data: the tracker was not loaded "
+            "successfully (SharePoint read failed). Retry once storage is "
+            "reachable so the full dataset is in memory before any write."
+        )
+
+
+def _rows_for_sheet(sheet: str) -> List[List[Any]]:
+    """Build the full ``[header, *data]`` row set for a tracker sheet from the
+    current in-memory state.
+
+    This is the single source of truth for sheet serialization: both the
+    single-sheet ``_persist_*`` helpers and the atomic ``_persist_sheets``
+    multi-sheet writer build their rows here, so the two paths can never
+    diverge in format.
+    """
+    if sheet == SHEET_MPS:
+        headers = [
+            "Id", "Code", "Name", "Theme", "Owner", "LoB", "BU",
+            "UOM", "TargetFrom", "TargetTo",
+            "RAGStatus", "RAGContext", "PropagatedRAG",
+            "CpCount", "ProjectCount", "CreatedAt", "UpdatedAt", "CreatedBy",
+        ]
+        return [headers] + [_mp_to_row(mp) for mp in _managing_points.values()]
+
+    if sheet == SHEET_CPS:
+        headers = [
+            "Id", "Code", "Name", "Owner", "Description", "Domain", "Stream",
+            "UOM", "TargetFrom", "TargetTo", "TargetQuarter",
+            "ParentMpId", "RAGStatus", "RAGContext", "PropagatedRAG",
+            "ProjectCount", "CreatedAt", "UpdatedAt", "CreatedBy",
+        ]
+        return [headers] + [_cp_to_row(cp) for cp in _check_points.values()]
+
+    if sheet == SHEET_PROJECTS:
+        headers = [
+            "Id", "Name", "ProjectType", "Vendor", "ProductOwner", "LoB", "BU",
+            "Domain", "Stream", "Description", "ParentCpId", "RAGStatus",
+            "RAGContext", "CurrentStage", "RevisedTargetDate",
+            "CreatedAt", "UpdatedAt", "CreatedBy", "EnggPOC",
+        ]
+        return [headers] + [_project_to_row(p) for p in _projects.values()]
+
+    if sheet == SHEET_PROCESS_TRACKS:
+        headers = [
+            "ProjectId", "Stage", "StageOrder", "Status",
+            "PlannedDate", "ActualDate", "Remarks", "SkipReason",
+        ]
+        rows = []
+        for stages in _process_tracks.values():
+            for s in stages:
+                rows.append([
+                    s.project_id, s.stage.value, s.stage_order, s.status.value,
+                    str(s.planned_date) if s.planned_date else "",
+                    str(s.actual_date) if s.actual_date else "",
+                    s.remarks or "", s.skip_reason or "",
+                ])
+        return [headers] + rows
+
+    if sheet == SHEET_MILESTONES:
+        headers = [
+            "Id", "ProjectId", "Name", "Vendor",
+            "PlannedStart", "PlannedEnd", "ActualStart", "ActualEnd",
+            "SlippageDays", "IsDelayed", "RAGStatus", "Remarks",
+        ]
+        rows = []
+        for ms_list in _milestones.values():
+            for m in ms_list:
+                rows.append([
+                    m.id, m.project_id, m.name, m.vendor or "",
+                    str(m.planned_start) if m.planned_start else "",
+                    str(m.planned_end) if m.planned_end else "",
+                    str(m.actual_start) if m.actual_start else "",
+                    str(m.actual_end) if m.actual_end else "",
+                    m.slippage_days if m.slippage_days is not None else "",
+                    str(m.is_delayed), m.rag_status.value,
+                    m.remarks or "",
+                ])
+        return [headers] + rows
+
+    if sheet == SHEET_MILESTONE_TASKS:
+        headers = [
+            "Id", "MilestoneId", "Name", "Owner",
+            "PlannedStart", "PlannedEnd", "ActualStart", "ActualEnd",
+            "SlippageDays", "IsDelayed", "RAGStatus", "Remarks",
+        ]
+        rows = []
+        for tasks in _milestone_tasks.values():
+            for t in tasks:
+                rows.append([
+                    t.id, t.milestone_id, t.name, t.owner or "",
+                    str(t.planned_start) if t.planned_start else "",
+                    str(t.planned_end) if t.planned_end else "",
+                    str(t.actual_start) if t.actual_start else "",
+                    str(t.actual_end) if t.actual_end else "",
+                    t.slippage_days if t.slippage_days is not None else "",
+                    str(t.is_delayed), t.rag_status.value,
+                    t.remarks or "",
+                ])
+        return [headers] + rows
+
+    if sheet == SHEET_RAG_CONTEXT_ENTRIES:
+        headers = [
+            "Id", "EntityId", "What", "Why", "Who",
+            "OwnerTeam", "How", "ETA", "CreatedAt", "Status",
+        ]
+        rows = []
+        for entity_id, entries in _rag_context_entries.items():
+            for rc in entries:
+                rows.append([
+                    rc.id or "", entity_id,
+                    rc.what or "", rc.why or "", rc.who or "",
+                    rc.owner_team or "", rc.how or "",
+                    str(rc.eta) if rc.eta else "",
+                    rc.created_at or "", rc.status or "Open",
+                ])
+        return [headers] + rows
+
+    if sheet == SHEET_DEPENDENCIES:
+        headers = [
+            "Id", "ProjectId", "MilestoneId", "Description",
+            "ExternalOwner", "CutoffDate", "RaisedDate",
+            "Status", "ResolvedDate", "EscalationNote", "IsOverdue", "IsBlocker",
+        ]
+        rows = []
+        for deps in _dependencies.values():
+            for d in deps:
+                rows.append([
+                    d.id, d.project_id, d.milestone_id or "", d.description,
+                    d.external_owner, str(d.cutoff_date), str(d.raised_date),
+                    d.status.value, str(d.resolved_date) if d.resolved_date else "",
+                    d.escalation_note or "", str(d.is_overdue), str(d.is_blocker),
+                ])
+        return [headers] + rows
+
+    if sheet == SHEET_BUDGET:
+        import json as _json
+        headers = [
+            "ProjectId", "ApprovedBudget", "InternalEstimate",
+            "Transactions", "TotalCommitted", "TotalSpent",
+            "Remaining", "Remarks",
+        ]
+        rows = []
+        for b in _budgets.values():
+            txns_json = _json.dumps([t.model_dump(mode="json") for t in b.transactions]) if b.transactions else ""
+            rows.append([
+                b.project_id, b.approved_budget, b.internal_estimate,
+                txns_json, b.total_committed, b.total_spent,
+                b.remaining, b.remarks or "",
+            ])
+        return [headers] + rows
+
+    if sheet == SHEET_RAG_HISTORY:
+        headers = [
+            "EntityType", "EntityId", "PreviousStatus",
+            "NewStatus", "RAGContext", "ChangedBy", "Timestamp",
+        ]
+        rows = []
+        for h in _rag_history:
+            ctx_json = json.dumps(h.rag_context.model_dump()) if h.rag_context else ""
+            rows.append([
+                h.entity_type, h.entity_id, h.previous_status.value,
+                h.new_status.value, ctx_json, h.changed_by,
+                h.timestamp.isoformat(),
+            ])
+        return [headers] + rows
+
+    raise ValueError(f"Unknown tracker sheet: {sheet}")
+
+
+async def _persist_sheets(sp: SharePointClient, sheet_names: List[str]) -> None:
+    """Atomically persist several tracker sheets in a single workbook write.
+
+    Builds every requested sheet from the current in-memory state and commits
+    them with one ``write_sheets`` call, so a multi-sheet operation (create /
+    move / delete / RAG change) is all-or-nothing: either every affected sheet
+    is written or none are. This removes the partial-write window that
+    sequential per-sheet persists had.
+
+    Guarded by ``_assert_persist_safe`` so a partial/unverified in-memory state
+    can never overwrite real data.
+    """
+    _assert_persist_safe()
+    # De-duplicate while preserving order.
+    seen = set()
+    ordered = [s for s in sheet_names if not (s in seen or seen.add(s))]
+    sheets = {name: _rows_for_sheet(name) for name in ordered}
+    try:
+        await sp.write_sheets(_tracker_file(), sheets)
+    except Exception as e:
+        logger.error(f"Failed to persist sheets {ordered}: {e}")
+        raise
+
+
 async def _persist_mps(sp: SharePointClient) -> None:
     """Write all MPs to SharePoint."""
-    rows = [_mp_to_row(mp) for mp in _managing_points.values()]
-    headers = [
-        "Id", "Code", "Name", "Theme", "Owner", "LoB", "BU",
-        "UOM", "TargetFrom", "TargetTo",
-        "RAGStatus", "RAGContext", "PropagatedRAG",
-        "CpCount", "ProjectCount", "CreatedAt", "UpdatedAt", "CreatedBy",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_MPS, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_MPS, _rows_for_sheet(SHEET_MPS))
     except Exception as e:
         logger.error(f"Failed to persist MPs: {e}")
+        raise
 
 
 async def _persist_cps(sp: SharePointClient) -> None:
     """Write all CPs to SharePoint."""
-    rows = [_cp_to_row(cp) for cp in _check_points.values()]
-    headers = [
-        "Id", "Code", "Name", "Owner", "Description", "Domain", "Stream",
-        "UOM", "TargetFrom", "TargetTo", "TargetQuarter",
-        "ParentMpId", "RAGStatus", "RAGContext", "PropagatedRAG",
-        "ProjectCount", "CreatedAt", "UpdatedAt", "CreatedBy",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_CPS, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_CPS, _rows_for_sheet(SHEET_CPS))
     except Exception as e:
         logger.error(f"Failed to persist CPs: {e}")
+        raise
 
 
 async def _persist_projects(sp: SharePointClient) -> None:
     """Write all Projects to SharePoint."""
-    rows = [_project_to_row(p) for p in _projects.values()]
-    headers = [
-        "Id", "Name", "ProjectType", "Vendor", "ProductOwner", "LoB", "BU",
-        "Domain", "Stream", "Description", "ParentCpId", "RAGStatus",
-        "RAGContext", "CurrentStage", "RevisedTargetDate",
-        "CreatedAt", "UpdatedAt", "CreatedBy", "EnggPOC",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_PROJECTS, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_PROJECTS, _rows_for_sheet(SHEET_PROJECTS))
     except Exception as e:
         logger.error(f"Failed to persist Projects: {e}")
+        raise
 
 
 async def _persist_process_tracks(sp: SharePointClient) -> None:
     """Write all process tracks to SharePoint."""
-    rows = []
-    for stages in _process_tracks.values():
-        for s in stages:
-            rows.append([
-                s.project_id, s.stage.value, s.stage_order, s.status.value,
-                str(s.planned_date) if s.planned_date else "",
-                str(s.actual_date) if s.actual_date else "",
-                s.remarks or "", s.skip_reason or "",
-            ])
-    headers = [
-        "ProjectId", "Stage", "StageOrder", "Status",
-        "PlannedDate", "ActualDate", "Remarks", "SkipReason",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_PROCESS_TRACKS, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_PROCESS_TRACKS, _rows_for_sheet(SHEET_PROCESS_TRACKS))
     except Exception as e:
         logger.error(f"Failed to persist ProcessTracks: {e}")
+        raise
 
 
 async def _persist_milestones(sp: SharePointClient) -> None:
-    """Write all milestones to SharePoint. Skip if no data loaded yet to prevent data loss."""
-    if not _loaded:
-        return
-    rows = []
-    for ms_list in _milestones.values():
-        for m in ms_list:
-            rows.append([
-                m.id, m.project_id, m.name, m.vendor or "",
-                str(m.planned_start) if m.planned_start else "",
-                str(m.planned_end) if m.planned_end else "",
-                str(m.actual_start) if m.actual_start else "",
-                str(m.actual_end) if m.actual_end else "",
-                m.slippage_days if m.slippage_days is not None else "",
-                str(m.is_delayed), m.rag_status.value,
-                m.remarks or "",
-            ])
-    headers = [
-        "Id", "ProjectId", "Name", "Vendor",
-        "PlannedStart", "PlannedEnd", "ActualStart", "ActualEnd",
-        "SlippageDays", "IsDelayed", "RAGStatus", "Remarks",
-    ]
+    """Write all milestones to SharePoint. Guarded against unverified loads."""
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_MILESTONES, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_MILESTONES, _rows_for_sheet(SHEET_MILESTONES))
     except Exception as e:
         logger.error(f"Failed to persist Milestones: {e}")
+        raise
 
 
 async def _persist_milestone_tasks(sp: SharePointClient) -> None:
     """Write all milestone tasks to SharePoint."""
-    if not _loaded:
-        return
-    rows = []
-    for tasks in _milestone_tasks.values():
-        for t in tasks:
-            rows.append([
-                t.id, t.milestone_id, t.name, t.owner or "",
-                str(t.planned_start) if t.planned_start else "",
-                str(t.planned_end) if t.planned_end else "",
-                str(t.actual_start) if t.actual_start else "",
-                str(t.actual_end) if t.actual_end else "",
-                t.slippage_days if t.slippage_days is not None else "",
-                str(t.is_delayed), t.rag_status.value,
-                t.remarks or "",
-            ])
-    headers = [
-        "Id", "MilestoneId", "Name", "Owner",
-        "PlannedStart", "PlannedEnd", "ActualStart", "ActualEnd",
-        "SlippageDays", "IsDelayed", "RAGStatus", "Remarks",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_MILESTONE_TASKS, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_MILESTONE_TASKS, _rows_for_sheet(SHEET_MILESTONE_TASKS))
     except Exception as e:
         logger.error(f"Failed to persist MilestoneTasks: {e}")
+        raise
 
 
 async def _persist_rag_context_entries(sp: SharePointClient) -> None:
     """Write all RAG context entries to SharePoint (separate sheet)."""
-    if not _loaded:
-        return
-    rows = []
-    for entity_id, entries in _rag_context_entries.items():
-        for rc in entries:
-            rows.append([
-                rc.id or "", entity_id,
-                rc.what or "", rc.why or "", rc.who or "",
-                rc.owner_team or "", rc.how or "",
-                str(rc.eta) if rc.eta else "",
-                rc.created_at or "", rc.status or "Open",
-            ])
-    headers = [
-        "Id", "EntityId", "What", "Why", "Who",
-        "OwnerTeam", "How", "ETA", "CreatedAt", "Status",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_RAG_CONTEXT_ENTRIES, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_RAG_CONTEXT_ENTRIES, _rows_for_sheet(SHEET_RAG_CONTEXT_ENTRIES))
     except Exception as e:
         logger.error(f"Failed to persist RAGContextEntries: {e}")
+        raise
 
 
 async def _persist_dependencies(sp: SharePointClient) -> None:
     """Write all dependencies to SharePoint."""
-    rows = []
-    for deps in _dependencies.values():
-        for d in deps:
-            rows.append([
-                d.id, d.project_id, d.milestone_id or "", d.description,
-                d.external_owner, str(d.cutoff_date), str(d.raised_date),
-                d.status.value, str(d.resolved_date) if d.resolved_date else "",
-                d.escalation_note or "", str(d.is_overdue), str(d.is_blocker),
-            ])
-    headers = [
-        "Id", "ProjectId", "MilestoneId", "Description",
-        "ExternalOwner", "CutoffDate", "RaisedDate",
-        "Status", "ResolvedDate", "EscalationNote", "IsOverdue", "IsBlocker",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_DEPENDENCIES, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_DEPENDENCIES, _rows_for_sheet(SHEET_DEPENDENCIES))
     except Exception as e:
         logger.error(f"Failed to persist Dependencies: {e}")
+        raise
 
 
 async def _persist_budgets(sp: SharePointClient) -> None:
     """Write all budgets to SharePoint."""
-    import json as _json
-    rows = []
-    for b in _budgets.values():
-        txns_json = _json.dumps([t.model_dump(mode="json") for t in b.transactions]) if b.transactions else ""
-        rows.append([
-            b.project_id, b.approved_budget, b.internal_estimate,
-            txns_json, b.total_committed, b.total_spent,
-            b.remaining, b.remarks or "",
-        ])
-    headers = [
-        "ProjectId", "ApprovedBudget", "InternalEstimate",
-        "Transactions", "TotalCommitted", "TotalSpent",
-        "Remaining", "Remarks",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_BUDGET, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_BUDGET, _rows_for_sheet(SHEET_BUDGET))
     except Exception as e:
         logger.error(f"Failed to persist Budgets: {e}")
+        raise
 
 
 async def _persist_rag_history(sp: SharePointClient) -> None:
     """Write RAG history to SharePoint."""
-    rows = []
-    for h in _rag_history:
-        ctx_json = json.dumps(h.rag_context.model_dump()) if h.rag_context else ""
-        rows.append([
-            h.entity_type, h.entity_id, h.previous_status.value,
-            h.new_status.value, ctx_json, h.changed_by,
-            h.timestamp.isoformat(),
-        ])
-    headers = [
-        "EntityType", "EntityId", "PreviousStatus",
-        "NewStatus", "RAGContext", "ChangedBy", "Timestamp",
-    ]
+    _assert_persist_safe()
     try:
-        await sp.write_rows(_tracker_file(), SHEET_RAG_HISTORY, [headers] + rows)
+        await sp.write_rows(_tracker_file(), SHEET_RAG_HISTORY, _rows_for_sheet(SHEET_RAG_HISTORY))
     except Exception as e:
         logger.error(f"Failed to persist RAG History: {e}")
+        raise
 
 
 # =============================================================================
@@ -2718,6 +2868,10 @@ _mpcp_config: Dict[str, List[str]] = {
     "engineering_managers": [],
 }
 _config_loaded: bool = False
+# Whether the Config sheet was last read successfully (independent of the
+# hierarchy's _load_ok). Guards _persist_config against overwriting the real
+# Config sheet with in-memory defaults after a failed read.
+_config_load_ok: bool = False
 
 
 async def get_mpcp_config(sp: SharePointClient) -> Dict[str, List[str]]:
@@ -2734,7 +2888,13 @@ async def update_mpcp_config(
     sp: SharePointClient,
 ) -> Dict[str, List[str]]:
     """Update MPCP config and persist."""
-    global _mpcp_config
+    global _mpcp_config, _config_loaded
+    # Ensure the current config is loaded from SharePoint before mutating, so a
+    # partial/default in-memory state can't overwrite the real Config sheet, and
+    # so the persist guard (_config_loaded) is satisfied.
+    if not _config_loaded:
+        await _load_config(sp)
+        _config_loaded = True
     if "vendors" in config:
         _mpcp_config["vendors"] = config["vendors"]
     if "product_owners" in config:
@@ -2746,8 +2906,16 @@ async def update_mpcp_config(
 
 
 async def _load_config(sp: SharePointClient) -> None:
-    """Load config from SharePoint Config sheet."""
-    global _mpcp_config
+    """Load config from SharePoint Config sheet.
+
+    Sets ``_config_load_ok`` True only when the Config sheet was read without a
+    transport failure (a missing sheet is a valid "first run" and still counts
+    as a successful load that may be persisted). On a genuine SharePoint read
+    failure we leave it False so ``_persist_config`` refuses to overwrite the
+    real Config sheet with in-memory defaults.
+    """
+    global _mpcp_config, _config_load_ok
+    _config_load_ok = False
     try:
         rows = await sp.read_workbook(_tracker_file(), sheet="Config")
         if rows and len(rows) >= 2:
@@ -2758,19 +2926,35 @@ async def _load_config(sp: SharePointClient) -> None:
                     values = [v.strip() for v in str(row[1]).split(",") if v.strip()]
                     if key in _mpcp_config:
                         _mpcp_config[key] = values
+        # Reached here without a transport error → safe to persist later.
+        _config_load_ok = True
+    except SharePointError as e:
+        # Connectivity/service failure — do NOT mark load ok, so we won't
+        # overwrite the real Config sheet with defaults.
+        logger.warning(f"Config read failed (SharePoint unavailable): {e}")
     except Exception as e:
-        logger.debug(f"Config not found in SharePoint, using defaults: {e}")
+        # Missing sheet / parse issue on a reachable file — genuine empty case.
+        logger.debug(f"Config not found, using defaults: {e}")
+        _config_load_ok = True
 
 
 async def _persist_config(sp: SharePointClient) -> None:
-    """Write config to SharePoint Config sheet."""
+    """Write config to SharePoint Config sheet.
+
+    Guarded by ``_config_load_ok`` (NOT the hierarchy's ``_load_ok``): the
+    config lists are independent of the hierarchy data, so config writes must
+    not depend on whether the hierarchy loaded. We only refuse when the Config
+    sheet itself could not be read, to avoid clobbering it with defaults.
+    """
+    if not _config_load_ok:
+        raise SharePointError(
+            "Refusing to persist MPCP config: the Config sheet was not loaded "
+            "successfully. Retry once storage is reachable."
+        )
     rows = [["Key", "Values"]]
     for key, values in _mpcp_config.items():
         rows.append([key, ", ".join(values)])
-    try:
-        await sp.write_rows(_tracker_file(), "Config", rows)
-    except Exception as e:
-        logger.error(f"Failed to persist config: {e}")
+    await sp.write_rows(_tracker_file(), "Config", rows)
 
 
 # =============================================================================

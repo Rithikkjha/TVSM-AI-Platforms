@@ -190,13 +190,28 @@ When `DEV_MODE=true`, authentication is bypassed with a demo token. Any request 
 
 1. Navigate to Settings → Users in the UI
 2. Add users by corporate email
-3. Assign role: `admin` or `user`
+3. Assign role: `Admin`, `User`, or `Partner`
 
-### Access control:
+> Re-adding a previously removed user reactivates their existing row (and updates the role) rather than creating a duplicate, so logins keep working.
 
-- Only registered users can access the tool
-- Admins can: manage users, upload templates, create MPCP entities
-- Regular users can: run estimations, check PRDs, view MPCP data
+### Roles & access control:
+
+- Only registered (allowlisted) users can access the tool. Unknown/inactive emails are denied at login.
+- **Admin** — manage users, upload templates, edit system/SLM config; full access to all modules including Budget; full create/edit/delete on the MPCP hierarchy.
+- **User** — run estimations, check PRDs, and act as a **full contributor** in the MPCP Tracker: create, edit, and delete MPs/CPs/Projects and update tracking data. Full Budget access.
+- **Partner** — same MPCP contributor access as User (create/edit/delete hierarchy + tracking), **except Budget** data, which is hidden and blocked (403). Intended for external delivery partners.
+
+MPCP Tracker permission summary:
+
+| Action | Admin | User | Partner |
+|--------|:-----:|:----:|:-------:|
+| View hierarchy / tracking data | ✅ | ✅ | ✅ |
+| Create / edit / delete MP, CP, Project | ✅ | ✅ | ✅ |
+| Update RAG, Process Track, Milestones, Tasks, Dependencies | ✅ | ✅ | ✅ |
+| View / edit Budget | ✅ | ✅ | ❌ (403) |
+| Manage users / templates / system config | ✅ | ❌ | ❌ |
+
+> User-management, template, and system/SLM config endpoints remain **Admin-only** (`require_admin`). MPCP hierarchy and tracking endpoints are open to any authenticated role; Budget is gated by `require_budget_access` (Partner denied).
 
 ---
 

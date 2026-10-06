@@ -44,6 +44,28 @@ class UserRole(str, Enum):
 
     ADMIN = "Admin"
     USER = "User"
+    # Partner project managers: standard access but MUST NOT see the Budget
+    # section (project budget figures, transactions, dashboard budget totals).
+    PARTNER = "Partner"
+
+    @classmethod
+    def from_str(cls, value: Optional[str]) -> "UserRole":
+        """Parse a role string from Users.xlsx into a UserRole.
+
+        Matching is case-insensitive. Any unknown or empty value falls back
+        to USER (the least-privileged role) so a typo can never silently
+        escalate to Admin.
+        """
+        normalized = (value or "").strip().lower()
+        for role in cls:
+            if role.value.lower() == normalized:
+                return role
+        return cls.USER
+
+    @property
+    def can_view_budget(self) -> bool:
+        """Whether this role may see budget figures. Partner cannot."""
+        return self != UserRole.PARTNER
 
 
 InputTier = Literal[0, 1, 2, 3]

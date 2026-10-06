@@ -1,0 +1,8 @@
+services:
+  qr:
+    build: .
+    image: qr-static-generator-qr
+    container_name: qr-static-generator
+    ports:
+      - "8090:8090"
+    restart: unless-stopped

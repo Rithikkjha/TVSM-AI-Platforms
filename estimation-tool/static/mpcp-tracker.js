@@ -23,6 +23,16 @@ let mpcp = {
 
 const MPCP_API = '/api/mpcp-tracker';
 
+// Partner-role users must not see any budget figures. currentUser is a global
+// defined in index.html; guard against it being unset.
+function canViewBudget() {
+    try {
+        return !currentUser || currentUser.role !== 'Partner';
+    } catch (e) {
+        return true;
+    }
+}
+
 function mpHeaders() {
     const h = { 'Authorization': 'Bearer ' + (localStorage.getItem('auth_token') || 'demo-token') };
     return h;
@@ -400,7 +410,9 @@ async function renderProjectDetail(container, projectId) {
             fetch(`${MPCP_API}/projects/${projectId}/process-track`, { headers: mpHeaders() }),
             fetch(`${MPCP_API}/projects/${projectId}/execution-track`, { headers: mpHeaders() }),
             fetch(`${MPCP_API}/projects/${projectId}/dependencies`, { headers: mpHeaders() }),
-            fetch(`${MPCP_API}/projects/${projectId}/budget`, { headers: mpHeaders() }),
+            canViewBudget()
+                ? fetch(`${MPCP_API}/projects/${projectId}/budget`, { headers: mpHeaders() })
+                : Promise.resolve(null),
         ]);
         if (!projResp.ok) throw new Error('Project not found');
         mpcp.currentProject = await projResp.json();
@@ -408,7 +420,7 @@ async function renderProjectDetail(container, projectId) {
         mpcp.processTrack = ptResp.ok ? await ptResp.json() : null;
         mpcp.executionTrack = etResp.ok ? await etResp.json() : null;
         mpcp.dependencies = depResp.ok ? await depResp.json() : [];
-        mpcp.budget = budResp.ok ? await budResp.json() : null;
+        mpcp.budget = (budResp && budResp.ok) ? await budResp.json() : null;
         // Load all tasks for Gantt chart rendering
         await loadGanttTasks(projectId);
     } catch (e) {
@@ -453,13 +465,13 @@ async function renderProjectDetail(container, projectId) {
             <div class="tab-item active" onclick="showMPCPTab('process')">Process Track</div>
             <div class="tab-item" onclick="showMPCPTab('execution')">Execution Track</div>
             <div class="tab-item" onclick="showMPCPTab('dependencies')">Dependencies (${mpcp.dependencies.length})</div>
-            <div class="tab-item" onclick="showMPCPTab('budget')">Budget</div>
+            ${canViewBudget() ? `<div class="tab-item" onclick="showMPCPTab('budget')">Budget</div>` : ''}
             <div class="tab-item" onclick="showMPCPTab('changelog');loadChangeLogData()">Change Log</div>
         </div>
         <div id="mpcp-tab-process" class="mpcp-tab-content">${renderProcessTrack()}</div>
         <div id="mpcp-tab-execution" class="mpcp-tab-content" style="display:none">${renderExecutionTrack(projectId)}</div>
         <div id="mpcp-tab-dependencies" class="mpcp-tab-content" style="display:none">${renderDependenciesTab(projectId)}</div>
-        <div id="mpcp-tab-budget" class="mpcp-tab-content" style="display:none">${renderBudgetTab(projectId)}</div>
+        ${canViewBudget() ? `<div id="mpcp-tab-budget" class="mpcp-tab-content" style="display:none">${renderBudgetTab(projectId)}</div>` : ''}
         <div id="mpcp-tab-changelog" class="mpcp-tab-content" style="display:none">${renderChangeLogTab(projectId)}</div>
     `;
 }
@@ -467,7 +479,9 @@ async function renderProjectDetail(container, projectId) {
 function showMPCPTab(tab) {
     document.querySelectorAll('.mpcp-tab-content').forEach(el => el.style.display = 'none');
     document.querySelectorAll('#mpcp-detail-tabs .tab-item').forEach(el => el.classList.remove('active'));
-    document.getElementById('mpcp-tab-' + tab).style.display = 'block';
+    const tabEl = document.getElementById('mpcp-tab-' + tab);
+    if (!tabEl) return;  // e.g. budget tab is absent for Partner role
+    tabEl.style.display = 'block';
     // Mark clicked tab as active
     const tabMap = { 'process': 'process', 'execution': 'execution', 'dependencies': 'dependencies', 'budget': 'budget', 'changelog': 'change' };
     const matchPrefix = tabMap[tab] || tab;
@@ -1995,7 +2009,10 @@ let mpcp_config = null;
 async function renderMPCPSettings(container) {
     container.innerHTML = '<div class="card"><p>Loading settings...</p></div>';
     try {
-        const resp = await fetch(`${MPCP_API}/config`, { headers: mpHeaders() });
+        // no-store: the config list must never come from a stale browser cache,
+        // otherwise an add/remove would PUT outdated data and silently drop
+        // items that were saved from another view or session.
+        const resp = await fetch(`${MPCP_API}/config`, { headers: mpHeaders(), cache: 'no-store' });
         if (!resp.ok) throw new Error('Failed to load config');
         mpcp_config = await resp.json();
     } catch (e) {
@@ -2039,37 +2056,74 @@ async function renderMPCPSettings(container) {
     `;
 }
 
+const _EMPTY_CONFIG = { vendors: [], product_owners: [], engineering_managers: [] };
+
 async function addConfigItem(listKey, inputId) {
-    const input = document.getElementById(inputId);
-    const value = input.value.trim();
-    if (!value) return;
-    if (!mpcp_config[listKey]) mpcp_config[listKey] = [];
-    if (mpcp_config[listKey].includes(value)) { showToastNotification('Already exists', 'warning'); return; }
-    mpcp_config[listKey].push(value);
-    await saveConfig();
-    input.value = '';
-    refreshCurrentMPCPView();
+    try {
+        const input = document.getElementById(inputId);
+        if (!input) { showToastNotification('Input not found', 'error'); return; }
+        const value = input.value.trim();
+        if (!value) return;
+        // Always start from the server's current config so we never PUT a stale
+        // list that drops items saved elsewhere. Fall back to in-memory or an
+        // empty skeleton so a transient fetch miss can't leave mpcp_config null.
+        const fresh = await fetchFreshConfig();
+        mpcp_config = fresh || mpcp_config || { ..._EMPTY_CONFIG };
+        if (!Array.isArray(mpcp_config[listKey])) mpcp_config[listKey] = [];
+        if (mpcp_config[listKey].includes(value)) { showToastNotification('Already exists', 'warning'); return; }
+        mpcp_config[listKey].push(value);
+        const ok = await saveMpcpConfig();
+        if (ok) { input.value = ''; refreshCurrentMPCPView(); }
+    } catch (e) {
+        showToastNotification('Add failed: ' + (e && e.message ? e.message : e), 'error');
+    }
 }
 
 async function removeConfigItem(listKey, value) {
-    mpcp_config[listKey] = mpcp_config[listKey].filter(v => v !== value);
-    await saveConfig();
-    refreshCurrentMPCPView();
+    try {
+        // Re-sync from server first so the removal is applied to current data.
+        const fresh = await fetchFreshConfig();
+        mpcp_config = fresh || mpcp_config || { ..._EMPTY_CONFIG };
+        if (!Array.isArray(mpcp_config[listKey])) mpcp_config[listKey] = [];
+        mpcp_config[listKey] = mpcp_config[listKey].filter(v => v !== value);
+        const ok = await saveMpcpConfig();
+        if (ok) refreshCurrentMPCPView();
+    } catch (e) {
+        showToastNotification('Remove failed: ' + (e && e.message ? e.message : e), 'error');
+    }
 }
 
-async function saveConfig() {
+// Fetch the authoritative config, bypassing any browser cache.
+async function fetchFreshConfig() {
+    try {
+        const resp = await fetch(`${MPCP_API}/config`, { headers: mpHeaders(), cache: 'no-store' });
+        if (resp.ok) return await resp.json();
+    } catch (e) { /* fall back to in-memory */ }
+    return null;
+}
+
+// Named saveMpcpConfig (not saveConfig) to avoid colliding with the global
+// saveConfig() defined in index.html for the estimation SLM/rate-card page.
+// Two same-named globals meant index.html's version shadowed this one, so the
+// MPCP settings Add/Remove were silently PUTting to /api/admin/config instead
+// of /api/mpcp-tracker/config.
+async function saveMpcpConfig() {
     try {
         const resp = await fetch(`${MPCP_API}/config`, { method: 'PUT', headers: mpHeadersJson(), body: JSON.stringify(mpcp_config) });
         if (!resp.ok) throw new Error('Failed to save');
+        // Adopt the server's authoritative merged result as the new source of
+        // truth, so the UI reflects exactly what was persisted.
+        try { mpcp_config = await resp.json(); } catch (e) { /* keep local */ }
         showToastNotification('Settings saved', 'success');
-    } catch (e) { showToastNotification(e.message, 'error'); }
+        return true;
+    } catch (e) { showToastNotification(e.message, 'error'); return false; }
 }
 
 // Load config for dropdowns (called when rendering create/edit modals)
 async function loadMPCPConfig() {
     if (mpcp_config) return mpcp_config;
     try {
-        const resp = await fetch(`${MPCP_API}/config`, { headers: mpHeaders() });
+        const resp = await fetch(`${MPCP_API}/config`, { headers: mpHeaders(), cache: 'no-store' });
         if (resp.ok) mpcp_config = await resp.json();
     } catch (e) { /* use defaults */ }
     return mpcp_config || { vendors: [], product_owners: [], engineering_managers: [] };

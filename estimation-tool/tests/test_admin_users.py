@@ -283,13 +283,21 @@ class TestRemoveUser:
             {"corporate_id": "EMP002", "email": "admin2@company.com", "display_name": "Admin 2", "role": "Admin", "added_by": "system", "added_at": "2024-01-01", "active": "TRUE"},
             {"corporate_id": "EMP003", "email": "user@company.com", "display_name": "User", "role": "User", "added_by": "admin1@company.com", "added_at": "2024-02-01", "active": "TRUE"},
         ]))
-        mock_sharepoint.write_rows = AsyncMock()
+        mock_sharepoint.update_row_cells = AsyncMock(return_value=True)
 
         response = admin_client.delete("/api/admin/users/user@company.com")
         assert response.status_code == 200
         data = response.json()
         assert "removed" in data["message"].lower() or "user@company.com" in data["message"]
-        mock_sharepoint.write_rows.assert_called_once()
+
+        # Soft-delete must target ONLY the removed user's row and flip ONLY the
+        # Active cell to FALSE — never rewrite the whole sheet (regression guard
+        # for the bug that wiped all users).
+        mock_sharepoint.update_row_cells.assert_called_once()
+        _, kwargs = mock_sharepoint.update_row_cells.call_args
+        assert kwargs["match_value"] == "user@company.com"
+        assert kwargs["updates"] == {7: "FALSE"}
+        mock_sharepoint.write_rows.assert_not_called()
 
     def test_remove_user_by_corporate_id(self, admin_client, mock_sharepoint):
         """Admin can remove a user by corporate ID."""
@@ -297,10 +305,11 @@ class TestRemoveUser:
             {"corporate_id": "EMP001", "email": "admin@company.com", "display_name": "Admin", "role": "Admin", "added_by": "system", "added_at": "2024-01-01", "active": "TRUE"},
             {"corporate_id": "EMP002", "email": "user@company.com", "display_name": "User", "role": "User", "added_by": "admin@company.com", "added_at": "2024-02-01", "active": "TRUE"},
         ]))
-        mock_sharepoint.write_rows = AsyncMock()
+        mock_sharepoint.update_row_cells = AsyncMock(return_value=True)
 
         response = admin_client.delete("/api/admin/users/EMP002")
         assert response.status_code == 200
+        mock_sharepoint.update_row_cells.assert_called_once()
 
     def test_remove_user_not_found(self, admin_client, mock_sharepoint):
         """Returns 404 when user is not found in allowlist."""
@@ -334,10 +343,11 @@ class TestRemoveUser:
             {"corporate_id": "EMP001", "email": "admin1@company.com", "display_name": "Admin 1", "role": "Admin", "added_by": "system", "added_at": "2024-01-01", "active": "TRUE"},
             {"corporate_id": "EMP002", "email": "admin2@company.com", "display_name": "Admin 2", "role": "Admin", "added_by": "system", "added_at": "2024-01-01", "active": "TRUE"},
         ]))
-        mock_sharepoint.write_rows = AsyncMock()
+        mock_sharepoint.update_row_cells = AsyncMock(return_value=True)
 
         response = admin_client.delete("/api/admin/users/admin1@company.com")
         assert response.status_code == 200
+        mock_sharepoint.update_row_cells.assert_called_once()
 
     def test_remove_user_sharepoint_unavailable(self, admin_client, mock_sharepoint):
         """Returns 503 when SharePoint is unavailable."""

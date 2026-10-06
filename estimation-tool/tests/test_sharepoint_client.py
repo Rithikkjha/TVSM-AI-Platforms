@@ -184,6 +184,93 @@ class TestWriteRows:
         assert upload_args[0][0] == "Test.xlsx"
 
     @pytest.mark.asyncio
+    async def test_write_rows_with_start_row_preserves_other_rows(self, client: SharePointClient):
+        """A targeted write (start_row given) must NOT wipe the rest of the sheet.
+
+        Regression guard: previously write_rows cleared the entire sheet before
+        writing, so passing a single row + start_row erased every other row.
+        """
+        import io
+        from openpyxl import Workbook, load_workbook
+
+        # Source file with a header + three data rows.
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Sheet1"
+        ws.append(["Id", "Active"])
+        ws.append(["EMP001", "TRUE"])
+        ws.append(["EMP002", "TRUE"])
+        ws.append(["EMP003", "TRUE"])
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        excel_bytes = buffer.getvalue()
+
+        captured = {}
+
+        async def _capture_upload(filename, content):
+            captured["content"] = content
+
+        with patch.object(client, "_download_file", new_callable=AsyncMock) as mock_download, \
+             patch.object(client, "_upload_file", side_effect=_capture_upload):
+            mock_download.return_value = excel_bytes
+            # Flip only EMP002 (row 3) to FALSE via a targeted write.
+            await client.write_rows(
+                "Test.xlsx", "Sheet1",
+                rows=[["EMP002", "FALSE"]],
+                start_row=3,
+            )
+
+        result_wb = load_workbook(io.BytesIO(captured["content"]))
+        result_ws = result_wb["Sheet1"]
+        result_rows = [[c.value for c in row] for row in result_ws.iter_rows()]
+
+        # Header and all three users survive; only EMP002's Active is now FALSE.
+        assert result_rows == [
+            ["Id", "Active"],
+            ["EMP001", "TRUE"],
+            ["EMP002", "FALSE"],
+            ["EMP003", "TRUE"],
+        ]
+
+    @pytest.mark.asyncio
+    async def test_write_rows_full_replace_clears_sheet(self, client: SharePointClient):
+        """A full replace (no start_row) clears the sheet and writes exactly rows."""
+        import io
+        from openpyxl import Workbook, load_workbook
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Sheet1"
+        ws.append(["Id", "Active"])
+        ws.append(["EMP001", "TRUE"])
+        ws.append(["EMP002", "TRUE"])
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        excel_bytes = buffer.getvalue()
+
+        captured = {}
+
+        async def _capture_upload(filename, content):
+            captured["content"] = content
+
+        with patch.object(client, "_download_file", new_callable=AsyncMock) as mock_download, \
+             patch.object(client, "_upload_file", side_effect=_capture_upload):
+            mock_download.return_value = excel_bytes
+            await client.write_rows(
+                "Test.xlsx", "Sheet1",
+                rows=[["Id", "Active"], ["EMP009", "TRUE"]],
+            )
+
+        result_wb = load_workbook(io.BytesIO(captured["content"]))
+        result_ws = result_wb["Sheet1"]
+        result_rows = [[c.value for c in row] for row in result_ws.iter_rows()]
+
+        assert result_rows == [
+            ["Id", "Active"],
+            ["EMP009", "TRUE"],
+        ]
+
+    @pytest.mark.asyncio
     async def test_write_rows_queues_on_write_error(self, client: SharePointClient):
         """write_rows() queues operation when write fails."""
         client._access_token = "test-token"
@@ -359,7 +446,9 @@ class TestMonthlyFiles:
 
         mock_create.assert_called_once()
         call_args = mock_create.call_args
-        assert call_args[0][0] == "Estimations_2026-01.xlsx"
+        # Estimation data files live under the Estimations/Estimations/ data
+        # subfolder (sibling to Estimations/Audit/).
+        assert call_args[0][0] == "Estimations/Estimations/Estimations_2026-01.xlsx"
         headers = call_args[0][1]
         assert "EstimationId" in headers
         assert "ProjectName" in headers
@@ -376,7 +465,8 @@ class TestMonthlyFiles:
 
         mock_create.assert_called_once()
         call_args = mock_create.call_args
-        assert call_args[0][0] == "AuditLog_2026-01.xlsx"
+        # Audit log files live under the Estimations/Audit/ subfolder.
+        assert call_args[0][0] == "Estimations/Audit/AuditLog_2026-01.xlsx"
         headers = call_args[0][1]
         assert "AuditId" in headers
         assert "EventType" in headers
@@ -414,18 +504,18 @@ class TestMonthlyFiles:
     def test_get_monthly_filename_estimations(self, client: SharePointClient):
         """get_monthly_filename() returns correct estimations filename."""
         result = client.get_monthly_filename("estimations", "2026-03")
-        assert result == "Estimations_2026-03.xlsx"
+        assert result == "Estimations/Estimations/Estimations_2026-03.xlsx"
 
     def test_get_monthly_filename_auditlog(self, client: SharePointClient):
         """get_monthly_filename() returns correct audit log filename."""
         result = client.get_monthly_filename("auditlog", "2026-03")
-        assert result == "AuditLog_2026-03.xlsx"
+        assert result == "Estimations/Audit/AuditLog_2026-03.xlsx"
 
     def test_get_monthly_filename_defaults_to_current_month(self, client: SharePointClient):
         """get_monthly_filename() uses current month when none specified."""
         result = client.get_monthly_filename("estimations")
         expected_month = datetime.now(timezone.utc).strftime("%Y-%m")
-        assert result == f"Estimations_{expected_month}.xlsx"
+        assert result == f"Estimations/Estimations/Estimations_{expected_month}.xlsx"
 
 
 class TestFileExists:

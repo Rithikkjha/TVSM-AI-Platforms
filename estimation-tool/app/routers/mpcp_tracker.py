@@ -18,7 +18,11 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, UploadFile, File, status
 
-from app.middleware.auth import AuthenticatedUser, get_current_user, require_admin
+from app.middleware.auth import (
+    AuthenticatedUser,
+    get_current_user,
+    require_budget_access,
+)
 from app.models.mpcp_schemas import (
     BudgetData,
     BudgetTransactionCreateRequest,
@@ -95,9 +99,8 @@ async def list_managing_points(
 async def create_managing_point(
     request: MPCreateRequest,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
-    """Create a new Managing Point."""
+    """Create a new Managing Point. Any authenticated user may create."""
     sp = _get_sp()
     try:
         return await tracker.create_mp(request, user.identity.displayName, sp)
@@ -125,7 +128,6 @@ async def update_managing_point(
     mp_id: str,
     request: MPUpdateRequest,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
     """Update a Managing Point."""
     sp = _get_sp()
@@ -141,7 +143,6 @@ async def update_managing_point(
 async def delete_managing_point(
     mp_id: str,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
     """Delete a Managing Point (must have 0 CPs)."""
     sp = _get_sp()
@@ -187,9 +188,8 @@ async def create_check_point(
     mp_id: str,
     request: CPCreateRequest,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
-    """Create a Check Point under an MP."""
+    """Create a Check Point under an MP. Any authenticated user may create."""
     sp = _get_sp()
     try:
         return await tracker.create_cp(mp_id, request, user.identity.displayName, sp)
@@ -217,7 +217,6 @@ async def update_check_point(
     cp_id: str,
     request: CPUpdateRequest,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
     """Update a Check Point."""
     sp = _get_sp()
@@ -231,7 +230,6 @@ async def update_check_point(
 async def delete_check_point(
     cp_id: str,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
     """Delete a Check Point (must have 0 projects)."""
     sp = _get_sp()
@@ -275,9 +273,8 @@ async def create_project(
     cp_id: str,
     request: ProjectCreateRequest,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
-    """Create a Project under a CP."""
+    """Create a Project under a CP. Any authenticated user may create."""
     sp = _get_sp()
     try:
         return await tracker.create_project(cp_id, request, user.identity.displayName, sp)
@@ -305,7 +302,6 @@ async def update_project(
     project_id: str,
     request: ProjectUpdateRequest,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
     """Update a Project."""
     sp = _get_sp()
@@ -322,7 +318,6 @@ async def move_project(
     project_id: str,
     body: dict = Body(...),
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
     """Move a Project to a different Check Point (reassign its parent MP/CP)."""
     sp = _get_sp()
@@ -340,7 +335,6 @@ async def move_project(
 async def delete_project(
     project_id: str,
     user: AuthenticatedUser = Depends(get_current_user),
-    admin: AuthenticatedUser = Depends(require_admin),
 ):
     """Delete a Project and all associated data."""
     sp = _get_sp()
@@ -398,6 +392,8 @@ async def update_process_track_stage(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+    except SharePointError as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e))
 
 
 # ==========================================================================
@@ -716,9 +712,9 @@ async def delete_dependency(
 @router.get("/projects/{project_id}/budget", response_model=BudgetData)
 async def get_budget(
     project_id: str,
-    user: AuthenticatedUser = Depends(get_current_user),
+    user: AuthenticatedUser = Depends(require_budget_access),
 ):
-    """Get budget data for a project."""
+    """Get budget data for a project. Not available to Partner role."""
     sp = _get_sp()
     try:
         return await tracker.get_budget(project_id, sp)
@@ -730,9 +726,9 @@ async def get_budget(
 async def update_budget(
     project_id: str,
     request: BudgetUpdateRequest,
-    user: AuthenticatedUser = Depends(get_current_user),
+    user: AuthenticatedUser = Depends(require_budget_access),
 ):
-    """Update budget data for a project."""
+    """Update budget data for a project. Not available to Partner role."""
     sp = _get_sp()
     try:
         user_name = user.identity.displayName if user.identity else (user.email or "")
@@ -761,9 +757,12 @@ async def update_budget(
 async def add_budget_transaction(
     project_id: str,
     request: BudgetTransactionCreateRequest,
-    user: AuthenticatedUser = Depends(get_current_user),
+    user: AuthenticatedUser = Depends(require_budget_access),
 ):
-    """Add a transaction (PO, CR, Spend, Refund) to the project budget."""
+    """Add a transaction (PO, CR, Spend, Refund) to the project budget.
+
+    Not available to Partner role.
+    """
     sp = _get_sp()
     try:
         user_name = user.identity.displayName if user.identity else (user.email or "")
@@ -852,7 +851,17 @@ async def get_dashboard(
     if q:
         filters["q"] = q
 
-    return await tracker.get_dashboard(sp, bu_filter=bu, filters=filters or None)
+    metrics = await tracker.get_dashboard(sp, bu_filter=bu, filters=filters or None)
+
+    # Partner role must not see budget figures — zero out budget totals so
+    # they never leak through the dashboard aggregate.
+    if not user.can_view_budget:
+        metrics.budget_total_approved = 0.0
+        metrics.budget_total_exhausted = 0.0
+        metrics.budget_total_remaining = 0.0
+        metrics.budget_over_count = 0
+
+    return metrics
 
 
 @router.get("/search")
@@ -1095,9 +1104,22 @@ async def bulk_upload_milestones(
 async def get_mpcp_config(
     user: AuthenticatedUser = Depends(get_current_user),
 ):
-    """Get MPCP configurable lists (vendors, POs, EMs)."""
+    """Get MPCP configurable lists (vendors, POs, EMs).
+
+    Returned with no-cache headers: a stale cached config would cause the
+    settings UI to PUT outdated lists and silently drop items.
+    """
+    from fastapi.responses import JSONResponse
     sp = _get_sp()
-    return await tracker.get_mpcp_config(sp)
+    config = await tracker.get_mpcp_config(sp)
+    return JSONResponse(
+        content=config,
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
 
 
 @router.put("/config")

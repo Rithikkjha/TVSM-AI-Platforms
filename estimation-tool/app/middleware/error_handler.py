@@ -88,6 +88,20 @@ ERROR_MAP = {
         "type": "service_unavailable",
         "action": "Data source temporarily unavailable. Please retry shortly.",
     },
+    "SharePointWriteError": {
+        "status": status.HTTP_503_SERVICE_UNAVAILABLE,
+        "type": "service_unavailable",
+        "action": "Your change could not be saved to storage. Please retry — no partial data was committed to the row you edited.",
+    },
+    "SharePointError": {
+        # Base class for all SharePoint failures (e.g. the persist guard
+        # refusing to overwrite from an unverified load). Treated as a
+        # retryable service error rather than a generic 500 so the user is told
+        # to retry instead of assuming their edit was saved.
+        "status": status.HTTP_503_SERVICE_UNAVAILABLE,
+        "type": "service_unavailable",
+        "action": "Your change could not be saved right now. Please retry in a few moments.",
+    },
     "FileLockError": {
         "status": 423,  # HTTP 423 Locked
         "type": "file_locked",

@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 from app.middleware.auth import (
     AuthenticatedUser,
     get_sharepoint_client,
+    invalidate_allowlist_cache,
     require_admin,
 )
 from app.models.schemas import AllowlistEntry, UserRole
@@ -177,7 +178,7 @@ async def list_users(
             corporate_id=u["corporate_id"],
             email=u["email"],
             display_name=u["display_name"],
-            role=UserRole.ADMIN if u["role"] == "Admin" else UserRole.USER,
+            role=UserRole.from_str(u["role"]),
             added_by=u["added_by"],
             added_at=u["added_at"],
             active=u["active"],
@@ -221,6 +222,7 @@ async def add_user(
     users_data = _parse_users_rows(rows)
     email_lower = request.email.strip().lower()
 
+    # A currently-active row for this email is a genuine duplicate.
     for user in users_data:
         if user["email"].lower() == email_lower and user["active"]:
             raise HTTPException(
@@ -228,7 +230,6 @@ async def add_user(
                 detail=f"User with email '{request.email}' already exists in the allowlist.",
             )
 
-    # Build the new row matching actual file column order
     now = datetime.now(timezone.utc).isoformat()
 
     # Read current headers to match column order
@@ -238,26 +239,75 @@ async def add_user(
     except Exception:
         headers = USERS_HEADERS
 
-    field_values = {
-        "CorporateId": request.corporate_id or "",
-        "Email": request.email.strip(),
-        "DisplayName": request.display_name.strip(),
-        "Role": request.role.value,
-        "AddedBy": admin.email,
-        "AddedAt": now,
-        "Active": "TRUE",
-    }
-    new_row = [field_values.get(h, "") for h in headers]
+    # If an INACTIVE row already exists for this email (e.g. the person was
+    # removed earlier via soft-delete), REACTIVATE that row in place instead of
+    # appending a new one. Appending would leave two rows for the same email —
+    # and login/allowlist scanning could then hit the stale inactive row first
+    # and wrongly report "account deactivated". Reactivating keeps exactly one
+    # row per person and updates their role/details to the new values.
+    inactive_exists = any(
+        u["email"].lower() == email_lower and not u["active"] for u in users_data
+    )
+    if inactive_exists:
+        header_map = {str(h).strip().lower(): i + 1 for i, h in enumerate(headers)}  # 1-based
+        updates = {}
+        if "corporateid" in header_map:
+            updates[header_map["corporateid"]] = request.corporate_id or ""
+        if "displayname" in header_map:
+            updates[header_map["displayname"]] = request.display_name.strip()
+        if "role" in header_map:
+            updates[header_map["role"]] = request.role.value
+        if "addedby" in header_map:
+            updates[header_map["addedby"]] = admin.email
+        if "addedat" in header_map:
+            updates[header_map["addedat"]] = now
+        if "active" in header_map:
+            updates[header_map["active"]] = "TRUE"
+        email_col = header_map.get("email", 2)
 
-    # Append to Users.xlsx
-    try:
-        await sharepoint_client.append_row(USERS_FILENAME, USERS_SHEET, new_row)
-    except SharePointError as exc:
-        logger.error(f"Failed to add user to allowlist: {exc}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to add user. Please retry.",
-        )
+        try:
+            updated = await sharepoint_client.update_row_cells(
+                USERS_FILENAME,
+                USERS_SHEET,
+                match_column=email_col,
+                match_value=request.email.strip(),
+                updates=updates,
+            )
+        except SharePointError as exc:
+            logger.error(f"Failed to reactivate user in allowlist: {exc}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to add user. Please retry.",
+            )
+        if not updated:
+            # Row vanished between read and write (rare race) — fall through to append.
+            inactive_exists = False
+
+    if not inactive_exists:
+        field_values = {
+            "CorporateId": request.corporate_id or "",
+            "Email": request.email.strip(),
+            "DisplayName": request.display_name.strip(),
+            "Role": request.role.value,
+            "AddedBy": admin.email,
+            "AddedAt": now,
+            "Active": "TRUE",
+        }
+        new_row = [field_values.get(h, "") for h in headers]
+
+        # Append to Users.xlsx
+        try:
+            await sharepoint_client.append_row(USERS_FILENAME, USERS_SHEET, new_row)
+        except SharePointError as exc:
+            logger.error(f"Failed to add user to allowlist: {exc}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to add user. Please retry.",
+            )
+
+    # Invalidate the auth allowlist cache so the new user can access
+    # authenticated endpoints immediately rather than after the TTL expires.
+    invalidate_allowlist_cache()
 
     logger.info(
         f"Admin '{admin.email}' added user '{request.email}' "
@@ -303,16 +353,13 @@ async def remove_user(
 
     # Find the user to remove
     target_user = None
-    target_row_idx = -1
 
-    for idx, user in enumerate(users_data):
+    for user in users_data:
         if (
             user["email"].lower() == user_id_lower
             or user["corporate_id"].lower() == user_id_lower
         ) and user["active"]:
             target_user = user
-            # Row index in the workbook: +1 for header, +1 for 1-based indexing
-            target_row_idx = idx + 2  # headers at row 1, data starts at row 2
             break
 
     if target_user is None:
@@ -334,24 +381,31 @@ async def remove_user(
                 detail="Cannot remove the last Admin. At least one Admin must remain on the allowlist.",
             )
 
-    # Deactivate the user by setting Active to FALSE
-    # We rewrite the row with Active = FALSE
-    updated_row = [
-        target_user["corporate_id"],
-        target_user["email"],
-        target_user["display_name"],
-        target_user["role"],
-        target_user["added_by"],
-        target_user["added_at"],
-        "FALSE",
-    ]
+    # Soft-delete the user by flipping only their Active cell to FALSE.
+    # We match the row by email and update just the Active column, so no
+    # other rows are touched. (Previously this used write_rows with a single
+    # row + start_row, but write_rows clears the ENTIRE sheet first and then
+    # writes only the passed rows — which wiped all other users.)
+    #
+    # Column indices are resolved from the actual file headers rather than
+    # hardcoded, since the on-disk column order may differ from USERS_HEADERS.
+    headers = [str(h).strip().lower() for h in rows[0]] if rows else []
+    try:
+        email_col = headers.index("email") + 1  # 1-based
+    except ValueError:
+        email_col = 2  # default: Email is the 2nd column
+    try:
+        active_col = headers.index("active") + 1  # 1-based
+    except ValueError:
+        active_col = 7  # default: Active is the 7th column
 
     try:
-        await sharepoint_client.write_rows(
+        updated = await sharepoint_client.update_row_cells(
             USERS_FILENAME,
             USERS_SHEET,
-            [updated_row],
-            start_row=target_row_idx,
+            match_column=email_col,
+            match_value=target_user["email"],
+            updates={active_col: "FALSE"},
         )
     except SharePointError as exc:
         logger.error(f"Failed to remove user from allowlist: {exc}")
@@ -359,6 +413,17 @@ async def remove_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to remove user. Please retry.",
         )
+
+    if not updated:
+        # Row disappeared between read and write (rare race / stale data).
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User '{user_id}' not found in the allowlist.",
+        )
+
+    # Invalidate the auth allowlist cache so the removed user loses access
+    # immediately rather than lingering until the TTL expires.
+    invalidate_allowlist_cache()
 
     logger.info(
         f"Admin '{admin.email}' removed user '{user_id}' from allowlist."

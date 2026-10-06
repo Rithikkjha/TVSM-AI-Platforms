@@ -261,6 +261,14 @@ Dashboard-level reports:
 | Config | Get/update vendors, POs, EMs |
 | FY | Switch financial year |
 
+### Access Control (roles)
+Full-contributor model: any authenticated role — **Admin**, **User**, or **Partner** — can create, edit, and delete MPs/CPs/Projects and update all tracking data (process track, milestones, tasks, RAG, dependencies). Enforced by `get_current_user` on those routes.
+
+The one role restriction: **Partner** cannot access **Budget** (view or edit) — budget endpoints use `require_budget_access`, which returns 403 for Partner. User-management, templates, and system/SLM config remain Admin-only (`require_admin`). The allowlist (`Users.xlsx`) is cached in the auth middleware and invalidated on every user add/remove so role/membership changes take effect immediately.
+
+### Write Concurrency
+All persistence is a download-edit-upload cycle against a single workbook, so overlapping writes to the same file could clobber each other (last-writer-wins). `SharePointClient` serializes writes with a **per-filename `asyncio.Lock`**: concurrent writes to the *same* workbook run one at a time (no interleaved download/upload), while writes to *different* files proceed in parallel. Multi-sheet operations are additionally atomic (single upload). This protects a **single app worker**; running multiple workers/replicas would require ETag/`If-Match` optimistic concurrency or a move to a transactional datastore.
+
 ### Frontend (SPA)
 Single-page app in `static/mpcp-tracker.js`:
 - Dashboard with RAG summary cards + BU filter

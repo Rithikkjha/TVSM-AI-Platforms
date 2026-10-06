@@ -55,6 +55,14 @@ class AuthenticatedUser:
     def is_admin(self) -> bool:
         return self.role == UserRole.ADMIN
 
+    @property
+    def is_partner(self) -> bool:
+        return self.role == UserRole.PARTNER
+
+    @property
+    def can_view_budget(self) -> bool:
+        return self.role.can_view_budget
+
 
 def _get_sso_config() -> dict:
     """Load SSO configuration from environment variables."""
@@ -215,6 +223,20 @@ _allowlist_cache_time: float = 0
 _ALLOWLIST_CACHE_TTL = 300  # 5 minutes
 
 
+def invalidate_allowlist_cache() -> None:
+    """Clear the cached Users.xlsx allowlist.
+
+    Must be called whenever Users.xlsx is modified (user added, removed, or
+    role changed). Without this, ``get_current_user`` keeps authorizing against
+    the stale cached allowlist for up to ``_ALLOWLIST_CACHE_TTL`` seconds, so a
+    newly-added user can keep receiving 403 on authenticated endpoints even
+    though login (which reads the file directly) already succeeds.
+    """
+    global _allowlist_cache, _allowlist_cache_time
+    _allowlist_cache = None
+    _allowlist_cache_time = 0
+
+
 async def _get_allowlist_rows(sharepoint_client: SharePointClient) -> list:
     """Get allowlist rows with 5-minute cache."""
     global _allowlist_cache, _allowlist_cache_time
@@ -285,6 +307,15 @@ async def _check_allowlist(
     added_at_idx = col_map.get("addedat", 5)
     active_idx = col_map.get("active", 6)
 
+    user_email = identity.email.strip().lower()
+    user_corp_id = identity.corporateId.strip().lower()
+
+    # Collect ALL rows matching this user. Users.xlsx can hold more than one row
+    # for the same person (e.g. a soft-deleted inactive row plus a newer active
+    # row from a re-add). We must prefer an ACTIVE row and only report
+    # "deactivated" when every matching row is inactive — otherwise a stale
+    # inactive row appearing first would wrongly block a currently-active user.
+    matches = []  # list of (row, is_active)
     for row in data_rows:
         if len(row) <= max(email_idx, corp_id_idx):
             continue
@@ -292,50 +323,49 @@ async def _check_allowlist(
         row_email = str(row[email_idx]).strip().lower() if row[email_idx] else ""
         row_corp_id = str(row[corp_id_idx]).strip().lower() if row[corp_id_idx] else ""
 
-        # Match by email or corporate ID
-        user_email = identity.email.strip().lower()
-        user_corp_id = identity.corporateId.strip().lower()
-
         if (user_email and row_email == user_email) or (
             user_corp_id and row_corp_id == user_corp_id
         ):
-            # Check if active
             is_active = True
             if len(row) > active_idx:
                 active_val = str(row[active_idx]).strip().lower()
                 is_active = active_val in ("true", "1", "yes", "")
+            matches.append((row, is_active))
 
-            if not is_active:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Access Denied \u2014 contact your admin",
-                )
-
-            # Extract role
-            role_str = str(row[role_idx]).strip() if len(row) > role_idx else "User"
-            role = UserRole.ADMIN if role_str == "Admin" else UserRole.USER
-
-            return AllowlistEntry(
-                corporateId=str(row[corp_id_idx]).strip() if row[corp_id_idx] else "",
-                email=str(row[email_idx]).strip() if row[email_idx] else "",
-                displayName=(
-                    str(row[display_name_idx]).strip()
-                    if len(row) > display_name_idx and row[display_name_idx]
-                    else identity.displayName
-                ),
-                role=role,
-                addedBy=(
-                    str(row[added_by_idx]).strip()
-                    if len(row) > added_by_idx and row[added_by_idx]
-                    else ""
-                ),
-                addedAt=(
-                    str(row[added_at_idx]).strip()
-                    if len(row) > added_at_idx and row[added_at_idx]
-                    else ""
-                ),
-                active=is_active,
+    if matches:
+        active_matches = [r for r, active in matches if active]
+        if not active_matches:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access Denied \u2014 contact your admin",
             )
+        row = active_matches[0]
+
+        # Extract role (case-insensitive; unknown values fall back to USER)
+        role_str = str(row[role_idx]).strip() if len(row) > role_idx else "User"
+        role = UserRole.from_str(role_str)
+
+        return AllowlistEntry(
+            corporateId=str(row[corp_id_idx]).strip() if row[corp_id_idx] else "",
+            email=str(row[email_idx]).strip() if row[email_idx] else "",
+            displayName=(
+                str(row[display_name_idx]).strip()
+                if len(row) > display_name_idx and row[display_name_idx]
+                else identity.displayName
+            ),
+            role=role,
+            addedBy=(
+                str(row[added_by_idx]).strip()
+                if len(row) > added_by_idx and row[added_by_idx]
+                else ""
+            ),
+            addedAt=(
+                str(row[added_at_idx]).strip()
+                if len(row) > added_at_idx and row[added_at_idx]
+                else ""
+            ),
+            active=True,
+        )
 
     # User not found in allowlist
     logger.info(
@@ -445,5 +475,28 @@ async def require_admin(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Insufficient permissions. Admin role required.",
+        )
+    return user
+
+
+async def require_budget_access(
+    user: AuthenticatedUser = Depends(get_current_user),
+) -> AuthenticatedUser:
+    """FastAPI dependency that requires permission to view/modify budget data.
+
+    Partner-role users are denied. All other authenticated roles are allowed.
+
+    Usage:
+        @router.get("/projects/{project_id}/budget")
+        async def get_budget(user: AuthenticatedUser = Depends(require_budget_access)):
+            ...
+
+    Raises:
+        HTTPException 403: If the user's role cannot access budget data.
+    """
+    if not user.can_view_budget:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions. Budget access is not available for your role.",
         )
     return user

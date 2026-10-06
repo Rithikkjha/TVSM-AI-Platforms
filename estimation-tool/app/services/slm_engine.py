@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MODEL_NAME = "qwen3:4b"
 DEFAULT_CONTEXT_WINDOW = 8192
 DEFAULT_TEMPERATURE = 0.1
-INFERENCE_TIMEOUT_SECONDS = 300  # was 120; raised for large estimation prompts on the shared Azure OpenAI (POC) endpoint
+INFERENCE_TIMEOUT_SECONDS = 120
 MAX_RETRIES = 2
 
 # OpenRouter fallback config

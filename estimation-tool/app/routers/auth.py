@@ -74,27 +74,36 @@ async def login(request: LoginRequest):
     corp_id_idx = col_map.get("corporateid", 0)
     active_idx = col_map.get("active", 6)
 
-    # Search for user
+    # Collect ALL rows matching this email. Users.xlsx can legitimately contain
+    # more than one row for the same person (e.g. a soft-deleted inactive row
+    # left behind by an earlier remove, plus a newer active row from a re-add).
+    # We must prefer an ACTIVE row and only treat the account as deactivated
+    # when EVERY matching row is inactive — otherwise a stale inactive row that
+    # happens to appear first would wrongly block a currently-active user.
+    matching_rows = []
     for row in rows[1:]:
         if not row or len(row) <= email_idx:
             continue
-
         row_email = str(row[email_idx]).strip().lower() if row[email_idx] else ""
         if row_email != email:
             continue
-
-        # Found — check if active
         is_active = True
         if len(row) > active_idx:
             active_val = str(row[active_idx]).strip().lower()
             if active_val in ("false", "0", "no"):
                 is_active = False
+        matching_rows.append((row, is_active))
 
-        if not is_active:
+    if matching_rows:
+        # Pick the first active row; fall back to the last matching row only to
+        # report the deactivated state when none are active.
+        active_matches = [r for r, active in matching_rows if active]
+        if not active_matches:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Your account has been deactivated. Please contact suraj.ray@tvsmotor.com for access.",
             )
+        row = active_matches[0]
 
         # Extract user info
         display_name = str(row[display_name_idx]).strip() if len(row) > display_name_idx and row[display_name_idx] else email.split("@")[0]
@@ -105,7 +114,7 @@ async def login(request: LoginRequest):
         secret = os.getenv("SSO_SECRET", "dev-secret-key-at-least-32-characters-long")
         payload = {
             "sub": corp_id or email,
-            "email": row_email,
+            "email": email,
             "name": display_name,
             "corporate_id": corp_id,
             "role": role,
@@ -114,11 +123,11 @@ async def login(request: LoginRequest):
         }
         token = jwt.encode(payload, secret, algorithm="HS256")
 
-        logger.info(f"Login successful: {row_email} ({display_name}, {role})")
+        logger.info(f"Login successful: {email} ({display_name}, {role})")
 
         return LoginResponse(
             token=token,
-            email=row_email,
+            email=email,
             display_name=display_name,
             role=role,
         )

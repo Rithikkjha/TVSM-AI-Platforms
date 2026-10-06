@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: qr-static-generator
+
+server:
+  port: ${SERVER_PORT:8090}
+  # Served behind nginx under https://smartbrain.tvsmotor.net/qrcode/ — the
+  # context-path namespaces the whole app (UI + /api/generate) under /qrcode so
+  # it doesn't collide with PlanIQ's /api at the domain root.
+  servlet:
+    context-path: /qrcode

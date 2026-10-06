@@ -127,6 +127,31 @@ class SharePointClient:
     # Graph API base URL
     GRAPH_API_BASE = "https://graph.microsoft.com/v1.0"
 
+    # ------------------------------------------------------------------
+    # In-process write serialization (Option 1 concurrency control)
+    # ------------------------------------------------------------------
+    # Every write is a download-edit-upload cycle against a single workbook.
+    # Two overlapping cycles on the SAME file would both read version N and
+    # the later upload would clobber the earlier writer's changes
+    # (last-writer-wins). A per-FILENAME asyncio.Lock serializes the entire
+    # cycle so writes to one workbook never interleave, while writes to
+    # DIFFERENT files still run concurrently. These are CLASS-level so the lock
+    # is shared across the per-request SharePointClient instances created by
+    # _get_sp(). NOTE: this protects a single app worker only; running multiple
+    # workers/instances needs ETag/If-Match optimistic concurrency instead.
+    _write_locks: dict[str, "asyncio.Lock"] = {}
+    _write_locks_guard: "asyncio.Lock" = asyncio.Lock()
+
+    @classmethod
+    async def _get_write_lock(cls, filename: str) -> "asyncio.Lock":
+        """Return the shared write lock for a given workbook filename."""
+        async with cls._write_locks_guard:
+            lock = cls._write_locks.get(filename)
+            if lock is None:
+                lock = asyncio.Lock()
+                cls._write_locks[filename] = lock
+            return lock
+
     # Retry configuration for file lock conflicts
     MAX_RETRIES = 3
     BASE_BACKOFF_SECONDS = 1.0  # Initial backoff: 1s, 2s, 4s
@@ -201,12 +226,24 @@ class SharePointClient:
         """
         msal_app = self._get_msal_app()
 
-        # Try to get token from cache first
-        result = msal_app.acquire_token_silent(self._scopes, account=None)
-
-        if not result:
-            # No cached token; acquire a new one
-            result = msal_app.acquire_token_for_client(scopes=self._scopes)
+        # Try to get token from cache first, then acquire a new one. MSAL calls
+        # the Microsoft login endpoint under the hood; if that network call
+        # fails (SSL handshake cut off, DNS, proxy block, timeout), MSAL raises
+        # a transport exception rather than returning an error dict. Treat that
+        # as a *retryable* service-unavailable condition (clean 503) instead of
+        # letting a raw SSLError surface as a generic 500.
+        try:
+            result = msal_app.acquire_token_silent(self._scopes, account=None)
+            if not result:
+                result = msal_app.acquire_token_for_client(scopes=self._scopes)
+        except SharePointError:
+            raise
+        except Exception as exc:
+            logger.error(f"Token acquisition failed (network/transport): {exc}")
+            raise SharePointUnavailableError(
+                "Could not reach the authentication service to sign in to "
+                "SharePoint. Please retry in a few moments."
+            ) from exc
 
         if "access_token" in result:
             self._access_token = result["access_token"]
@@ -491,17 +528,40 @@ class SharePointClient:
 
         Downloads the file, modifies it locally with openpyxl, and re-uploads.
 
+        This method has two distinct modes depending on ``start_row``:
+
+        * **Full replace** (``start_row is None``): the sheet is cleared and
+          rewritten from row 1 with exactly the rows provided. Callers MUST
+          include the header row as ``rows[0]``, otherwise the header is lost.
+        * **Targeted write** (``start_row`` given): only the rows starting at
+          ``start_row`` are overwritten in place. The rest of the sheet
+          (including the header and all other rows) is left untouched.
+
         Args:
             filename: Excel file name.
             sheet: Worksheet name.
             rows: List of rows to write, where each row is a list of cell values.
-            start_row: Optional 1-based row number to start writing at.
-                       If None, overwrites starting from row 2 (after headers).
+            start_row: Optional 1-based row number to start writing at. When
+                       provided, only those rows are updated in place. When
+                       omitted, the entire sheet is replaced with ``rows``.
 
         Raises:
             FileLockError: If the file is locked after all retries.
             SharePointWriteError: If the write operation fails.
         """
+        # Serialize the whole download-edit-upload cycle per workbook so a
+        # concurrent write can't read a stale version and clobber this one.
+        lock = await self._get_write_lock(filename)
+        async with lock:
+            await self._write_rows_impl(filename, sheet, rows, start_row)
+
+    async def _write_rows_impl(
+        self,
+        filename: str,
+        sheet: str,
+        rows: list[list[Any]],
+        start_row: Optional[int] = None,
+    ) -> None:
         import io
         from openpyxl import load_workbook
 
@@ -509,11 +569,15 @@ class SharePointClient:
             file_bytes = await self._download_file(filename)
             wb = load_workbook(io.BytesIO(file_bytes))
 
+            full_replace = start_row is None
+
             if sheet in wb.sheetnames:
                 ws = wb[sheet]
-                # Physically delete all existing rows so no phantom empty rows remain.
-                # (Clearing cell values alone leaves blank rows that read back as empty.)
-                if ws.max_row and ws.max_row > 0:
+                # Only clear the sheet for a full replace. For a targeted write
+                # (start_row given) we must preserve every other row — clearing
+                # here is what previously wiped entire sheets when a caller
+                # passed a single row plus start_row.
+                if full_replace and ws.max_row and ws.max_row > 0:
                     ws.delete_rows(1, ws.max_row)
             else:
                 ws = wb.create_sheet(sheet)
@@ -541,6 +605,85 @@ class SharePointClient:
             )
             raise
 
+    async def write_sheets(
+        self,
+        filename: str,
+        sheets: dict[str, list[list[Any]]],
+    ) -> None:
+        """Atomically full-replace multiple sheets in one workbook write.
+
+        Downloads the workbook ONCE, full-replaces each sheet named in
+        ``sheets`` (clearing it and rewriting from row 1 with the provided
+        ``[header, *data]`` rows), then uploads ONCE. Sheets not named in
+        ``sheets`` are left completely untouched.
+
+        This is the multi-sheet equivalent of ``write_rows`` (full-replace
+        mode). Because all sheet updates are applied to a single in-memory
+        workbook and committed with a single upload, the operation is
+        all-or-nothing from SharePoint's perspective: either every targeted
+        sheet is updated or — if the download/parse/upload fails — none are.
+        This removes the partial-write window that sequential per-sheet
+        ``write_rows`` calls had.
+
+        Each ``rows`` list MUST include its header row as ``rows[0]`` (same
+        contract as ``write_rows`` full-replace), otherwise the header is lost.
+
+        Args:
+            filename: Excel file name.
+            sheets: Mapping of worksheet name -> rows (header first).
+
+        Raises:
+            FileLockError: If the file is locked after all retries.
+            SharePointWriteError: If the write operation fails.
+        """
+        if not sheets:
+            return
+        # Serialize the whole download-edit-upload cycle per workbook.
+        lock = await self._get_write_lock(filename)
+        async with lock:
+            await self._write_sheets_impl(filename, sheets)
+
+    async def _write_sheets_impl(
+        self,
+        filename: str,
+        sheets: dict[str, list[list[Any]]],
+    ) -> None:
+        import io
+        from openpyxl import load_workbook
+
+        try:
+            file_bytes = await self._download_file(filename)
+            wb = load_workbook(io.BytesIO(file_bytes))
+
+            for sheet, rows in sheets.items():
+                if sheet in wb.sheetnames:
+                    ws = wb[sheet]
+                    # Full replace: clear the sheet first (same rule as
+                    # write_rows full-replace), then rewrite from row 1.
+                    if ws.max_row and ws.max_row > 0:
+                        ws.delete_rows(1, ws.max_row)
+                else:
+                    ws = wb.create_sheet(sheet)
+
+                for row_idx, row_data in enumerate(rows):
+                    for col_idx, value in enumerate(row_data):
+                        ws.cell(row=1 + row_idx, column=col_idx + 1, value=value)
+
+            buffer = io.BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+
+            await self._upload_file(filename, buffer.getvalue())
+            wb.close()
+
+        except (SharePointWriteError, FileLockError):
+            self._queue_write(
+                operation="write_sheets",
+                filename=filename,
+                sheets=sheets,
+            )
+            raise
+
     async def append_row(
         self,
         filename: str,
@@ -560,6 +703,16 @@ class SharePointClient:
             FileLockError: If the file is locked after all retries.
             SharePointWriteError: If the write operation fails.
         """
+        lock = await self._get_write_lock(filename)
+        async with lock:
+            await self._append_row_impl(filename, sheet, row)
+
+    async def _append_row_impl(
+        self,
+        filename: str,
+        sheet: str,
+        row: list[Any],
+    ) -> None:
         import io
         from openpyxl import load_workbook
 
@@ -617,6 +770,20 @@ class SharePointClient:
             FileLockError: If the file is locked after all retries.
             SharePointWriteError: If the write operation fails.
         """
+        lock = await self._get_write_lock(filename)
+        async with lock:
+            return await self._update_row_cells_impl(
+                filename, sheet, match_column, match_value, updates
+            )
+
+    async def _update_row_cells_impl(
+        self,
+        filename: str,
+        sheet: str,
+        match_column: int,
+        match_value: str,
+        updates: dict[int, Any],
+    ) -> bool:
         import io
         from openpyxl import load_workbook
 
@@ -987,6 +1154,11 @@ class SharePointClient:
                         filename=operation["filename"],
                         sheet=operation["sheet"],
                         row=operation["row"],
+                    )
+                elif op_type == "write_sheets":
+                    await self.write_sheets(
+                        filename=operation["filename"],
+                        sheets=operation["sheets"],
                     )
                 else:
                     logger.error(f"Unknown queued operation type: {op_type}")

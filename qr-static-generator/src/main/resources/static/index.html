@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Generator</title>
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --panel: #121829;
+      --panel-2: #0e1220;
+      --border: #232a3d;
+      --ring: #6c8aff;
+      --text: #e8ecf6;
+      --muted: #8a93a8;
+      --accent: #6c8aff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Nunito Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(900px 500px at 15% -10%, #16203a 0%, var(--bg) 55%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    h1 { margin: 0 0 4px; font-size: 22px; }
+    p.sub { margin: 0 0 22px; color: var(--muted); font-size: 14px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .row { display: flex; gap: 10px; }
+    input[type="url"] {
+      flex: 1;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+    input[type="url"]:focus {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 3px rgba(108,138,255,0.25);
+    }
+    button {
+      background: var(--accent);
+      border: none;
+      color: #0a0e1a;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 80ms ease, opacity 120ms ease;
+      white-space: nowrap;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .preview {
+      margin-top: 24px;
+      background: #fff;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      min-height: 260px;
+    }
+    .preview.empty {
+      background: var(--panel-2);
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .preview img { width: 100%; max-width: 320px; height: auto; display: block; }
+    .actions { margin-top: 16px; display: none; }
+    .actions.show { display: block; }
+    .actions a {
+      display: inline-block;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .actions a:hover { border-color: var(--ring); }
+    .err { margin-top: 12px; color: #ff8a8a; font-size: 13px; min-height: 16px; }
+    .locked {
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .locked b { color: var(--text); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>QR Generator</h1>
+    <p class="sub">Enter a URL and create a styled QR code.</p>
+
+    <form id="qr-form">
+      <label for="url">URL</label>
+      <div class="row">
+        <input id="url" name="url" type="url" placeholder="https://example.com" required autocomplete="off" />
+        <button type="submit" id="submit-btn">Create QR</button>
+      </div>
+      <div class="err" id="err"></div>
+    </form>
+
+    <div class="preview empty" id="preview">Your QR code will appear here</div>
+
+    <div class="actions" id="actions">
+      <a id="download" download="qr-code.svg">Download SVG</a>
+    </div>
+
+    <div class="locked">
+      Locked settings:
+      <b>Default TVS logo</b> · logo scale <b>0.15</b> · foreground <b>#000000</b> ·
+      background <b>#ffffff</b> · corner <b>#000000</b> · style <b>Squared</b> · size <b>600px</b>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("qr-form");
+    const urlInput = document.getElementById("url");
+    const preview = document.getElementById("preview");
+    const actions = document.getElementById("actions");
+    const download = document.getElementById("download");
+    const errEl = document.getElementById("err");
+    const btn = document.getElementById("submit-btn");
+
+    let lastBlobUrl = "";
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errEl.textContent = "";
+
+      const url = urlInput.value.trim();
+      if (!url) {
+        errEl.textContent = "Please enter a URL.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Creating...";
+
+      try {
+        const body = new URLSearchParams();
+        body.append("url", url);
+
+        const res = await fetch("api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: body.toString(),
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || ("Request failed (" + res.status + ")"));
+        }
+
+        const svgText = await res.text();
+
+        if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+        const blob = new Blob([svgText], { type: "image/svg+xml" });
+        lastBlobUrl = URL.createObjectURL(blob);
+
+        preview.classList.remove("empty");
+        preview.innerHTML = '<img alt="QR code" src="' + lastBlobUrl + '" />';
+
+        download.href = lastBlobUrl;
+        actions.classList.add("show");
+      } catch (err) {
+        errEl.textContent = err.message || "Failed to create QR code.";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Create QR";
+      }
+    });
+  </script>
+</body>
+</html>

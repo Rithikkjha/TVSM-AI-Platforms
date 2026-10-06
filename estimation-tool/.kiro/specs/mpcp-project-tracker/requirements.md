@@ -211,10 +211,12 @@ The MPCP Project Tracker is a new module within TVS PlanIQ that provides hierarc
 #### Acceptance Criteria
 
 1. THE Tracker_Service SHALL require authenticated SSO users for all tracker operations (create, read, update, delete).
-2. WHILE a user has the Admin role, THE Tracker_Service SHALL allow that user to create, edit, and delete any entity at any level.
-3. WHILE a user has the User role, THE Tracker_Service SHALL allow that user to update RAG_Status, Process Track, and Execution Track for projects they are assigned to as Product Owner.
-4. WHILE a user has the User role, THE Tracker_Service SHALL allow that user to view (read-only) all tracker data across the hierarchy.
+2. WHILE a user has any authenticated role (Admin, User, or Partner), THE Tracker_Service SHALL allow that user to create, edit, and delete MPs, Check Points, and Projects, and to update RAG_Status, Process Track, Execution Track (milestones/tasks), and Dependencies across the hierarchy ("full contributor" model).
+3. WHILE a user has the Partner role, THE Tracker_Service SHALL deny access to all Budget data (view and edit) and return 403 Forbidden; Admin and User roles retain full Budget access.
+4. THE Tracker_Service SHALL allow all authenticated roles to view (read) all non-budget tracker data across the hierarchy.
 5. IF an unauthenticated request is received, THEN THE Tracker_Service SHALL return a 401 Unauthorized response.
+
+> **Note (updated):** The access model was changed from "Admin-only create/edit/delete" to a full-contributor model — any authenticated user (Admin, User, Partner) can create, edit, and delete hierarchy entities. The only role-based restriction remaining is that **Partner** users cannot see or modify Budget data (enforced by `require_budget_access`). This is implemented via `get_current_user` on all hierarchy/track endpoints and `require_budget_access` on budget endpoints in `app/routers/mpcp_tracker.py`.
 
 
 ### Requirement 15: Execution Tracker Visualization
