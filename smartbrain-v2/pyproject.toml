@@ -39,6 +39,10 @@ dependencies = [
     "tiktoken>=0.7.0",
     # Model Context Protocol SDK
     "mcp>=0.9.0",
+    # Azure AD (Entra ID) SSO — OIDC auth-code flow for browser login
+    "msal>=1.28,<2",
+    # Signed session cookies (used by Starlette SessionMiddleware for login)
+    "itsdangerous>=2.1",
     # Config + YAML
     "pyyaml>=6.0.1",
     # HTTP client (used by MCP + integrations)

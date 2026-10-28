@@ -1,0 +1,247 @@
+{
+  "items": [
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:POST:config:amazon.lwa.api.base-url:/auth/o2/token",
+          "repo": "tvsm-marketplace-service"
+        }
+      ],
+      "value": "api.amazon.com"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:GET:api.flipkart.net:/oauth-service/login.jsp",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:api.flipkart.net:/oauth-service/login.do",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:api.flipkart.net:/oauth-service/oauth/authorize",
+          "repo": "tvsm-marketplace-service"
+        }
+      ],
+      "value": "api.flipkart.net"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:GET:api.latlong.in:/v2/brands/{}/stores.json",
+          "repo": "master-data-platform"
+        },
+        {
+          "item_id": "outbound_http:.:POST:api.latlong.in:/oauth/token",
+          "repo": "master-data-platform"
+        }
+      ],
+      "value": "api.latlong.in"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:POST:api.sendgrid.com:/v3/mail/send",
+          "repo": "BS2.0Backend_Integration"
+        }
+      ],
+      "value": "api.sendgrid.com"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:tvsm-be-core:POST:login.microsoftonline.com:/{}/oauth2/v2.0/token",
+          "repo": "TVS-CPS-BE-BASE-FRAMEWORK"
+        }
+      ],
+      "value": "login.microsoftonline.com"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:POST:config:kazam.base.url:/getOrgToken",
+          "repo": "tvsmbe-location"
+        }
+      ],
+      "value": "platform.kazam.in"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:GET:config:flipkart.seller.api.base-url:/oauth-service/oauth/token",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:flipkart.seller.api.base-url:/sellers/listings/v3/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:flipkart.seller.api.base-url:/sellers/v3/shipments",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:flipkart.seller.api.base-url:/sellers/v3/shipments/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:flipkart.seller.api.base-url:/sellers/listings/v3/search",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:flipkart.seller.api.base-url:/sellers/listings/v3/update/price",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:flipkart.seller.api.base-url:/sellers/v3/shipments/selfShip/delivery",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:flipkart.seller.api.base-url:/sellers/v3/shipments/selfShip/dispatch",
+          "repo": "tvsm-marketplace-service"
+        }
+      ],
+      "value": "seller.api.flipkart.net"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:DELETE:config:amazon.sp.api.base-url:/listings/2021-08-01/items/{}/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:amazon.sp.api.base-url:/externalFulfillment/2024-09-11/shipments/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:amazon.sp.api.base-url:/externalFulfillment/2024-09-11/shipments/{}/shippingOptions",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:amazon.sp.api.base-url:/listings/2021-08-01/items/{}/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:amazon.sp.api.base-url:/orders/2026-01-01/orders/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:PATCH:config:amazon.sp.api.base-url:/externalFulfillment/2024-09-11/shipments/{}/packages/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:PATCH:config:amazon.sp.api.base-url:/listings/2021-08-01/items/{}/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:amazon.sp.api.base-url:/externalFulfillment/2024-09-11/shipments/{}",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:amazon.sp.api.base-url:/externalFulfillment/2024-09-11/shipments/{}/invoice",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:amazon.sp.api.base-url:/externalFulfillment/2024-09-11/shipments/{}/packages",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:PUT:config:amazon.sp.api.base-url:/externalFulfillment/2024-09-11/shipments/{}/shipLabels",
+          "repo": "tvsm-marketplace-service"
+        },
+        {
+          "item_id": "outbound_http:.:PUT:config:amazon.sp.api.base-url:/listings/2021-08-01/items/{}/{}",
+          "repo": "tvsm-marketplace-service"
+        }
+      ],
+      "value": "sellingpartnerapi-eu.amazon.com"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:outbound:POST:config:si.outletApi.baseUrl:/v1/Outlets/Add",
+          "repo": "tvsmbe-mdp-bff"
+        },
+        {
+          "item_id": "outbound_http:outbound:POST:config:si.outletApi.baseUrl:/v1/Outlets/Close",
+          "repo": "tvsmbe-mdp-bff"
+        }
+      ],
+      "value": "testing.singleinterface.com"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:claim-service:POST:config:claim.sap.api.url:/",
+          "repo": "TVS-CPS-BACKEND"
+        },
+        {
+          "item_id": "outbound_http:order-service:POST:config:erp.api.sale-order-change-url:/",
+          "repo": "TVS-CPS-BACKEND"
+        },
+        {
+          "item_id": "outbound_http:order-service:POST:config:erp.api.url:/",
+          "repo": "TVS-CPS-BACKEND"
+        }
+      ],
+      "value": "tvsm.test.apimanagement.in30.hana.ondemand.com"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:GET:tvsmazoogstadev01cin.blob.core.windows.net:/sandbox-data/website-db-orp-data/tvsorp_discount_output.json",
+          "repo": "Catalog-Scheduler"
+        }
+      ],
+      "value": "tvsmazoogstadev01cin.blob.core.windows.net"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:GET:tvsmoogmanualupld.blob.core.windows.net:/sandbox-data/website-db-orp-data/tvsorp_ev_output.json",
+          "repo": "Core-Commerce-Platform-API-Service"
+        },
+        {
+          "item_id": "outbound_http:.:GET:tvsmoogmanualupld.blob.core.windows.net:/sandbox-data/website-db-orp-data/tvsorp_ice_output.json",
+          "repo": "Core-Commerce-Platform-API-Service"
+        }
+      ],
+      "value": "tvsmoogmanualupld.blob.core.windows.net"
+    },
+    {
+      "kind": "host",
+      "used_by": [
+        {
+          "item_id": "outbound_http:.:GET:config:application.b2c.baseUri:/",
+          "repo": "tvsm-auth"
+        },
+        {
+          "item_id": "outbound_http:.:GET:config:application.b2c.baseUri:/{}{}/v2.0/.well-known/openid-configuration",
+          "repo": "tvsm-auth"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:application.b2c.baseUri:/",
+          "repo": "tvsm-auth"
+        },
+        {
+          "item_id": "outbound_http:.:POST:config:application.b2c.baseUri:/{}/oauth2/v2.0/token",
+          "repo": "tvsm-auth"
+        }
+      ],
+      "value": "tvsmotorb2cdev.b2clogin.com"
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,10 @@
+# source: TVS-CS/notification-dispatcher-service/src/main/resources/application.yml (trimmed, fake values)
+spring:
+  jms:
+    servicebus:
+      connection-string: Endpoint=sb://fake-ns.servicebus.windows.net/;SharedAccessKeyName=x;SharedAccessKey=fakeSbKey0123456789abcdef=
+      topic:
+        notifications: local.notifications
+      subscription:
+        highpriority: highpriority-notifications
+        email: email-notifications

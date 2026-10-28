@@ -38,6 +38,81 @@ async def get_service_by_name(driver: AsyncDriver, name: str) -> dict[str, Any] 
     return dict(record["props"])
 
 
+async def list_services(driver: AsyncDriver) -> list[dict[str, Any]]:
+    """Return all Service nodes with display fields and their aliases.
+
+    Collects each service's name, service_id/source_id, domain, summary and
+    the full set of alias strings. Aliases come from two places that are
+    merged and de-duplicated: the inline ``aliases`` list property on the
+    Service node and any linked ``(:Alias)-[:ALSO_KNOWN_AS]->(:Service)``
+    nodes created during Phase 8 ingestion.
+
+    Excludes soft-deleted services (``deleted_at IS NULL``). There are only
+    ~47 services, so no pagination is needed.
+
+    Returns:
+        A list of dicts shaped as::
+
+            {
+                "name": str,
+                "service_id": str,
+                "source_id": str,
+                "domain": str | None,
+                "summary": str | None,
+                "aliases": [str, ...],
+            }
+    """
+    cypher = (
+        "MATCH (s:Service) "
+        "WHERE s.deleted_at IS NULL "
+        "OPTIONAL MATCH (a:Alias)-[:ALSO_KNOWN_AS]->(s) "
+        "WHERE a.deleted_at IS NULL "
+        "WITH s, collect(DISTINCT a.name) AS alias_nodes "
+        "RETURN "
+        "  s.name AS name, "
+        "  s.display_name AS display_name, "
+        "  s.service_id AS service_id, "
+        "  s.source_id AS source_id, "
+        "  s.domain AS domain, "
+        "  s.summary AS summary, "
+        "  s.description AS description, "
+        "  coalesce(s.aliases, []) AS inline_aliases, "
+        "  alias_nodes AS alias_nodes "
+        "ORDER BY name"
+    )
+    async with driver.session() as session:
+        result = await session.run(cypher)
+        records = [record async for record in result]
+
+    services: list[dict[str, Any]] = []
+    for record in records:
+        # Merge inline alias strings with linked Alias node names, de-dup
+        # case-insensitively while preserving first-seen order.
+        merged: list[str] = []
+        seen: set[str] = set()
+        for alias in list(record["inline_aliases"] or []) + list(record["alias_nodes"] or []):
+            if not alias:
+                continue
+            key = alias.lower()
+            if key not in seen:
+                seen.add(key)
+                merged.append(alias)
+
+        services.append(
+            {
+                "name": record["name"],
+                "display_name": record["display_name"] or record["name"],
+                "service_id": record["service_id"],
+                "source_id": record["source_id"],
+                "domain": record["domain"],
+                "summary": record["summary"] or record["description"],
+                "aliases": merged,
+            }
+        )
+
+    return services
+
+
 async def get_service_owners(driver: AsyncDriver, service_source_id: str) -> list[dict[str, Any]]:
     """Fetch teams that own a service via OWNED_BY relationship.
 
@@ -134,7 +209,9 @@ async def get_service_documents(
         A list of dicts with ConfluencePage properties.
     """
     cypher = (
-        "MATCH (s:Service {source_id: $sid})-[:DOCUMENTED_IN]->(d:ConfluencePage) "
+        "MATCH (s:Service {source_id: $sid})-[:DOCUMENTED_IN]->(d) "
+        "WHERE (d:ConfluencePage OR d:ServiceDoc) "
+        "WITH s, d "
         "WHERE d.deleted_at IS NULL AND s.deleted_at IS NULL "
         "RETURN properties(d) AS props"
     )

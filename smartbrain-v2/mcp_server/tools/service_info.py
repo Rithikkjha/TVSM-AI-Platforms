@@ -33,6 +33,17 @@ async def get_service_info(name: str) -> dict[str, Any]:
     if not name or not name.strip():
         return {"error": "Service name must not be empty"}
 
+    from retrieval.search.entity_linker import resolve_name
+
+    resolved, candidates = resolve_name(name)
+    if resolved is None and len(candidates) > 1:
+        return {
+            "error": "ambiguous",
+            "message": f"'{name}' could refer to: {', '.join(candidates)}",
+            "candidates": candidates,
+        }
+    name = resolved or name.strip()
+
     settings = get_settings()
     driver = AsyncGraphDatabase.driver(
         settings.neo4j_uri,

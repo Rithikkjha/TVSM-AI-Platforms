@@ -9,7 +9,7 @@ Confluence) and prints a summary of what was ingested.
 
 When ``--clean`` is passed, runs the V2 :class:`CleanIngestOrchestrator`
 instead — a strict three-phase pipeline that populates fresh Neo4j and
-Qdrant stores from steering files, Confluence, and Jira (Req 12.1, 12.4).
+Qdrant stores from Confluence and Jira (Req 12.1, 12.4).
 
 This is the quickest way to populate the graph for local testing
 without waiting for the periodic scheduler.
@@ -185,7 +185,7 @@ async def run() -> None:
 async def run_clean(verbose: bool = False, start_phase: int | None = None, max_phase: int = 3, llm_ticket_limit: int = 100, source_filter: str | None = None) -> None:
     """Execute a V2 three-phase clean ingest (Req 12.1, 12.4).
 
-    Constructs the full :class:`CleanIngestOrchestrator` with steering dir,
+    Constructs the full :class:`CleanIngestOrchestrator` with
     available live clients, embedding/dedup/vector/BM25/graph pipeline, and
     runs the three-phase ingest. Logs the final report on completion.
 
@@ -198,7 +198,7 @@ async def run_clean(verbose: bool = False, start_phase: int | None = None, max_p
     ``llm_ticket_limit`` caps how many Jira tickets per project are sent
     through GPT-4o in Phase 3 (default 100). All tickets are still ingested.
 
-    ``source_filter`` limits ingestion to a single source (steering, confluence,
+    ``source_filter`` limits ingestion to a single source (confluence
     or jira). If None, all sources are processed.
     """
 
@@ -246,8 +246,6 @@ async def run_clean(verbose: bool = False, start_phase: int | None = None, max_p
     dedup_service = DeduplicationService(vector_store, graph_store)
     sparse_index = LocalBM25Index()
 
-    # Steering directory — defaults to "kiro_steering" relative to CWD
-    steering_dir = Path("kiro_steering")
 
     # Build live clients if credentials are available
     confluence_client: Any = None
@@ -287,7 +285,6 @@ async def run_clean(verbose: bool = False, start_phase: int | None = None, max_p
     # Build and run the orchestrator
     report = IngestionReport()
     orchestrator = CleanIngestOrchestrator(
-        steering_dir=steering_dir,
         confluence_client=confluence_client,
         jira_client=jira_client,
         writer=writer,
@@ -337,7 +334,7 @@ def main() -> None:
         help=(
             "Run the V2 three-phase CleanIngestOrchestrator instead of the "
             "normal per-source fan-out. Populates fresh Neo4j + Qdrant stores "
-            "from steering files, Confluence, and Jira."
+            "from Confluence and Jira (service docs: python -m ingestion.repo_docs_ingest)."
         ),
     )
     parser.add_argument(
@@ -372,11 +369,11 @@ def main() -> None:
     parser.add_argument(
         "--source",
         type=str,
-        choices=["steering", "confluence", "jira"],
+        choices=["confluence", "jira"],
         default=None,
         help=(
             "Only ingest a specific source. Useful when you only updated "
-            "steering files and don't want to re-fetch confluence/jira. "
+            "one source and don't want to re-fetch the other. "
             "If not specified, all sources are processed."
         ),
     )

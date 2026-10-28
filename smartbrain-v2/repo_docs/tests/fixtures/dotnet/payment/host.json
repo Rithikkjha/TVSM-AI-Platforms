@@ -1,0 +1,12 @@
+{
+    "version": "2.0",
+    // Pipeline test - no functional change (PaymentService host.json has this // comment)
+    "logging": {
+        "applicationInsights": {
+            "samplingSettings": {
+                "isEnabled": true,
+                "excludedTypes": "Request"
+            }
+        }
+    }
+}

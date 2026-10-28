@@ -34,3 +34,12 @@ build/
 
 # --- stray junk ---
 estimation-tool/1
+# --- local session backups / snapshots (never commit) ---
+smartbrain-v2/backups/
+smartbrain-v2/data.bak.*/
+smartbrain-v2/*.bak.*
+smartbrain-v2/repo_docs/runs/
+smartbrain-v2/repo_docs/repos/
+smartbrain-v2/repo_docs/logs/
+smartbrain-v2/run_local.py
+smartbrain-v2/local_sso_test.py

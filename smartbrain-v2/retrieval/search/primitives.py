@@ -123,14 +123,38 @@ async def search(
     return hydrated_chunks
 
 
+_CORPUS_CACHE: dict[str, Any] = {"mtime": None, "corpus": {}}
+
+
+def corpus_text(chunk_id: str) -> str:
+    """Chunk text from the persisted BM25 corpus (cached; reloaded on file change).
+
+    The BM25 pickle holds the full text of every Jira/Confluence/repo_docs chunk,
+    while Jira ``Chunk``/``Ticket`` nodes carry no body.
+    """
+    from storage.vector.sparse_index import DEFAULT_BM25_INDEX_PATH
+
+    try:
+        mtime = DEFAULT_BM25_INDEX_PATH.stat().st_mtime
+        if _CORPUS_CACHE["mtime"] != mtime:
+            import pickle
+
+            with DEFAULT_BM25_INDEX_PATH.open("rb") as fh:
+                _CORPUS_CACHE["corpus"] = pickle.load(fh)
+            _CORPUS_CACHE["mtime"] = mtime
+    except Exception as exc:  # pragma: no cover - degrade to Neo4j text
+        logger.warning("BM25 corpus unavailable for hydration: %s", exc)
+        return ""
+    entry = _CORPUS_CACHE["corpus"].get(chunk_id) or {}
+    return entry.get("text") or ""
+
+
 async def _hydrate_chunk_text(chunks: list[ScoredChunk]) -> list[dict[str, Any]]:
-    """Fetch actual text content from Neo4j for chunks.
+    """Fill in chunk text: BM25 corpus text first, then ``Chunk.text``, then the parent.
 
-    The vector store and BM25 index don't store full text — only the embedding
-    and metadata. The actual content lives in Neo4j on the parent document nodes
-    (as content_summary) or on chunk nodes directly.
-
-    This mirrors what ask_pipeline.py does in step 7.
+    The vector store keeps no text. The BM25 corpus has every chunk's text (this
+    fixes empty Jira hits); ``Chunk.text`` is set for repo_docs chunks; Confluence
+    parents keep the full body in ``content_summary``.
     """
     if not chunks:
         return []
@@ -146,20 +170,22 @@ async def _hydrate_chunk_text(chunks: list[ScoredChunk]) -> list[dict[str, Any]]
         results = []
         async with driver.session() as session:
             for chunk in chunks:
-                text = ""
-                # Try fetching from chunk node first
-                chunk_result = await session.run(
-                    "MATCH (n {source_id: $sid}) RETURN n.text AS text, n.content_summary AS content",
-                    sid=chunk.chunk_id,
-                )
-                record = await chunk_result.single()
-                if record:
-                    text = record.get("text") or record.get("content") or ""
+                text = chunk.text or corpus_text(chunk.chunk_id)
+                if not text:
+                    chunk_result = await session.run(
+                        "MATCH (n:Chunk {source_id: $sid}) RETURN n.text AS text",
+                        sid=chunk.chunk_id,
+                    )
+                    record = await chunk_result.single()
+                    if record:
+                        text = record.get("text") or ""
 
                 # If chunk node has no text, try the parent document
                 if not text and chunk.parent_source_id:
                     parent_result = await session.run(
-                        "MATCH (n {source_id: $sid}) RETURN n.content_summary AS content, n.text AS text",
+                        "MATCH (n) WHERE (n:ConfluencePage OR n:ServiceDoc OR n:Ticket) "
+                        "AND n.source_id = $sid "
+                        "RETURN n.content_summary AS content, n.text AS text",
                         sid=chunk.parent_source_id,
                     )
                     parent_record = await parent_result.single()
@@ -267,6 +293,9 @@ async def get_service_chain(
         List of dicts with keys: name, relationship_type, hop_distance, source_id.
         Ordered by hop distance ascending.
     """
+    from retrieval.search.entity_linker import resolve_name
+
+    service = resolve_name(service)[0] or service
     settings = get_settings()
     driver = AsyncGraphDatabase.driver(
         settings.neo4j_uri,

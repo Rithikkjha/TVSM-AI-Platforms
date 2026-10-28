@@ -1,0 +1,1125 @@
+{
+  "items": [
+    {
+      "call": "GET /catalogs",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/catalogs",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "catalog-microservice-backend-for-frontend-layer"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/catalogs",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "core-commerce-platform-api-service"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:CATALOG_MICRO_SERVICES_BASE_URL:/catalogs",
+      "repo": "Catalog-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "DELETE /cache/clear",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:DELETE:/cache/clear",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "core-commerce-platform-api-service"
+        },
+        {
+          "item_id": "inbound_http:.:DELETE:/cache/clear",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        }
+      ],
+      "item_id": "outbound_http:.:DELETE:env:CATALOG_BASE_URL:/cache/clear",
+      "repo": "Catalog-Scheduler"
+    },
+    {
+      "artifact": "npm:nodejs-starterkit",
+      "candidates": [
+        {
+          "repo": "Core-Commerce-Platform-API-Service",
+          "service_id": "core-commerce-platform-api-service"
+        },
+        {
+          "repo": "Price-Microservice-Backend-for-Frontend-Layer",
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "artifact:npm:nodejs-starterkit",
+      "kind": "artifact_collision",
+      "repo": "Core-Commerce-Platform-API-Service"
+    },
+    {
+      "call": "GET /on-road-prices/models/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/models/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/models/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/on-road-prices/models/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /on-road-prices/products/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/products/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/products/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/on-road-prices/products/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /on-road-prices/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/on-road-prices/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /price-components/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/price-components/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/price-components/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/price-components/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /product-price-components/custom/enginetype/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/custom/engineType/{}",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/custom/engineType/{}",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/product-price-components/custom/engineType/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /product-price-components/{}/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/{}/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/{}/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/product-price-components/{}/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /products/vehicle/{}/models",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/products/vehicle/{}/models",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/products/vehicle/{}/models",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/products/vehicle/{}/models",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /regions/cities",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/regions/cities",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/regions/cities",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/regions/cities",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /regions/{}/states",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/regions/{}/states",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/regions/{}/states",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/regions/{}/states",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "POST /on-road-prices",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:POST:/on-road-prices",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/on-road-prices",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/on-road-prices",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "POST /product-price-components",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:POST:/product-price-components",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/product-price-components",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/product-price-components",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "PUT /on-road-prices/publish/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/on-road-prices/publish/{}{}{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "PUT /on-road-prices/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/on-road-prices/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "PUT /product-price-components/publish/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:PUT:/product-price-components/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:PUT:/product-price-components/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/product-price-components/publish/{}",
+      "repo": "Price-Engine-Frontend"
+    },
+    {
+      "call": "GET /on-road-prices/models/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/models/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/models/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/on-road-prices/models/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /on-road-prices/products/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/products/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/products/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/on-road-prices/products/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /on-road-prices/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/on-road-prices/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /price-components/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/price-components/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/price-components/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/price-components/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /product-price-components/custom/enginetype/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/custom/engineType/{}",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/custom/engineType/{}",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/product-price-components/custom/engineType/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /product-price-components/{}/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/{}/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/product-price-components/{}/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/product-price-components/{}/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /products/vehicle/{}/models",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/products/vehicle/{}/models",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/products/vehicle/{}/models",
+          "reason": "full-path",
+          "score": 203,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/products/vehicle/{}/models",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /regions/cities",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/regions/cities",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/regions/cities",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/regions/cities",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /regions/{}/states",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/regions/{}/states",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/regions/{}/states",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:GET:env:PRICE_MICROSERVICE_BASE_URL:/regions/{}/states",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "POST /on-road-prices",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:POST:/on-road-prices",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/on-road-prices",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:POST:env:PRICE_MICROSERVICE_BASE_URL:/on-road-prices",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "POST /product-price-components",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:POST:/product-price-components",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/product-price-components",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:POST:env:PRICE_MICROSERVICE_BASE_URL:/product-price-components",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "PUT /on-road-prices/publish/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:PUT:env:PRICE_MICROSERVICE_BASE_URL:/on-road-prices/publish/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "PUT /on-road-prices/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:PUT:/on-road-prices/{}",
+          "reason": "full-path",
+          "score": 201,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:PUT:env:PRICE_MICROSERVICE_BASE_URL:/on-road-prices/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "PUT /product-price-components/publish/{}",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:PUT:/product-price-components/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-engine-micro-service-backend"
+        },
+        {
+          "item_id": "inbound_http:.:PUT:/product-price-components/publish/{}",
+          "reason": "full-path",
+          "score": 202,
+          "service_id": "price-microservice-backend-for-frontend-layer"
+        }
+      ],
+      "item_id": "outbound_http:.:PUT:env:PRICE_MICROSERVICE_BASE_URL:/product-price-components/publish/{}",
+      "repo": "Price-Microservice-Backend-for-Frontend-Layer"
+    },
+    {
+      "call": "GET /v2/catalogs",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/catalogs",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "catalog-microservice-backend-for-frontend-layer"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/catalogs",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "core-commerce-platform-api-service"
+        }
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.catalog-service.base-url:/v2/catalogs{}",
+      "repo": "TVS-CPS-BACKEND"
+    },
+    {
+      "call": "GET /list-all",
+      "caller_type": "service",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:GET:/cps/api/v1/user/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:bff-service:GET:/system/user/{}/{}/{}/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/application/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsm-auth"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/dealer/branch/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsm-auth"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/dealer/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsm-auth"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/department/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsm-auth"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/user/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsm-auth"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/user/{}/list-all",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsm-auth"
+        }
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.ums-service.base-url:/list-all",
+      "repo": "TVS-CPS-BACKEND"
+    },
+    {
+      "artifact": "npm:@shared/channel-partner-system",
+      "candidates": [
+        {
+          "repo": "TVS-CPS-FE-BASE-FRAMEWORK",
+          "service_id": "tvs-cps-fe-base-framework"
+        },
+        {
+          "repo": "TVS-CPS-PORTAL",
+          "service_id": "tvs-cps-portal"
+        }
+      ],
+      "item_id": "artifact:npm:@shared/channel-partner-system",
+      "kind": "artifact_collision",
+      "repo": "TVS-CPS-FE-BASE-FRAMEWORK"
+    },
+    {
+      "call": "GET /v1/inventory/get/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:GET:/cps/api/v1/inventory/get/{}",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/inventory/get/{}",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-inventory"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/inventory/get/{}",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "GET /v1/jobcards/master",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:GET:/cps/api/v1/jobcards/master",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/jobcards/master",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/master",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "GET /v1/jobcards/{}",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:GET:/cps/api/v1/jobcards/{}",
+          "reason": "suffix",
+          "score": 102,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/jobcards/{}",
+          "reason": "suffix",
+          "score": 102,
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/{}",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "GET /v1/user/list-all",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:GET:/cps/api/v1/user/list-all",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:GET:/api/v1/user/list-all",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvsm-auth"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/user/list-all",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /login",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:POST:/api/areaAccountant/login",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "bs2-0-backend-integration"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/login",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "bs2-0-backend-integration"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/auth/login",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsmbe-qrcode"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/login",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/billing/post-invoice",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/billing/post-invoice",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/billing/post-invoice",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-billing"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/billing/post-invoice",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/customer/create",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/customer/create",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/customer/create",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-customer"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/customer/create",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/customer/search",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/customer/search",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/customer/search",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-customer"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/customer/search",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/customer/update",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/customer/update",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/customer/update",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-customer"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/customer/update",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/inventory/list",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/inventory/list",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/inventory/list",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-inventory"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/inventory/list",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/jobcards/dashboard",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/jobcards/dashboard",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/jobcards/dashboard",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/dashboard",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/jobcards/download",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/jobcards/download",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/jobcards/download",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/download",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/jobcards/list",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/jobcards/list",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/jobcards/list",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/list",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/jobcards/warranty-check",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/jobcards/warranty-check",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/jobcards/warranty-check",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/warranty-check",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/order/search",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/order/search",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:order-service:POST:/api/v1/order/search",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/marketplace/v1/order/search",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvsm-marketplace-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/order/search",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/vehicle/inventory/lookup",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/vehicle/inventory/lookup",
+          "reason": "suffix",
+          "score": 104,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/vehicle/inventory/lookup",
+          "reason": "suffix",
+          "score": 104,
+          "service_id": "tvs-cps-inventory"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/vehicle/inventory/lookup",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/vehicle/pdi",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/vehicle/pdi",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/vehicle/pdi",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-inventory"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/vehicle/pdi",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "POST /v1/vehicle/update/stock-type",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:POST:/cps/api/v1/vehicle/update/stock-type",
+          "reason": "suffix",
+          "score": 104,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:POST:/api/v1/vehicle/update/stock-type",
+          "reason": "suffix",
+          "score": 104,
+          "service_id": "tvs-cps-inventory"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/vehicle/update/stock-type",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "PUT /v1/jobcards/update",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:bff-service:PUT:/cps/api/v1/jobcards/update",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-backend"
+        },
+        {
+          "item_id": "inbound_http:.:PUT:/api/v1/jobcards/update",
+          "reason": "suffix",
+          "score": 103,
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "item_id": "frontend_api_call:channel-partner-system:PUT:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/update",
+      "repo": "TVS-CPS-PORTAL"
+    },
+    {
+      "call": "GET /dealers",
+      "caller_type": "frontend",
+      "candidates": [
+        {
+          "item_id": "inbound_http:.:GET:/mdp/v1/dealers",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "master-data-platform"
+        },
+        {
+          "item_id": "inbound_http:inbound:GET:/mdp-bff/v1/mdp/dealers",
+          "reason": "suffix",
+          "score": 101,
+          "service_id": "tvsmbe-mdp-bff"
+        }
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/dealers",
+      "repo": "cbs-admin-portal"
+    }
+  ],
+  "schema_version": 1
+}

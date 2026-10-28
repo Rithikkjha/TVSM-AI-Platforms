@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 
 from config.settings import get_settings
@@ -22,6 +22,32 @@ from api.schemas import AffectedService, EntityRef, ImpactResponse, ServiceRespo
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _json_safe(obj: Any) -> Any:
+    """Recursively convert values that aren't natively JSON-serializable.
+
+    Neo4j returns temporal properties (created_at/updated_at) as neo4j.time
+    DateTime/Date objects which the stdlib json encoder can't serialize,
+    causing a 500 on service detail. We convert any object exposing
+    ``iso_format()`` (neo4j temporals) or ``isoformat()`` (datetime/date) to
+    its ISO string, and recurse through dicts/lists.
+    """
+    if obj is None or isinstance(obj, (str, int, float, bool)):
+        return obj
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_json_safe(v) for v in obj]
+    # neo4j.time types expose iso_format(); datetime/date expose isoformat()
+    for attr in ("iso_format", "isoformat"):
+        fn = getattr(obj, attr, None)
+        if callable(fn):
+            try:
+                return fn()
+            except Exception:  # noqa: BLE001
+                break
+    return str(obj)
 
 
 def _get_neo4j_driver() -> Any:
@@ -40,6 +66,39 @@ def _get_neo4j_driver() -> Any:
 
 
 
+
+
+@router.get("/services")
+async def list_services(
+    q: str | None = Query(default=None, description="Optional filter on name + aliases"),
+) -> JSONResponse:
+    """Return all services with their display name, domain, summary and aliases.
+
+    Powers the UI Search tab. Clients filter locally against name + aliases,
+    but an optional ``?q=`` performs the same case-insensitive substring
+    filter server-side. Each service's ``name`` is the identifier that
+    GET /v1/services/{name} resolves against.
+    """
+    driver = _get_neo4j_driver()
+    try:
+        services = await graph_queries.list_services(driver)
+
+        if q and q.strip():
+            needle = q.strip().lower()
+            services = [
+                s
+                for s in services
+                if needle in (s.get("name") or "").lower()
+                or needle in (s.get("display_name") or "").lower()
+                or any(needle in (a or "").lower() for a in s.get("aliases", []))
+            ]
+
+        return JSONResponse(
+            status_code=200,
+            content=_json_safe({"services": services, "total": len(services)}),
+        )
+    finally:
+        await driver.close()
 
 
 @router.get("/services/{name}")
@@ -138,7 +197,7 @@ async def get_service(name: str) -> JSONResponse:
             staleness=staleness,
         )
 
-        return JSONResponse(status_code=200, content=response.model_dump())
+        return JSONResponse(status_code=200, content=_json_safe(response.model_dump()))
 
     finally:
         await driver.close()
@@ -211,7 +270,7 @@ async def get_service_impact(name: str) -> JSONResponse:
             linked_tickets=linked_tickets,
         )
 
-        return JSONResponse(status_code=200, content=response.model_dump())
+        return JSONResponse(status_code=200, content=_json_safe(response.model_dump()))
 
     finally:
         await driver.close()

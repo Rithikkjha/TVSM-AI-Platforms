@@ -1,0 +1,15 @@
+# User-owned service nicknames. Merged into registry/aliases.yaml at the HIGHEST priority by
+# `python -m repo_docs aliases --org <ORG>`; this file is never overwritten by the pipeline.
+#
+# Format: <alias>: [<service_id>, ...]   (alias is matched case-insensitively)
+# An alias listed here maps ONLY to the services you list (derived hits on other services are
+# dropped), so use it to settle ambiguous names too. Unknown service_ids are ignored (warning).
+#
+# Examples:
+#   bs: [booking-crud-services]
+#   booking service: [booking-crud-services]
+#   mdp: [master-data-platform]
+#   auth ninja: [tvsm-auth]
+
+# user (chat): "booking crud service is booking service" — keeps lms (matched via TVS-CPS-BACKEND bff.booking-service.base-url) from sharing it
+booking service: [booking-crud-services]

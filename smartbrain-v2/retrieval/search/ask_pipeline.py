@@ -51,7 +51,15 @@ logger = logging.getLogger(__name__)
 # V2 LLM System Prompt — instructs [ref:N] citation usage (Req 6.2)
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT = """You are the Engineering Memory Graph Assistant. You have deep knowledge of this organization's engineering systems from the provided context.
+SYSTEM_PROMPT = """You are the TVS Engineering Memory Graph Assistant. You answer ONLY from the TVS engineering knowledge base, using ONLY the context provided in this request.
+
+STRICT SCOPE — READ FIRST:
+
+0. ONLY the provided context is a valid source. You MUST NOT use any outside or general world knowledge. Do NOT answer general-knowledge, trivia, arithmetic, or current-events questions (e.g. "what is 2+2", "who invented the bulb"). If the provided context does not actually contain the answer, reply exactly: "I can only answer questions about TVS engineering systems (services, APIs, dependencies, data flows, Jira/Confluence). I don't have anything relevant to that." — and cite NOTHING.
+
+0a. NEVER fabricate. If a fact is not explicitly in the context, do not state it.
+
+0b. Cite ONLY chunks that DIRECTLY support the statement you are making. Do NOT cite a chunk just because it was retrieved — if a chunk is irrelevant to the answer (e.g. it only matched on an emoji or stray keyword), do not reference it at all. No supporting context means no citation and no answer.
 
 CRITICAL RULES:
 
@@ -215,6 +223,21 @@ async def ask_question(question: str) -> dict[str, Any]:
     """
     settings = get_settings()
 
+    # ------------------------------------------------------------------
+    # Step 0: Meta-intent allow-list — greetings / capability questions get a
+    # canned scope reply with NO retrieval and NO citations. Everything else
+    # must be backed by relevant retrieval (gated below).
+    # ------------------------------------------------------------------
+    from retrieval.search.scope_gate import (
+        META_REPLY,
+        REFUSAL,
+        match_meta_intent,
+        max_dense_cosine,
+    )
+
+    if match_meta_intent(question):
+        return {"answer": META_REPLY, "citations": []}
+
     # Build caches (graceful: backend down → misses)
     try:
         embedding_cache, result_cache = build_query_caches(settings)
@@ -275,6 +298,21 @@ async def ask_question(question: str) -> dict[str, Any]:
                 logger.warning("Embedding cache write failed: %s", exc)
 
     # ------------------------------------------------------------------
+    # Step 3.5: STRICT relevance gate. Probe dense cosine similarity; if no
+    # chunk clears settings.min_retrieval_score, short-circuit with the scoped
+    # refusal BEFORE any retrieval assembly or LLM call (saves tokens and
+    # prevents general-knowledge answers / junk-match citations).
+    # ------------------------------------------------------------------
+    top_cosine = await max_dense_cosine(query_vector)
+    if top_cosine < settings.min_retrieval_score:
+        logger.info(
+            "Relevance gate refused query (top cosine %.4f < %.2f)",
+            top_cosine,
+            settings.min_retrieval_score,
+        )
+        return {"answer": REFUSAL, "citations": []}
+
+    # ------------------------------------------------------------------
     # Step 4: Hybrid retrieval → top-30 ScoredChunks
     # ------------------------------------------------------------------
     retriever = _get_hybrid_retriever(settings)
@@ -291,6 +329,58 @@ async def ask_question(question: str) -> dict[str, Any]:
             "answer": "I'm temporarily unable to search the knowledge base.",
             "citations": [],
         }
+
+    # ------------------------------------------------------------------
+    # Step 4.5: Entity linking + boost. Resolve services/topics/endpoints in
+    # the question; for each resolved service run a repo_name=service_id pass
+    # and RRF-fuse it with the global ranking.
+    # ------------------------------------------------------------------
+    entity_notes: list[str] = []
+    boost_services: list[str] = []
+    entities: dict[str, Any] = {"services": [], "topics": [], "endpoints": []}
+    try:
+        from retrieval.search.entity_linker import resolve as resolve_entities
+
+        entities = resolve_entities(question)
+        for svc in entities["services"]:
+            if svc["id"] not in boost_services:
+                boost_services.append(svc["id"])
+            if svc["ambiguous"]:
+                note = f"'{svc['term']}' is ambiguous: it may refer to {', '.join(svc['candidates'])}."
+                if note not in entity_notes:
+                    entity_notes.append(note)
+        boost_services = boost_services[:3]
+        for t in entities["topics"][:3]:
+            entity_notes.append(
+                f"Topic {t['name']} ({t['broker']}): publishers {', '.join(t['publishers']) or 'none'}; "
+                f"subscribers {', '.join(t['subscribers']) or 'none'}."
+            )
+        for e in entities["endpoints"][:3]:
+            entity_notes.append(f"Endpoint {e['method']} {e['path']} is exposed by {e['service']}.")
+    except Exception as exc:
+        logger.warning("Entity linking failed (continuing without boost): %s", exc)
+
+    if boost_services:
+        from dataclasses import replace as _replace
+
+        from retrieval.search.rrf import reciprocal_rank_fusion
+
+        by_id = {c.chunk_id: c for c in candidates}
+        ranked = [[c.chunk_id for c in candidates]]
+        for sid in boost_services:
+            try:
+                hits = await retriever.retrieve(
+                    query=question, query_vector=query_vector,
+                    filters={"repo_name": sid}, top_n=10,
+                )
+            except Exception as exc:
+                logger.warning("Entity boost pass failed for %s: %s", sid, exc)
+                continue
+            ranked.append([h.chunk_id for h in hits])
+            for h in hits:
+                by_id.setdefault(h.chunk_id, h)
+        fused = reciprocal_rank_fusion(ranked, k=settings.rrf_k, limit=settings.hybrid_top_n)
+        candidates = [_replace(by_id[cid], score=score) for cid, score in fused]
 
     if not candidates:
         return {
@@ -327,6 +417,51 @@ async def ask_question(question: str) -> dict[str, Any]:
     graph_context = await _expand_graph_neighborhood(
         parent_ids, hops=settings.graph_expansion_hops
     )
+
+    # Seed graph context from service:<id> for every resolved service.
+    service_blocks: list[str] = []
+    if boost_services:
+        try:
+            from neo4j import AsyncGraphDatabase
+
+            from retrieval.search.repo_graph import service_context
+
+            _drv = AsyncGraphDatabase.driver(
+                settings.neo4j_uri, auth=(settings.neo4j_user, settings.neo4j_password)
+            )
+            try:
+                for sid in boost_services:
+                    block = await service_context(_drv, sid)
+                    if block:
+                        service_blocks.append(block)
+            finally:
+                await _drv.close()
+        except Exception as exc:
+            logger.warning("Service graph seed failed: %s", exc)
+
+    # Chunk <-> entity DESCRIBES links: question topics/endpoints -> their doc
+    # chunks; retrieved repo_docs chunks -> notes on the entities they describe.
+    linked_docs: list[dict[str, Any]] = []
+    try:
+        from neo4j import AsyncGraphDatabase
+
+        from retrieval.search.repo_graph import linked_context
+
+        _drv = AsyncGraphDatabase.driver(
+            settings.neo4j_uri, auth=(settings.neo4j_user, settings.neo4j_password)
+        )
+        try:
+            linked_docs, linked_notes = await linked_context(
+                _drv,
+                [t["source_id"] for t in entities["topics"]],
+                entities["endpoints"],
+                [c.chunk_id for c in top_chunks if (c.chunk_id or "").startswith("repodoc:")],
+            )
+        finally:
+            await _drv.close()
+        entity_notes.extend(n for n in linked_notes if n not in entity_notes)
+    except Exception as exc:
+        logger.warning("DESCRIBES link lookup failed: %s", exc)
 
     # ------------------------------------------------------------------
     # Step 6.5: Graph gap re-retrieval (Option 2)
@@ -411,6 +546,18 @@ async def ask_question(question: str) -> dict[str, Any]:
                     lines = [f"[ref:{ref_idx}] Entity: {name} (source: {parent_id})"]
                     # Include content_summary (full doc text) if available
                     content = props.get("content_summary") or props.get("text") or ""
+                    if not content:
+                        # ServiceDoc / Ticket parents carry no body: use the
+                        # retrieved chunks' text from the BM25 corpus.
+                        from retrieval.search.primitives import corpus_text
+
+                        content = "\n\n".join(
+                            t for t in (
+                                c.text or corpus_text(c.chunk_id)
+                                for c in top_chunks
+                                if (c.parent_source_id or "") == parent_id
+                            ) if t
+                        )
                     if content:
                         lines.append(content[:12000])  # Cap at ~3000 tokens
                     else:
@@ -450,6 +597,17 @@ async def ask_question(question: str) -> dict[str, Any]:
     ]
     if graph_context:
         user_parts.append(f"\n\n## Graph Neighborhood\n{graph_context}")
+    if linked_docs:
+        user_parts.append(
+            "\n\n## Linked docs (repo_docs chunks describing the entities in the question)\n"
+            + "\n\n".join(c["text"] for c in linked_docs)
+        )
+    if service_blocks or entity_notes:
+        user_parts.append(
+            "\n\n## Resolved Entities (repo_docs graph)\n"
+            + "\n".join(service_blocks + [f"- {n}" for n in entity_notes])
+            + "\nIf a name is ambiguous, say so and name the candidates."
+        )
     user_parts.append(f"\n\n## Question\n{question}")
 
     user_message = "\n".join(user_parts)

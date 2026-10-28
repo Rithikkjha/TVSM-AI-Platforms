@@ -1,0 +1,11 @@
+# source: TVS-CS/TVS-CPS-BACKEND/tvs-cps-app/src/main/resources/config/application.yml (fake hosts)
+bff:
+  inventory-service:
+    base-url: https://inventory.example.test/norton-cps-app
+  appointment-service:
+    base-url: https://appointment.example.test/cps
+  booking-service:
+    base-url: https://booking.example.test
+lead:
+  api:
+    url: https://lead.example.test

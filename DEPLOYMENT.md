@@ -367,6 +367,60 @@ If you rebuild the folder from the zip:
 
 ---
 
+## 11. SmartBrain SSO login (Azure AD / Entra ID)
+
+The SmartBrain chatbot UI and `/v1` REST API require an org login by default
+(OIDC authorization-code flow via MSAL). This is **ON by default** — it is only
+disabled by explicitly setting `REQUIRE_LOGIN=false`. A missing/empty var means
+login stays ON (secure by default).
+
+### Env vars (put in `smartbrain-v2/.env`, never in git / the zip)
+
+| Var | Value / how to get it |
+|-----|-----------------------|
+| `REQUIRE_LOGIN` | `true` (default). Set `false` only to intentionally open the app. |
+| `AZURE_TENANT_ID` | App registration tenant id (from IT). |
+| `AZURE_CLIENT_ID` | App registration (client) id (from IT). |
+| `AZURE_CLIENT_SECRET` | App registration client secret (from IT; expires 2027-10-13). |
+| `SESSION_SECRET` | Random string to sign the session cookie — see below. |
+| `AZURE_REDIRECT_PATH` | `/brain/auth/callback` (must match the registered redirect URI exactly). |
+| `AZURE_POST_LOGIN_PATH` | `/brain/chatbot/` (where users land after login). |
+
+Generate a `SESSION_SECRET`:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+### Registered redirect URI (set by IT on the app registration)
+
+```
+https://smartbrain.tvsmotor.net/brain/auth/callback
+```
+
+The app builds this `redirect_uri` from nginx's `X-Forwarded-Proto` /
+`X-Forwarded-Host` headers + `AZURE_REDIRECT_PATH`, so the `/brain` prefix and
+`https` are preserved even though uvicorn itself is plain http on :8000.
+
+### Behavior / gotchas
+
+- **Fail-fast:** if `REQUIRE_LOGIN` is on and any of `AZURE_TENANT_ID`,
+  `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `SESSION_SECRET` is empty, the app
+  refuses to start with a clear error naming the missing var(s) — no silent
+  redirect loop.
+- **`/v1/health` stays open** (nginx/monitoring) — not behind login.
+- **MCP is unaffected:** `/brain/mcp` is NOT gated by this login; it keeps its
+  own token model. Do not add login to `mcp_server/`.
+- **Auth routes:** `/auth/login`, `/auth/callback`, `/auth/logout`, `/auth/me`.
+- The API key gate (`REQUIRE_API_KEY`) is independent and still defaults off; with
+  defaults, no API key is needed but login IS.
+- **Disable login** (e.g. for a throwaway test): `REQUIRE_LOGIN=false` in `.env`,
+  then `sudo systemctl restart smartbrain`.
+- New deps for this: `msal` and `itsdangerous` — already in `pyproject.toml`;
+  make sure they are in the installed `reqs.txt` / venv on the VM.
+
+---
+
 ## 10. Key facts / gotchas cheat-sheet
 
 - **Ports:** SmartBrain 8000, PlanIQ 9000, Neo4j bolt 7688 / browser 7475, Qdrant 6335.

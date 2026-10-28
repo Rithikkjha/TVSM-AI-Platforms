@@ -13,10 +13,12 @@ const App = (() => {
 
     function init() {
         cacheElements();
+        initTheme();
         loadConversations();
         bindEvents();
         renderConversationList();
         autoResizeTextarea();
+        refreshAuthState();
     }
 
     function cacheElements() {
@@ -38,13 +40,15 @@ const App = (() => {
         elements.searchResults = document.getElementById('searchResults');
         elements.serviceDetailContent = document.getElementById('serviceDetailContent');
         elements.backToSearch = document.getElementById('backToSearch');
-        elements.settingsBtn = document.getElementById('settingsBtn');
-        elements.settingsModal = document.getElementById('settingsModal');
-        elements.closeSettings = document.getElementById('closeSettings');
-        elements.cancelSettings = document.getElementById('cancelSettings');
-        elements.saveSettings = document.getElementById('saveSettings');
-        elements.apiKeyInput = document.getElementById('apiKeyInput');
-        elements.apiBaseUrl = document.getElementById('apiBaseUrl');
+        elements.themeToggle = document.getElementById('themeToggle');
+        // Login state (Azure AD SSO)
+        elements.accountUser = document.getElementById('accountUser');
+        elements.accountName = document.getElementById('accountName');
+        elements.accountEmail = document.getElementById('accountEmail');
+        elements.signInLink = document.getElementById('signInLink');
+        elements.signOutLink = document.getElementById('signOutLink');
+        elements.loginOverlay = document.getElementById('loginOverlay');
+        elements.loginBtn = document.getElementById('loginBtn');
     }
 
     function bindEvents() {
@@ -87,14 +91,50 @@ const App = (() => {
         // Service detail
         elements.backToSearch.addEventListener('click', () => showView('searchView'));
 
-        // Settings
-        elements.settingsBtn.addEventListener('click', openSettings);
-        elements.closeSettings.addEventListener('click', closeSettings);
-        elements.cancelSettings.addEventListener('click', closeSettings);
-        elements.saveSettings.addEventListener('click', saveSettings);
-        elements.settingsModal.addEventListener('click', (e) => {
-            if (e.target === elements.settingsModal) closeSettings();
-        });
+        // Theme toggle (light / dark)
+        if (elements.themeToggle) {
+            elements.themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        // Login (Azure AD SSO)
+        if (elements.signInLink) {
+            elements.signInLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = ApiClient.loginUrl();
+            });
+        }
+        if (elements.loginBtn) {
+            elements.loginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = ApiClient.loginUrl();
+            });
+        }
+        if (elements.signOutLink) {
+            elements.signOutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = ApiClient.logoutUrl();
+            });
+        }
+    }
+
+    // ===== Auth / login state =====
+
+    async function refreshAuthState() {
+        const user = await ApiClient.getMe();
+        if (user) {
+            elements.accountName.textContent = user.name || user.preferred_username || 'Signed in';
+            elements.accountEmail.textContent = user.email || user.preferred_username || '';
+            elements.accountUser.style.display = '';
+            elements.signInLink.style.display = 'none';
+            if (elements.loginOverlay) elements.loginOverlay.style.display = 'none';
+            // Fresh start whenever a different user signs in on this browser.
+            clearHistoryOnNewLogin(user.oid || user.email || user.preferred_username);
+        } else {
+            elements.accountUser.style.display = 'none';
+            elements.signInLink.style.display = '';
+            // Not signed in: show the full-screen sign-in page.
+            if (elements.loginOverlay) elements.loginOverlay.style.display = 'flex';
+        }
     }
 
     // ===== Sidebar & Navigation =====
@@ -129,12 +169,45 @@ const App = (() => {
 
     // ===== Conversations =====
 
+    // Conversations older than this are dropped automatically on load.
+    const CONVERSATION_TTL_DAYS = 30;
+    const CONVERSATION_TTL_MS = CONVERSATION_TTL_DAYS * 24 * 60 * 60 * 1000;
+
     function loadConversations() {
         try {
             const stored = localStorage.getItem('emg_conversations');
             conversations = stored ? JSON.parse(stored) : [];
         } catch {
             conversations = [];
+        }
+        // 30-day auto-expiry: drop any conversation last touched over the TTL ago.
+        const cutoff = Date.now() - CONVERSATION_TTL_MS;
+        const before = conversations.length;
+        conversations = conversations.filter(c => {
+            const ts = c.updatedAt || c.createdAt || 0;
+            return ts >= cutoff;
+        });
+        if (conversations.length !== before) {
+            saveConversations();
+        }
+    }
+
+    // Fresh start per login: when the signed-in user changes (new login), wipe
+    // any locally stored conversations so each session begins clean. Called
+    // after auth state resolves. For the login-disabled case the user id is a
+    // fixed sentinel, so this becomes a one-time purge on first load of the
+    // new build (the stored id starts empty).
+    function clearHistoryOnNewLogin(userId) {
+        const key = 'emg_last_user';
+        const prev = localStorage.getItem(key);
+        const current = userId || 'anonymous';
+        if (prev !== current) {
+            conversations = [];
+            saveConversations();
+            localStorage.setItem(key, current);
+            currentConversationId = null;
+            if (elements.conversationList) renderConversationList();
+            if (currentView === 'chat') newChat();
         }
     }
 
@@ -170,7 +243,8 @@ const App = (() => {
             id,
             title,
             messages: [],
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         };
         conversations.unshift(conversation);
         saveConversations();
@@ -266,6 +340,7 @@ const App = (() => {
         // Add user message
         const conv = getCurrentConversation();
         conv.messages.push({ role: 'user', content: question });
+        conv.updatedAt = Date.now();
         saveConversations();
         appendMessage('user', question);
 
@@ -389,42 +464,66 @@ const App = (() => {
 
     // ===== Search =====
 
+    // Cached service list (fetched once per session). The Search tab filters
+    // this list locally by name + alias; there are only ~47 services.
+    let serviceCache = null;
+
+    async function ensureServices() {
+        if (serviceCache) return serviceCache;
+        const data = await ApiClient.listServices();
+        serviceCache = (data && data.services) || [];
+        return serviceCache;
+    }
+
     async function performSearch(query) {
-        if (!query || query.trim().length === 0) {
+        const q = (query || '').trim().toLowerCase();
+        if (q.length === 0) {
             elements.searchResults.innerHTML = '';
             return;
         }
 
         elements.searchResults.innerHTML = '<div class="search-loading">Searching...</div>';
 
+        let services;
         try {
-            const results = await ApiClient.search(query.trim());
-            renderSearchResults(results);
+            services = await ensureServices();
         } catch (error) {
             elements.searchResults.innerHTML = `<div class="search-empty">Error: ${escapeHtml(error.message)}</div>`;
+            return;
         }
+
+        // Match the query as a case-insensitive substring of the service name,
+        // display name, or any of its aliases.
+        const matches = services.filter(s => {
+            const name = (s.name || '').toLowerCase();
+            const display = (s.display_name || '').toLowerCase();
+            const aliases = (s.aliases || []).map(a => (a || '').toLowerCase());
+            return name.includes(q) || display.includes(q) || aliases.some(a => a.includes(q));
+        });
+
+        renderSearchResults(matches);
     }
 
-    function renderSearchResults(results) {
-        const items = results.results || results.items || results;
-
-        if (!items || items.length === 0) {
-            elements.searchResults.innerHTML = '<div class="search-empty">No results found</div>';
+    function renderSearchResults(services) {
+        if (!services || services.length === 0) {
+            elements.searchResults.innerHTML = '<div class="search-empty">No services found</div>';
             return;
         }
 
         elements.searchResults.innerHTML = '';
-        (Array.isArray(items) ? items : [items]).forEach(item => {
+        services.forEach(service => {
             const el = document.createElement('div');
             el.className = 'search-result-item';
 
-            const name = item.name || item.title || 'Unknown';
-            const type = item.type || item.entity_type || 'entity';
-            const description = item.description || item.summary || '';
+            // The service `name` is what GET /v1/services/{name} resolves.
+            const name = service.name || service.display_name || '';
+            const title = service.display_name || service.name || 'Unknown';
+            const type = service.domain || 'service';
+            const description = service.summary || '';
 
             el.innerHTML = `
                 <span class="result-type">${escapeHtml(type)}</span>
-                <div class="result-name">${escapeHtml(name)}</div>
+                <div class="result-name">${escapeHtml(title)}</div>
                 ${description ? `<div class="result-description">${escapeHtml(description)}</div>` : ''}
             `;
 
@@ -447,71 +546,88 @@ const App = (() => {
         }
     }
 
-    function renderServiceDetail(service) {
-        const name = service.name || service.title || 'Unknown Service';
-        const type = service.type || service.entity_type || 'service';
-        const description = service.description || service.summary || 'No description available.';
-        const properties = service.properties || service.metadata || {};
-        const relationships = service.relationships || service.dependencies || [];
+    function renderServiceDetail(data) {
+        // GET /v1/services/{name} returns a wrapper:
+        //   { service: {name, summary, domain, languages, frameworks, repo_url,
+        //               default_branch, aliases, ...},
+        //     owners, upstream_dependencies, downstream_dependents,
+        //     linked_tickets, documents, staleness }
+        const svc = (data && data.service) ? data.service : (data || {});
+        const name = svc.name || svc.display_name || 'Unknown Service';
+        const domain = svc.domain || svc.type || 'service';
+        const description = svc.summary || svc.description || 'No description available.';
 
         let html = `
             <h1>${escapeHtml(name)}</h1>
-            <span class="service-type-badge">${escapeHtml(type)}</span>
+            <span class="service-type-badge">${escapeHtml(domain)}</span>
             <div class="detail-section">
-                <h3>Description</h3>
+                <h3>Summary</h3>
                 <p>${escapeHtml(description)}</p>
             </div>
         `;
 
-        // Properties
-        const propKeys = Object.keys(properties);
-        if (propKeys.length > 0) {
-            html += `<div class="detail-section"><h3>Properties</h3><div class="detail-tags">`;
-            propKeys.forEach(key => {
-                const val = properties[key];
-                html += `<span class="detail-tag"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(String(val))}</span>`;
-            });
-            html += `</div></div>`;
+        // Key properties (only show the ones that exist)
+        const propRows = [];
+        const addProp = (label, val) => {
+            if (val === undefined || val === null || val === '' ||
+                (Array.isArray(val) && val.length === 0)) return;
+            const text = Array.isArray(val) ? val.join(', ') : String(val);
+            propRows.push(`<span class="detail-tag"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(text)}</span>`);
+        };
+        addProp('Languages', svc.languages);
+        addProp('Frameworks', svc.frameworks);
+        addProp('Default branch', svc.default_branch);
+        addProp('Repository', svc.repo_url);
+        if (propRows.length > 0) {
+            html += `<div class="detail-section"><h3>Details</h3><div class="detail-tags">${propRows.join('')}</div></div>`;
         }
 
-        // Relationships
-        if (relationships.length > 0) {
-            html += `<div class="detail-section"><h3>Relationships</h3><div class="detail-tags">`;
-            relationships.forEach(rel => {
-                const relName = typeof rel === 'string' ? rel : (rel.target || rel.name || JSON.stringify(rel));
-                const relType = typeof rel === 'object' ? (rel.type || rel.relationship || '') : '';
-                html += `<span class="detail-tag">${relType ? escapeHtml(relType) + ': ' : ''}${escapeHtml(String(relName))}</span>`;
-            });
-            html += `</div></div>`;
+        // Aliases
+        if (Array.isArray(svc.aliases) && svc.aliases.length > 0) {
+            html += `<div class="detail-section"><h3>Also known as</h3><div class="detail-tags">`
+                + svc.aliases.map(a => `<span class="detail-tag">${escapeHtml(String(a))}</span>`).join('')
+                + `</div></div>`;
         }
+
+        // Dependency sections
+        const refName = (r) => r.name || r.display_name || r.source_id || r.key || 'unknown';
+        const depSection = (title, list) => {
+            if (!Array.isArray(list) || list.length === 0) return '';
+            return `<div class="detail-section"><h3>${escapeHtml(title)}</h3><div class="detail-tags">`
+                + list.map(r => `<span class="detail-tag">${escapeHtml(String(refName(r)))}</span>`).join('')
+                + `</div></div>`;
+        };
+        html += depSection('Depends on', data.upstream_dependencies);
+        html += depSection('Depended on by', data.downstream_dependents);
+        html += depSection('Owners', data.owners);
 
         elements.serviceDetailContent.innerHTML = html;
     }
 
-    // ===== Settings =====
+    // ===== Theme (light / dark) =====
 
-    function openSettings() {
-        elements.apiKeyInput.value = localStorage.getItem('emg_api_key') || '';
-        elements.apiBaseUrl.value = localStorage.getItem('emg_base_url') || '/';
-        elements.settingsModal.classList.add('active');
-        closeSidebar();
+    function applyTheme(theme) {
+        const dark = theme === 'dark';
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        const label = document.querySelector('#themeToggle .theme-label');
+        if (label) label.textContent = dark ? 'Light mode' : 'Dark mode';
     }
 
-    function closeSettings() {
-        elements.settingsModal.classList.remove('active');
-    }
-
-    function saveSettings() {
-        const apiKey = elements.apiKeyInput.value.trim();
-        const baseUrl = elements.apiBaseUrl.value.trim() || '/';
-
-        if (apiKey) {
-            localStorage.setItem('emg_api_key', apiKey);
-        } else {
-            localStorage.removeItem('emg_api_key');
+    function initTheme() {
+        // Stored choice wins; otherwise follow the OS preference.
+        let theme = localStorage.getItem('emg_theme');
+        if (!theme) {
+            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark' : 'light';
         }
-        localStorage.setItem('emg_base_url', baseUrl);
-        closeSettings();
+        applyTheme(theme);
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('emg_theme', next);
+        applyTheme(next);
     }
 
     // ===== Utilities =====
@@ -528,13 +644,22 @@ const App = (() => {
         div.id = 'welcomeScreen';
         div.innerHTML = `
             <div class="welcome-icon">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <rect width="40" height="40" rx="8" fill="#10a37f"/>
-                    <path d="M12 20l4 4 12-12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <defs>
+                        <linearGradient id="brainGrad2" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#10b981"/>
+                            <stop offset="1" stop-color="#059669"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="56" height="56" rx="14" fill="url(#brainGrad2)"/>
+                    <circle cx="20" cy="22" r="3" fill="white"/>
+                    <circle cx="36" cy="20" r="3" fill="white"/>
+                    <circle cx="28" cy="36" r="3" fill="white"/>
+                    <path d="M20 22L36 20M36 20L28 36M28 36L20 22" stroke="white" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
                 </svg>
             </div>
-            <h1>Engineering Memory Graph</h1>
-            <p>Ask questions about your engineering knowledge base, services, dependencies, and architecture.</p>
+            <h1>SmartBrain</h1>
+            <p>Ask about your engineering systems — services, APIs, dependencies, data flows, and the knowledge behind them.</p>
         `;
         return div;
     }

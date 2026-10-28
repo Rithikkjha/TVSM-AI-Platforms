@@ -1,0 +1,55 @@
+# Allowlist for org TVS-CS — only these repos are processed.
+# Source: names of smartbrain-v2/generated_steering/*.md (all 46 match GitHub repo names exactly, case included).
+# Verified 2026-10-10 against GitHub API. Lines marked "empty" have size 0 on GitHub → phase0 records skipped(empty).
+AUDIT-SERVICE                # empty
+BS2.0Backend_Integration
+CLAIM-SERVICE                # empty
+Catalog-Microservice-Backend-for-Frontend-Layer
+Catalog-Scheduler
+Core-Commerce-Platform-API-Service
+Core-Commerce-Platform-API-Service-Testng
+FormBuilder
+Lead-Booking-Crud-Services-Testing
+Parts-Catalogue-Ingestion-Service
+Parts-Catalogue-Service
+Payment-Service              # empty
+PaymentService
+Price-Engine-Frontend
+Price-Engine-MicroService-Backend
+Price-Microservice-Backend-for-Frontend-Layer
+TVS-CPS-BACKEND
+TVS-CPS-BE-BASE-FRAMEWORK
+TVS-CPS-BILLING
+TVS-CPS-CUSTOMER
+TVS-CPS-DB-MIGRATION
+TVS-CPS-FE-BASE-FRAMEWORK
+TVS-CPS-INVENTORY
+TVS-CPS-JOB-CARD-SERVICE
+TVS-CPS-JOBS
+TVS-CPS-PORTAL
+appointment-booking-service
+async-communication-service
+booking-crud-services
+bto_api
+cbs-admin-portal
+job-card-service
+location-frontend
+master-data-platform
+master-data-platform-frontend
+notification-dispatcher-service
+notification-service
+qrcode-frontend
+tvsm-auth
+tvsm-location-FE             # empty
+tvsm-marketplace-service
+tvsm-otp-service
+tvsm-securesigner-service
+tvsmbe-location
+tvsmbe-mdp-bff
+tvsmbe-qrcode
+# Added 2026-10-11: LMS repos (found in TVS-CS, not TVSM-DMS)
+lms
+lms_process
+lms_ems
+lms_crm
+lms_tvs_credit

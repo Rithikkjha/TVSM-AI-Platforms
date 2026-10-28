@@ -1,0 +1,41 @@
+# Third-party systems matched by phase 2 (docs/SCHEMAS.md#registryexternal_systemsyaml).
+# Edited by humans; its sha1 is part of the extract version (editing it makes `extract` stale).
+# Seeded only with systems confirmed by grep over the TVS-CS clones (evidence in `note`).
+schema_version: 1
+systems:
+  - name: juspay
+    category: payments
+    hosts: ["api.juspay.in", "*.juspay.in"]
+    packages: ["in.juspay:*", "juspay*"]
+    sdk_symbols: ["Juspay*", "JusPay*"]
+    note: "PaymentService Functions/JusPayWebhooks.cs (queue cpg-juspay), Constants/JusPay*Status.cs"
+  - name: onetrust
+    category: other
+    hosts: ["*.onetrust.com"]
+    packages: []
+    sdk_symbols: ["OneTrust*"]
+    note: "TVS-CPS-BACKEND tvs-cps-app application.yml one-trust.* (uat.onetrust.com, privacyportaluat.onetrust.com); bff-service OneTrustConstant.java"
+  - name: google-maps
+    category: maps
+    hosts: ["maps.googleapis.com"]
+    packages: ["@googlemaps/*", "@react-google-maps/*"]
+    sdk_symbols: []
+    note: "location-frontend .env.dev/.env.uat/.env.prod REACT_APP_GOOGLE_MAP_* (maps.googleapis.com), package.json @react-google-maps/api, @googlemaps/markerclusterer"
+  - name: firebase
+    category: other
+    hosts: ["*.firebaseio.com", "*.firebaseapp.com", "fcm.googleapis.com"]
+    packages: ["firebase", "firebase-admin", "com.google.firebase:*"]
+    sdk_symbols: []
+    note: "TVS-CPS-PORTAL channel-partner-system package.json firebase + NEXT_PUBLIC_FIREBASE_*; notification-dispatcher-service pom.xml com.google.firebase:firebase-admin"
+  - name: salesforce
+    category: crm
+    hosts: ["*.salesforce.com", "*.force.com"]
+    packages: []
+    sdk_symbols: ["Salesforce*"]
+    note: "TVS-CPS-PORTAL NEXT_PUBLIC_SALESFORCE_SUPPORT_URL (src/app/api/getEnvConfig/route.ts); notification-service SalesforceBlobConfig.java, SalesforceBlobStatusJob.java"
+  - name: site24x7
+    category: analytics
+    hosts: ["*.site24x7rum.in", "*.site24x7.com", "*.site24x7.in"]
+    packages: ["apminsight"]
+    sdk_symbols: []
+    note: "apminsight npm package in Price-Microservice-BFF, Catalog-Microservice-BFF, Core-Commerce-Platform-API-Service, Price-Engine-MicroService-Backend; TVS-CPS-PORTAL static.site24x7rum.in"

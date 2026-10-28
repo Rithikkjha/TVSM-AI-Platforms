@@ -1,0 +1,3214 @@
+{
+  "items": [
+    {
+      "item_id": "messaging:.:publish:azure-service-bus:unknown",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "BS2.0Backend_Integration",
+      "target": "unknown"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:AZURE_OAUTH_TOKEN_BASE_URL:/{}/oauth2/v2.0/token",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "Catalog-Microservice-Backend-for-Frontend-Layer",
+      "target": "env:AZURE_OAUTH_TOKEN_BASE_URL POST /{}/oauth2/v2.0/token"
+    },
+    {
+      "item_id": "messaging:.:publish:azure-service-bus:env:SERVICE_BUS_TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "Catalog-Scheduler",
+      "target": "env:SERVICE_BUS_TOPIC_NAME"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:env:MERCHANDISE_ACCESSORIES_BASE_URL:/admin/api/2025-01/products.json",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "Catalog-Scheduler",
+      "target": "env:MERCHANDISE_ACCESSORIES_BASE_URL GET /admin/api/2025-01/products.json"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:AUTHORIZATION_TOKEN_URL:/{}/oauth2/v2.0/token",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "Catalog-Scheduler",
+      "target": "env:AUTHORIZATION_TOKEN_URL POST /{}/oauth2/v2.0/token"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:_:/admin/api/2023-07/products/{}.json",
+      "kind": "outbound_http",
+      "reason": "no_base_url",
+      "repo": "Core-Commerce-Platform-API-Service",
+      "target": "unknown GET /admin/api/2023-07/products/{}.json"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:_:/admin/api/2023-07/variants/{}/metafields.json",
+      "kind": "outbound_http",
+      "reason": "no_base_url",
+      "repo": "Core-Commerce-Platform-API-Service",
+      "target": "unknown GET /admin/api/2023-07/variants/{}/metafields.json"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:env:BUMBLEBEE_EV_API_URL:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "Core-Commerce-Platform-API-Service",
+      "target": "env:BUMBLEBEE_EV_API_URL GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:env:BUMBLEBEE_ICE_API_URL:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "Core-Commerce-Platform-API-Service",
+      "target": "env:BUMBLEBEE_ICE_API_URL GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:env:SHOPIFY_API_URL:/2023-07/products.json",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "Core-Commerce-Platform-API-Service",
+      "target": "env:SHOPIFY_API_URL GET /2023-07/products.json"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:DELETE:env:API_URL:/api/template/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL DELETE /api/template/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:DELETE:env:API_URL:/api/user/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL DELETE /api/user/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:DELETE:env:BASE_PATH:/api/admin/delete-form/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH DELETE /api/admin/delete-form/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:DELETE:env:BASE_PATH:/api/admin/delete-user/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH DELETE /api/admin/delete-user/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:API_URL:/api/client",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL GET /api/client"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:API_URL:/api/master",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL GET /api/master"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:API_URL:/api/template",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL GET /api/template"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:API_URL:/api/template/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL GET /api/template/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:API_URL:/api/user",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL GET /api/user"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:API_URL:/api/user/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL GET /api/user/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:BASE_PATH:/api/admin/get-client",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH GET /api/admin/get-client"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:BASE_PATH:/api/admin/get-form-list",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH GET /api/admin/get-form-list"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:BASE_PATH:/api/admin/get-form/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH GET /api/admin/get-form/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:BASE_PATH:/api/admin/get-user-list",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH GET /api/admin/get-user-list"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:BASE_PATH:/api/admin/get-user/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH GET /api/admin/get-user/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:BASE_PATH:/api/get-env-config",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH GET /api/get-env-config"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PATCH:env:API_URL:/api/submission/approve/{}/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL PATCH /api/submission/approve/{}/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PATCH:env:API_URL:/api/submission/update/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL PATCH /api/submission/update/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PATCH:env:API_URL:/api/template/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL PATCH /api/template/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PATCH:env:API_URL:/api/user/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL PATCH /api/user/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PATCH:env:BASE_PATH:/api/admin/edit-user/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH PATCH /api/admin/edit-user/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PATCH:env:BASE_PATH:/api/submission-approval",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH PATCH /api/submission-approval"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PATCH:env:BASE_PATH:/api/submission-update",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH PATCH /api/submission-update"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:API_URL:/api/auth/sso-login",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL POST /api/auth/sso-login"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:API_URL:/api/submission/create",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL POST /api/submission/create"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:API_URL:/api/submission/generate-pdf",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL POST /api/submission/generate-pdf"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:API_URL:/api/submission/get-submission",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL POST /api/submission/get-submission"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:API_URL:/api/template",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL POST /api/template"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:API_URL:/api/template/get-template",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL POST /api/template/get-template"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:API_URL:/api/user",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:API_URL POST /api/user"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:BASE_PATH:/api/admin/add-user",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH POST /api/admin/add-user"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:BASE_PATH:/api/admin/login-sso-user",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH POST /api/admin/login-sso-user"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:BASE_PATH:/api/generate-pdf",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH POST /api/generate-pdf"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:BASE_PATH:/api/get-masterdata",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH POST /api/get-masterdata"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:BASE_PATH:/api/get-submission-data",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH POST /api/get-submission-data"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:BASE_PATH:/api/save-template-data",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH POST /api/save-template-data"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:BASE_PATH:/api/templates",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:BASE_PATH POST /api/templates"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:NEXT_PUBLIC_API_URL:/api/submission/upload",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "FormBuilder",
+      "target": "env:NEXT_PUBLIC_API_URL POST /api/submission/upload"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:config:catalogue.api.mdp.baseUrl:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "Parts-Catalogue-Ingestion-Service",
+      "target": "config:catalogue.api.mdp.baseUrl GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:config:catalogue.api.norton.baseUrl:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "Parts-Catalogue-Ingestion-Service",
+      "target": "config:catalogue.api.norton.baseUrl GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:config:catalogue.api.price.baseUrl:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "Parts-Catalogue-Ingestion-Service",
+      "target": "config:catalogue.api.price.baseUrl GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:catalogue.api.mdp.tokenUrl:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "Parts-Catalogue-Ingestion-Service",
+      "target": "config:catalogue.api.mdp.tokenUrl POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:BookingService:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "PaymentService",
+      "target": "env:BookingService POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:TVSConnectEVMandate:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "PaymentService",
+      "target": "env:TVSConnectEVMandate POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:TVSSparesAutoRefunds:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "PaymentService",
+      "target": "env:TVSSparesAutoRefunds POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:TokenUrl:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "PaymentService",
+      "target": "env:TokenUrl POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:iceWebsiteShopify:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "PaymentService",
+      "target": "env:iceWebsiteShopify POST /"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [
+        "tvsmazcmnsvcappuat02-priceengine-api-geg6awh9acf2c4e9.centralindia-01.azurewebsites.net",
+        "tvsmazpqcappdev02-priceengine-api.azurewebsites.net",
+        "tvsmazpqcappprd01-priceengine-web.azurewebsites.net"
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/price-components/{}/models/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "Price-Engine-Frontend",
+      "target": "env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL GET /price-components/{}/models/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [
+        "tvsmazcmnsvcappuat02-priceengine-api-geg6awh9acf2c4e9.centralindia-01.azurewebsites.net",
+        "tvsmazpqcappdev02-priceengine-api.azurewebsites.net",
+        "tvsmazpqcappprd01-priceengine-web.azurewebsites.net"
+      ],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/price-components/{}/products",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "Price-Engine-Frontend",
+      "target": "env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL GET /price-components/{}/products"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [
+        "tvsmazcmnsvcappuat02-priceengine-api-geg6awh9acf2c4e9.centralindia-01.azurewebsites.net",
+        "tvsmazpqcappdev02-priceengine-api.azurewebsites.net",
+        "tvsmazpqcappprd01-priceengine-web.azurewebsites.net"
+      ],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL:/product-price-components/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "Price-Engine-Frontend",
+      "target": "env:REACT_APP_PRICE_ENGINE_BFF_BASE_URL PUT /product-price-components/{}"
+    },
+    {
+      "item_id": "messaging:.:publish:azure-service-bus:env:TOPIC_NAME_MARKETPLACE",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "Price-Engine-MicroService-Backend",
+      "target": "env:TOPIC_NAME_MARKETPLACE"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:env:TOPIC_NAME_PRICE",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "Price-Engine-MicroService-Backend",
+      "target": "env:TOPIC_NAME_PRICE"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:env:TOPIC_NAME_PRODUCT",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "Price-Engine-MicroService-Backend",
+      "target": "env:TOPIC_NAME_PRODUCT"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "tvsmazmdpsappuat01.azurewebsites.net"
+      ],
+      "item_id": "outbound_http:.:GET:tvsmazmdpsappuat01.azurewebsites.net:/mdp/v1/token/generate",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "Price-Engine-MicroService-Backend",
+      "target": "literal GET /mdp/v1/token/generate"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:appointment-service:POST:config:bff.workflow-service.base-url:/{}{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.workflow-service.base-url POST /{}"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:DELETE:api.example.com:/api/v1/resource",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal DELETE /api/v1/resource"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:DELETE:api.example.com:/https:/evil.com/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal DELETE /https:/evil.com/api"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [],
+      "item_id": "outbound_http:bff-service:GET:_:/not-a-url/api/v1/resource",
+      "kind": "outbound_http",
+      "reason": "no_base_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "unknown GET /not-a-url/api/v1/resource"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [],
+      "item_id": "outbound_http:bff-service:GET:_:/not-a-valid-url/api/v1/resource",
+      "kind": "outbound_http",
+      "reason": "no_base_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "unknown GET /not-a-valid-url/api/v1/resource"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:api.example.com:/api/v1/resource",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal GET /api/v1/resource"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:api.example.com:/evil.com/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal GET /evil.com/api"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:api.example.com:/https:/evil.com/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal GET /https:/evil.com/api"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:api.example.com:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.announcement-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.announcement-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.appointment-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.appointment-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.billing-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.billing-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.catalog-service.base-url:/v2/catalogs/labour",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.catalog-service.base-url GET /v2/catalogs/labour"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.catalog-service.base-url:/v2/catalogs/parts/assemblies",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.catalog-service.base-url GET /v2/catalogs/parts/assemblies"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.catalog-service.base-url:/v2/catalogs/search/part",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.catalog-service.base-url GET /v2/catalogs/search/part"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.catalog-service.base-url:/v2/catalogs/vehicles",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.catalog-service.base-url GET /v2/catalogs/vehicles"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.catalog-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.catalog-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.claim-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.claim-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.inventory-service-internal.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.inventory-service-internal.base-url GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.inventory-service-internal.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.inventory-service-internal.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.inventory-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.inventory-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.jobcard-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.jobcard-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.location-master-service.base-url:/api/address/autocomplete",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.location-master-service.base-url GET /api/address/autocomplete"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.location-master-service.base-url:/api/address/details",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.location-master-service.base-url GET /api/address/details"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.order-service.base-url:/cps{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.order-service.base-url GET /cps"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.order-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.order-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.training-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.training-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:bff.workflow-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.workflow-service.base-url GET /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:cps-backend.base-url:/cps{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:cps-backend.base-url GET /cps"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:GET:config:cps-backend.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:cps-backend.base-url GET /{}"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:api.example.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal POST /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:api.example.com:/api/v1/resource",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal POST /api/v1/resource"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:api.example.com:/evil.com/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal POST /evil.com/api"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:bff-service:POST:config:azure.token-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:azure.token-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.announcement-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.announcement-service.base-url POST /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.catalog-service.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.catalog-service.base-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.catalog-service.base-url:/v2/catalogs/merchandise/colours",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.catalog-service.base-url POST /v2/catalogs/merchandise/colours"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.lead-service.base-url:/lead-service/api/v2/lead",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.lead-service.base-url POST /lead-service/api/v2/lead"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.lead-service.base-url:/lead-service/api/v2/lead/update",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.lead-service.base-url POST /lead-service/api/v2/lead/update"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.lead-service.base-url:/lead-service/api/v2/leads/Count",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.lead-service.base-url POST /lead-service/api/v2/leads/count"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.lead-service.base-url:/lead-service/api/v2/leads/all",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.lead-service.base-url POST /lead-service/api/v2/leads/all"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.lead-service.base-url:/lead-service/api/v2/leads/getdetails",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.lead-service.base-url POST /lead-service/api/v2/leads/getdetails"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.notification-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.notification-service.base-url POST /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.order-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.order-service.base-url POST /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.workflow-service.base-url:/system{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.workflow-service.base-url POST /system"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:bff.workflow-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.workflow-service.base-url POST /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "nmazdeftaprd01.azurewebsites.net"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:erp.data-lake.api-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:erp.data-lake.api-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:lead.api.url:/lead-service/api/v2/lead",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:lead.api.url POST /lead-service/api/v2/lead"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:lead.api.url:/lead-service/api/v2/lead/bulk-assign",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:lead.api.url POST /lead-service/api/v2/lead/bulk-assign"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:lead.api.url:/lead-service/api/v2/lead/update",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:lead.api.url POST /lead-service/api/v2/lead/update"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:lead.api.url:/lead-service/api/v2/leads/all",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:lead.api.url POST /lead-service/api/v2/leads/all"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:lead.api.url:/lead-service/api/v2/leads/getdetails",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:lead.api.url POST /lead-service/api/v2/leads/getdetails"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:lead.api.url:/lead-service/api/v2{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:lead.api.url POST /lead-service/api/v2"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:bff-service:POST:config:mdp.dealer.api.url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:mdp.dealer.api.url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:bff-service:POST:config:one-trust.token-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:one-trust.token-url POST /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api.example.com"
+      ],
+      "item_id": "outbound_http:bff-service:PUT:api.example.com:/api/v1/resource",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "literal PUT /api/v1/resource"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:bff-service:PUT:config:bff.workflow-service.base-url:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.workflow-service.base-url PUT /{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "nmazdeftaprd01.azurewebsites.net"
+      ],
+      "item_id": "outbound_http:claim-service:POST:config:claim.sap.data-lake.api-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:claim.sap.data-lake.api-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:claim-service:POST:config:claim.sap.oauth.token.url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:claim.sap.oauth.token.url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:claim-service:POST:config:workflow.service.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:workflow.service.base-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "nmazdeftaprd01.azurewebsites.net"
+      ],
+      "item_id": "outbound_http:common-service:POST:config:erp.data-lake.api-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:erp.data-lake.api-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:notification-service:POST:config:notification.gateway.email.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:notification.gateway.email.base-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:notification-service:POST:config:notification.gateway.push.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:notification.gateway.push.base-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:notification-service:POST:config:notification.gateway.sms.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:notification.gateway.sms.base-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:order-service:POST:config:bff.inventory-service.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:bff.inventory-service.base-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:order-service:POST:config:erp.oauth.token.url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-BACKEND",
+      "target": "config:erp.oauth.token.url POST /"
+    },
+    {
+      "item_id": "messaging:tvsm-be-core:publish:kafka:unknown",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "TVS-CPS-BE-BASE-FRAMEWORK",
+      "target": "unknown"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test-api.com"
+      ],
+      "item_id": "outbound_http:.:GET:test-api.com:/endpoint",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BILLING",
+      "target": "literal GET /endpoint"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test-api.com"
+      ],
+      "item_id": "outbound_http:.:GET:test-api.com:/specific/endpoint",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BILLING",
+      "target": "literal GET /specific/endpoint"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test-api.com"
+      ],
+      "item_id": "outbound_http:.:POST:test-api.com:/endpoint",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-BILLING",
+      "target": "literal POST /endpoint"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_ASSETS_BASE_URL:/tenants/{}/logo.svg",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-FE-BASE-FRAMEWORK",
+      "target": "env:RUNTIME_ASSETS_BASE_URL GET /tenants/{}/logo.svg"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_ASSETS_BASE_URL:/tenants/{}/variable.css",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-FE-BASE-FRAMEWORK",
+      "target": "env:RUNTIME_ASSETS_BASE_URL GET /tenants/{}/variable.css"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_ASSETS_BASE_URL:/tenants/{}/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-FE-BASE-FRAMEWORK",
+      "target": "env:RUNTIME_ASSETS_BASE_URL GET /tenants/{}/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_CONFIG_BASE_URL:/public/tenants/{}/config.json",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-FE-BASE-FRAMEWORK",
+      "target": "env:RUNTIME_CONFIG_BASE_URL GET /public/tenants/{}/config.json"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_CONFIG_BASE_URL:/tenants/{}/features.json",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-FE-BASE-FRAMEWORK",
+      "target": "env:RUNTIME_CONFIG_BASE_URL GET /tenants/{}/features.json"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test.api.com"
+      ],
+      "item_id": "outbound_http:.:GET:test.api.com:/endpoint",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-INVENTORY",
+      "target": "literal GET /endpoint"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test.api.com"
+      ],
+      "item_id": "outbound_http:.:POST:test.api.com:/endpoint",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-INVENTORY",
+      "target": "literal POST /endpoint"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:.:POST:config:customer.search-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-JOB-CARD-SERVICE",
+      "target": "config:customer.search-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "nmazdeftaprd01.azurewebsites.net",
+        "test-datalake"
+      ],
+      "item_id": "outbound_http:.:POST:config:azure-datalake.api-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-JOBS",
+      "target": "config:azure-datalake.api-url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "test-backend",
+        "uat-cmnsvc-ingress.nortonmotorcycles.com"
+      ],
+      "item_id": "outbound_http:.:POST:config:tvs-cps-backend.base-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "TVS-CPS-JOBS",
+      "target": "config:tvs-cps-backend.base-url POST /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test.com"
+      ],
+      "item_id": "outbound_http:.:POST:test.com:/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "TVS-CPS-JOBS",
+      "target": "literal POST /api"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/billing/get",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/billing/get"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/categories",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/collateral/categories"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/departments",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/collateral/departments"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/get/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/collateral/get/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/stats/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/collateral/stats/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/jobcards/formbuilder/token",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/jobcards/formbuilder/token"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/product/inventory/summary/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/product/inventory/summary/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/v1/product/order/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /v1/product/order/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:NEXT_PUBLIC_API_BASE_URL:/{}/{}/error",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL GET /{}/{}/error"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_ASSETS_BASE_URL:/tenants/{}/logo.svg",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:RUNTIME_ASSETS_BASE_URL GET /tenants/{}/logo.svg"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_ASSETS_BASE_URL:/tenants/{}/variable.css",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:RUNTIME_ASSETS_BASE_URL GET /tenants/{}/variable.css"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_ASSETS_BASE_URL:/tenants/{}/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:RUNTIME_ASSETS_BASE_URL GET /tenants/{}/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_CONFIG_BASE_URL:/public/tenants/{}/config.json",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:RUNTIME_CONFIG_BASE_URL GET /public/tenants/{}/config.json"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:GET:env:RUNTIME_CONFIG_BASE_URL:/tenants/{}/features.json",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:RUNTIME_CONFIG_BASE_URL GET /tenants/{}/features.json"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:DATABRICKS_TOKEN_URL:/oidc/v1/token",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:DATABRICKS_TOKEN_URL POST /oidc/v1/token"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:DATABRICKS_WORKSPACE_URL:/invocations",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:DATABRICKS_WORKSPACE_URL POST /invocations"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/auth/v2/app/token-exchange",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /auth/v2/app/token-exchange"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/$1/bulk-upload/history",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/$1/bulk-upload/history"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/billing/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/billing/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/delete/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/collateral/delete/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/download/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/collateral/download/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/update/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/collateral/update/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/view",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/collateral/view"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/{}/file/delete/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/collateral/{}/file/delete/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/collateral/{}/file/upload",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/collateral/{}/file/upload"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/enquiry/bulk-upload/{}/errors",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/enquiry/bulk-upload/{}/errors"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/training/complete",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/training/complete"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/training/delete/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/training/delete/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_API_BASE_URL:/v1/training/update",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_API_BASE_URL POST /v1/training/update"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:channel-partner-system:POST:env:NEXT_PUBLIC_UMS_AUTH_SERVICE_URL:/auth/v2/app/refresh-token",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "TVS-CPS-PORTAL",
+      "target": "env:NEXT_PUBLIC_UMS_AUTH_SERVICE_URL POST /auth/v2/app/refresh-token"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:unknown:TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "async-communication-service",
+      "target": "unknown"
+    },
+    {
+      "item_id": "messaging:.:publish:azure-service-bus:env:NORTON_BS_TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "booking-crud-services",
+      "target": "env:NORTON_BS_TOPIC_NAME"
+    },
+    {
+      "item_id": "messaging:.:publish:azure-service-bus:unknown:TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "booking-crud-services",
+      "target": "unknown"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:unknown:ATP_TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "booking-crud-services",
+      "target": "unknown"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:unknown:DEALER_TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "booking-crud-services",
+      "target": "unknown"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:unknown:DMS_TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "booking-crud-services",
+      "target": "unknown"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:unknown:TOPIC_NAME",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "booking-crud-services",
+      "target": "unknown"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:env:CCAURL:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "booking-crud-services",
+      "target": "env:CCAURL POST /"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:DELETE:env:REACT_APP_API_URL:/lms-drafts/draft/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL DELETE /lms-drafts/draft/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/action-items/approvals",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /action-items/approvals"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/action-items/mine",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /action-items/mine"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/audit",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /audit"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/audit/entity/{}/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /audit/entity/{}/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/audit/type/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /audit/type/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/dealers/code/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /dealers/code/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/dealers/dependencies/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /dealers/dependencies/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/dealers/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /dealers/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/dealers/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /dealers/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/form-config",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /form-config"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/form-config/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /form-config/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/form-config/metadata",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /form-config/metadata"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/form-config/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /form-config/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms-drafts/brand/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms-drafts/brand/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms-drafts/event-configurator/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms-drafts/event-configurator/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms-drafts/lead-flow/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms-drafts/lead-flow/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms-drafts/lead-source/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms-drafts/lead-source/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms-drafts/model/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms-drafts/model/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/brand/all",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/brand/all"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/brand/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/brand/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/event-configurator/all",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/event-configurator/all"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/event-configurator/name/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/event-configurator/name/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/event-configurator/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/event-configurator/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/lead-flow/all",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/lead-flow/all"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/lead-flow/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/lead-flow/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/lead-source/all",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/lead-source/all"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/lead-source/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/lead-source/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/model/all",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/model/all"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/lms/model/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /lms/model/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/mdp/part/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /mdp/part/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/mdp/price/vehicle/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /mdp/price/vehicle/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/mdp/vehicle/part/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /mdp/vehicle/part/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/mdp/vehicle/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /mdp/vehicle/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/rbac/me",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /rbac/me"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sources",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sources"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sources/dependencies/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sources/dependencies/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sources/drafts",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sources/drafts"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sources/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sources/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sync/out-of-sync",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sync/out-of-sync"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sync/out-of-sync/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sync/out-of-sync/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sync/status/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sync/status/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/sync/status/{}/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /sync/status/{}/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/workflows/assignments",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /workflows/assignments"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:GET:env:REACT_APP_API_URL:/workflows/templates",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL GET /workflows/templates"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/action-items/reject/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /action-items/reject/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/action-items/resubmit/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /action-items/resubmit/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/booking/lookup",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /booking/lookup"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/dealers/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /dealers/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/dealers/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /dealers/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/form-config/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /form-config/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/form-config/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /form-config/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/brand/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/brand/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/brand/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/brand/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/event-configurator/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/event-configurator/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/event-configurator/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/event-configurator/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/lead-flow/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/lead-flow/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/lead-flow/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/lead-flow/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/lead-source/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/lead-source/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/lead-source/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/lead-source/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/model/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/model/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms-drafts/model/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms-drafts/model/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms/brand",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms/brand"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms/lead-flow",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms/lead-flow"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/lms/lead-source",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /lms/lead-source"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/sources/draft",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /sources/draft"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/sources/publish/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /sources/publish/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:POST:env:REACT_APP_API_URL:/workflows/assign",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL POST /workflows/assign"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_API_URL:/booking/dealer-change",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL PUT /booking/dealer-change"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_API_URL:/lms/brand/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL PUT /lms/brand/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_API_URL:/lms/lead-flow/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL PUT /lms/lead-flow/{}"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [],
+      "item_id": "frontend_api_call:.:PUT:env:REACT_APP_API_URL:/lms/lead-source/{}",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "cbs-admin-portal",
+      "target": "env:REACT_APP_API_URL PUT /lms/lead-source/{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:src/Jobcard.API:POST:env:OTEL_EXPORTER_OTLP_ENDPOINT:/{}",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "job-card-service",
+      "target": "env:OTEL_EXPORTER_OTLP_ENDPOINT POST /{}"
+    },
+    {
+      "item_id": "messaging:.:publish:azure-service-bus:unknown",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "lms_crm",
+      "target": "unknown"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:dev.mdp.dealer_data",
+      "kind": "messaging",
+      "reason": "script_only",
+      "repo": "master-data-platform",
+      "target": "dev.mdp.dealer_data"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:local.mdp.part",
+      "kind": "messaging",
+      "reason": "script_only",
+      "repo": "master-data-platform",
+      "target": "local.mdp.part"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:local.mdp.price.vehicle",
+      "kind": "messaging",
+      "reason": "script_only",
+      "repo": "master-data-platform",
+      "target": "local.mdp.price.vehicle"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:mdp.product.vehicle",
+      "kind": "messaging",
+      "reason": "script_only",
+      "repo": "master-data-platform",
+      "target": "mdp.product.vehicle"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "example.com"
+      ],
+      "item_id": "outbound_http:.:GET:example.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "master-data-platform",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:.:GET:localhost:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "master-data-platform",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:.:GET:localhost:8080:/fish",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "master-data-platform",
+      "target": "literal GET /fish"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:azure.b2c.token.url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "master-data-platform",
+      "target": "config:azure.b2c.token.url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:_:/email/3/send",
+      "kind": "outbound_http",
+      "reason": "no_base_url",
+      "repo": "notification-dispatcher-service",
+      "target": "unknown POST /email/3/send"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:_:/sms/2/text/advanced",
+      "kind": "outbound_http",
+      "reason": "no_base_url",
+      "repo": "notification-dispatcher-service",
+      "target": "unknown POST /sms/2/text/advanced"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:infobip.baseUri:/email/3/send",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "notification-dispatcher-service",
+      "target": "config:infobip.baseUri POST /email/3/send"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:infobip.baseUri:/messages-api/1/messages",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "notification-dispatcher-service",
+      "target": "config:infobip.baseUri POST /messages-api/1/messages"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:salesforce.api.authUrl:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "notification-dispatcher-service",
+      "target": "config:salesforce.api.authUrl POST /"
+    },
+    {
+      "item_id": "messaging:.:publish:azure-service-bus:unknown",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "notification-service",
+      "target": "unknown"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:unknown",
+      "kind": "messaging",
+      "reason": "unknown_entity",
+      "repo": "notification-service",
+      "target": "unknown"
+    },
+    {
+      "caller_type": "frontend",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "frontend_api_call:.:POST:env:VITE_API_BASE:/api/qr/shortcode",
+      "kind": "frontend_api_call",
+      "reason": "no_route_match",
+      "repo": "qrcode-frontend",
+      "target": "env:VITE_API_BASE POST /api/qr/shortcode"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:DELETE:config:azure.faceApi.url:/face/v1.0/largepersongroups/{}/persons/{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url DELETE /face/v1.0/largepersongroups/{}/persons/{}"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:_:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-auth",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:config:azure.faceApi.url:/face/v1.0/largepersongroups/{}/persons/{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url GET /face/v1.0/largepersongroups/{}/persons/{}"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "example.com"
+      ],
+      "item_id": "outbound_http:.:GET:example.com:/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "tvsm-auth",
+      "target": "literal GET /api"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "faceapiurl.com"
+      ],
+      "item_id": "outbound_http:.:GET:faceApiUrl.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-auth",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "mdp.com"
+      ],
+      "item_id": "outbound_http:.:GET:mdp.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-auth",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "mockapi.com"
+      ],
+      "item_id": "outbound_http:.:GET:mockapi.com:/dealer",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "tvsm-auth",
+      "target": "literal GET /dealer"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test.com"
+      ],
+      "item_id": "outbound_http:.:GET:test.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-auth",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-notification.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-notification.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-auth",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:application.ums.tokenUrl:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-auth",
+      "target": "config:application.ums.tokenUrl POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:azure.faceApi.url:/face/v1.0/detect",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url POST /face/v1.0/detect"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:azure.faceApi.url:/face/v1.0/identify",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url POST /face/v1.0/identify"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:azure.faceApi.url:/face/v1.0/largepersongroups/{}/persons",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url POST /face/v1.0/largepersongroups/{}/persons"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:azure.faceApi.url:/face/v1.0/largepersongroups/{}/persons/{}/persistedfaces",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url POST /face/v1.0/largepersongroups/{}/persons/{}/persistedfaces"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:azure.faceApi.url:/face/v1.0/largepersongroups/{}/train",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url POST /face/v1.0/largepersongroups/{}/train"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:karza.baseUrl:/v3/bankacc-verification",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:karza.baseUrl POST /v3/bankacc-verification"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:karza.baseUrl:/v3/dl",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:karza.baseUrl POST /v3/dl"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:karza.baseUrl:/v3/name",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:karza.baseUrl POST /v3/name"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:karza.baseUrl:/v3/pan-profile",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:karza.baseUrl POST /v3/pan-profile"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "example.com"
+      ],
+      "item_id": "outbound_http:.:POST:example.com:/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "tvsm-auth",
+      "target": "literal POST /api"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:PUT:config:azure.faceApi.url:/face/v1.0/largepersongroups/{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-auth",
+      "target": "config:azure.faceApi.url PUT /face/v1.0/largepersongroups/{}"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.catalogProductUpdates.name",
+      "kind": "messaging",
+      "reason": "placeholder_name",
+      "repo": "tvsm-marketplace-service",
+      "target": "xxxx"
+    },
+    {
+      "item_id": "messaging:.:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.priceEngineUpdates.name",
+      "kind": "messaging",
+      "reason": "placeholder_name",
+      "repo": "tvsm-marketplace-service",
+      "target": "xxx"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api"
+      ],
+      "item_id": "outbound_http:.:DELETE:api:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-marketplace-service",
+      "target": "literal DELETE /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api"
+      ],
+      "item_id": "outbound_http:.:GET:api:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-marketplace-service",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.tvsmotor.net"
+      ],
+      "item_id": "outbound_http:.:GET:config:location-master.base.url:/location/latlong/{}",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-marketplace-service",
+      "target": "config:location-master.base.url GET /location/latlong/{}"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:GET:config:priceUpdate.flipkart.dealer_as_a_seller.tvsClientId:/&redirect_uri={}&response_type=code&scope=Seller_Api&state=TVS",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-marketplace-service",
+      "target": "config:priceUpdate.flipkart.dealer_as_a_seller.tvsClientId GET /&redirect_uri={}&response_type=code&scope=Seller_Api&state=TVS"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api"
+      ],
+      "item_id": "outbound_http:.:PATCH:api:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-marketplace-service",
+      "target": "literal PATCH /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api"
+      ],
+      "item_id": "outbound_http:.:POST:api:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-marketplace-service",
+      "target": "literal POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:b2c.token.url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-marketplace-service",
+      "target": "config:b2c.token.url POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:dms.api.base-url:/Sales.asmx/GetDealerInventory",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-marketplace-service",
+      "target": "config:dms.api.base-url POST /sales.asmx/getdealerinventory"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:flipkart.partner.api.base.url:/partners/aggregator/credentials/fetch",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-marketplace-service",
+      "target": "config:flipkart.partner.api.base.url POST /partners/aggregator/credentials/fetch"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:flipkart.partner.api.base.url:/partners/aggregator/salt-key/generate",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-marketplace-service",
+      "target": "config:flipkart.partner.api.base.url POST /partners/aggregator/salt-key/generate"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:.:POST:localhost:8080:/Sales.asmx/GetDealerInventory",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsm-marketplace-service",
+      "target": "literal POST /sales.asmx/getdealerinventory"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "api"
+      ],
+      "item_id": "outbound_http:.:PUT:api:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsm-marketplace-service",
+      "target": "literal PUT /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "dummy-url"
+      ],
+      "item_id": "outbound_http:.:GET:dummy-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "localhost"
+      ],
+      "item_id": "outbound_http:.:GET:localhost:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "notification-tvs.com"
+      ],
+      "item_id": "outbound_http:.:GET:notification-tvs.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "platform.kazam.in"
+      ],
+      "item_id": "outbound_http:.:GET:platform.kazam.in:/getOrgToken",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /getorgtoken"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "test.com"
+      ],
+      "item_id": "outbound_http:.:GET:test.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-location.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-location.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-location.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-location.com:/api",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /api"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-location.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-location.com:/no-headers-or-params",
+      "kind": "outbound_http",
+      "reason": "unknown_host",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /no-headers-or-params"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-mdp.com:/api",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /api"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-mdp.com:/mdp/filter",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /mdp/filter"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-mdp.com:/mock",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /mock"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-mdp.com:/mock-api",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /mock-api"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-mdp.com:/proximity",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /proximity"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-ums.com"
+      ],
+      "item_id": "outbound_http:.:GET:tvs-ums.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "uat-api.tvsmotor.net"
+      ],
+      "item_id": "outbound_http:.:GET:uat-api.tvsmotor.net:/lead-service/api/lead",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /lead-service/api/lead"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "ums-b2c-tvs.com"
+      ],
+      "item_id": "outbound_http:.:GET:ums-b2c-tvs.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:.:POST:config:lms.base.url:/lead-service/api/brands",
+      "kind": "outbound_http",
+      "reason": "no_route_match",
+      "repo": "tvsmbe-location",
+      "target": "config:lms.base.url POST /lead-service/api/brands"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-location.com"
+      ],
+      "item_id": "outbound_http:.:POST:tvs-location.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-location",
+      "target": "literal POST /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [
+        "dev-api.tvsmotor.net"
+      ],
+      "item_id": "outbound_http:inbound:GET:config:mdp.get-dealer-data.api-url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "config:mdp.get-dealer-data.api-url GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "example.com"
+      ],
+      "item_id": "outbound_http:inbound:GET:example.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp-inbound.com"
+      ],
+      "item_id": "outbound_http:inbound:GET:tvs-mdp-inbound.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:inbound:POST:config:azure.b2c.token.url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "config:azure.b2c.token.url POST /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp-inbound.com"
+      ],
+      "item_id": "outbound_http:inbound:POST:tvs-mdp-inbound.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "literal POST /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "example.com"
+      ],
+      "item_id": "outbound_http:outbound:GET:example.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp-outbound.com"
+      ],
+      "item_id": "outbound_http:outbound:GET:tvs-mdp-outbound.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "literal GET /"
+    },
+    {
+      "caller_type": "service",
+      "hosts": [],
+      "item_id": "outbound_http:outbound:POST:config:azure.b2c.token.url:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "config:azure.b2c.token.url POST /"
+    },
+    {
+      "caller_type": "test-suite",
+      "hosts": [
+        "tvs-mdp-outbound.com"
+      ],
+      "item_id": "outbound_http:outbound:POST:tvs-mdp-outbound.com:/",
+      "kind": "outbound_http",
+      "reason": "dynamic_url",
+      "repo": "tvsmbe-mdp-bff",
+      "target": "literal POST /"
+    }
+  ],
+  "schema_version": 1
+}

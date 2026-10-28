@@ -1,7 +1,7 @@
 """V2 Clean-Ingest Orchestrator — three-phase entry point.
 
-Populates fresh empty Neo4j + Qdrant stores from all three sources
-(steering files, Confluence pages, Jira tickets) in a strict
+Populates Neo4j + Qdrant stores from Confluence pages and Jira tickets
+in a strict
 three-phase ordering that guarantees the Known_Entity_Set is fully
 populated before any LLM relationship extraction runs.
 
@@ -111,8 +111,8 @@ class ProgressTracker:
 
 __all__ = ["CleanIngestOrchestrator"]
 
-# Steering file types (mirrors kiro_steering_ingest.py convention)
-_STEERING_FILE_TYPES = ("product", "structure", "tech")
+# Service docs come from repo_docs (python -m ingestion.repo_docs_ingest);
+# the old steering source was removed in Phase 8.
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +153,6 @@ class CleanIngestOrchestrator:
     def __init__(
         self,
         *,
-        steering_dir: Path,
         confluence_client: ConfluenceLiveClient | None,
         jira_client: JiraLiveClient | None,
         writer: GraphWriter,
@@ -166,7 +165,6 @@ class CleanIngestOrchestrator:
         llm_ticket_limit: int = 100,
         source_filter: str | None = None,
     ) -> None:
-        self._steering_dir = steering_dir
         self._confluence_client = confluence_client
         self._jira_client = jira_client
         self._writer = writer
@@ -177,14 +175,12 @@ class CleanIngestOrchestrator:
         self._sparse_index = sparse_index
         self._report = report or IngestionReport()
         self._llm_ticket_limit = llm_ticket_limit
-        self._source_filter = source_filter  # None = all, "steering"/"confluence"/"jira"
+        self._source_filter = source_filter  # None = all, "confluence"/"jira"
 
         # Accumulated during Phase 1
         self._known_services: set[str] = set()
         self._known_tickets: set[str] = set()
 
-        # Steering docs accumulated for Phase 3 LLM enrichment
-        self._steering_docs: list[dict[str, Any]] = []
         # Jira tickets accumulated for Phase 3 LLM enrichment
         self._jira_tickets: list[dict[str, Any]] = []
 
@@ -202,7 +198,7 @@ class CleanIngestOrchestrator:
             start_phase: If specified (1, 2, or 3), skip earlier phases.
                 Phase 1 must have run previously for Phase 2/3 to work.
                 When starting from Phase 2 or 3, the Known_Entity_Set is
-                rebuilt by scanning the steering directory and Jira config.
+                rebuilt from the Jira config.
 
         Returns the completed IngestionReport with per-source,
         per-stage counts (Req 15).
@@ -217,7 +213,7 @@ class CleanIngestOrchestrator:
             self._progress = ProgressTracker(total_items)
             print(
                 f"\n🚀 Clean ingest starting — {total_items} items to process "
-                f"(steering + confluence + jira)\n",
+                f"(confluence + jira)\n",
                 flush=True,
             )
 
@@ -262,32 +258,8 @@ class CleanIngestOrchestrator:
         """Rebuild Known_Entity_Set + accumulated docs from filesystem.
 
         Used when --phase 2 or --phase 3 is passed (skipping Phase 1).
-        Reads steering files to populate service names and doc texts,
-        and reads Jira ticket keys from the graph if available.
+        Reads Jira ticket keys from the graph if available.
         """
-
-        # Rebuild services from steering directory
-        if self._steering_dir.exists():
-            repo_dirs = sorted(
-                d for d in self._steering_dir.iterdir()
-                if d.is_dir() and any(d.glob("*.md"))
-            )
-            for repo_dir in repo_dirs:
-                repo_name = repo_dir.name
-                self._known_services.add(repo_name)
-
-                for md_file in sorted(repo_dir.glob("*.md")):
-                    file_type = md_file.stem
-                    content = md_file.read_text(encoding="utf-8")
-                    if not content.strip():
-                        continue
-                    source_id = f"steering:{repo_name}:{file_type}"
-                    self._steering_docs.append({
-                        "service_name": repo_name,
-                        "service_source_id": f"service:{repo_name}",
-                        "page_source_id": source_id,
-                        "steering_text": content,
-                    })
 
         # Rebuild Jira ticket keys from the Jira client config
         if self._jira_client is not None:
@@ -322,7 +294,6 @@ class CleanIngestOrchestrator:
         print(
             f"  Rebuilt: {len(self._known_services)} services, "
             f"{len(self._known_tickets)} tickets, "
-            f"{len(self._steering_docs)} steering docs, "
             f"{len(self._jira_tickets)} jira tickets",
             flush=True,
         )
@@ -331,7 +302,6 @@ class CleanIngestOrchestrator:
         """Pre-count the total number of items across all sources.
 
         This enables a cumulative progress bar. Counts:
-        - Steering: number of steering files (repo × file_type)
         - Confluence: number of pages (fetched via client)
         - Jira: number of tickets (fetched via client)
 
@@ -340,19 +310,6 @@ class CleanIngestOrchestrator:
         if it differs at processing time.
         """
         total = 0
-
-        # Count steering files
-        if self._steering_dir.exists():
-            repo_dirs = [
-                d for d in self._steering_dir.iterdir()
-                if d.is_dir() and any(d.glob("*.md"))
-            ]
-            for repo_dir in repo_dirs:
-                md_files = list(repo_dir.glob("*.md"))
-                for md_file in md_files:
-                    content = md_file.read_text(encoding="utf-8")
-                    if content.strip():
-                        total += 1
 
         # Estimate Confluence pages (use a generous estimate;
         # the actual total will be adjusted once pages are fetched)
@@ -385,14 +342,6 @@ class CleanIngestOrchestrator:
 
         sf = self._source_filter
 
-        # Source: steering files from kiro_steering directory
-        if sf is None or sf == "steering":
-            try:
-                await self._phase1_steering()
-            except Exception as exc:
-                logger.error("Phase 1: steering source failed: %s", exc, exc_info=True)
-                self._report.skip("steering")
-
         # Source: Confluence pages (live fetch)
         if sf is None or sf == "confluence":
             try:
@@ -409,101 +358,6 @@ class CleanIngestOrchestrator:
                 logger.error("Phase 1: jira source failed: %s", exc, exc_info=True)
                 self._report.skip("jira")
 
-
-    async def _phase1_steering(self) -> None:
-        """Materialize steering file entities and chunks.
-
-        Reads kiro_steering/{repo-name}/product.md, structure.md, tech.md,
-        chunks each file, embeds, deduplicates, and writes to all stores.
-        """
-
-        if not self._steering_dir.exists():
-            logger.warning(
-                "Steering directory does not exist: %s — skipping steering source",
-                self._steering_dir,
-            )
-            self._report.skip("steering")
-            return
-
-        repo_dirs = sorted(
-            d for d in self._steering_dir.iterdir()
-            if d.is_dir() and any(d.glob("*.md"))
-        )
-
-        if not repo_dirs:
-            logger.info("No repo folders found in %s", self._steering_dir)
-            return
-
-        logger.info("Phase 1 steering: found %d repos", len(repo_dirs))
-        chunker = get_chunker(SourceType.STEERING_FILE)
-        steering_items_count = 0
-        steering_chunks_total = 0
-
-        for repo_dir in repo_dirs:
-            repo_name = repo_dir.name
-            # Register the service in the Known_Entity_Set
-            self._known_services.add(repo_name)
-
-            # Write the parent Service entity via writer
-            await self._write_service_entity(repo_name)
-
-            # Process ALL .md files in the folder (not just product/structure/tech)
-            md_files = sorted(repo_dir.glob("*.md"))
-            for md_file in md_files:
-                file_type = md_file.stem  # e.g., "product", "HLD", "API_SPEC"
-
-                content = md_file.read_text(encoding="utf-8")
-                if not content.strip():
-                    continue
-
-                source_id = f"steering:{repo_name}:{file_type}"
-                source_ref = str(md_file)
-
-                # Write the steering doc entity (ConfluencePage-type)
-                await self._write_steering_entity(
-                    repo_name, file_type, content, source_id
-                )
-
-                # Build SourceDocument for chunking
-                doc = SourceDocument(
-                    source_type=SourceType.STEERING_FILE,
-                    parent_source_id=source_id,
-                    repo_name=repo_name,
-                    source_ref=source_ref,
-                    doc_type=file_type,
-                    text=content,
-                    title=f"{repo_name}/{file_type}",
-                )
-
-                # Chunk, embed, dedup, write
-                chunks = chunker.chunk(doc)
-                chunks_created, duplicates_marked = await self._ingest_chunks(
-                    chunks, source_type="steering"
-                )
-                self._report.record_chunks(
-                    "steering", chunks_created, duplicates_marked
-                )
-
-                # Progress tracking
-                steering_items_count += 1
-                steering_chunks_total += chunks_created
-                if self._progress:
-                    self._progress.tick(
-                        "steering",
-                        f"{repo_name}/{file_type}",
-                        chunks_created,
-                    )
-
-                # Accumulate for Phase 3 LLM enrichment
-                self._steering_docs.append({
-                    "service_name": repo_name,
-                    "service_source_id": f"service:{repo_name}",
-                    "page_source_id": source_id,
-                    "steering_text": content,
-                })
-
-        if self._progress:
-            self._progress.source_done("steering", steering_items_count, steering_chunks_total)
 
     async def _phase1_confluence(self) -> None:
         """Materialize Confluence page entities and chunks.
@@ -625,7 +479,7 @@ class CleanIngestOrchestrator:
                     else:
                         # Add title-based service hint if it looks like a
                         # service name (all known services are already
-                        # registered from steering; this is just additive)
+                        # loaded from repo_docs; this is just additive)
                         pass
 
                     total_pages += 1
@@ -857,25 +711,14 @@ class CleanIngestOrchestrator:
     async def _phase2_deterministic(self) -> None:
         """Run deterministic extraction over materialized sources (Req 12.3).
 
-        The steering files already write DOCUMENTED_IN edges during
-        Phase 1 entity materialization (they are structural/deterministic).
-        Additional deterministic extraction for Confluence and Jira
-        entities is handled here when those sources are available.
+        Deterministic extraction for Confluence and Jira entities is
+        handled here when those sources are available. (Service structure now
+        comes from the repo_docs graph loader.)
         """
-
-        # For steering: the DOCUMENTED_IN edges (Service -> steering doc)
-        # are already written during _write_steering_entity in Phase 1.
-        # Record the count of deterministic edges produced.
-        # Each steering doc with content produced 1 DOCUMENTED_IN edge.
-        steering_det_edges = len(self._steering_docs)
-        self._report.record_deterministic("steering", steering_det_edges)
 
         # Confluence and Jira deterministic extraction would run here
         # once those Phase 1 branches are fully implemented.
-        logger.info(
-            "Phase 2: recorded %d deterministic edges for steering",
-            steering_det_edges,
-        )
+        logger.info("Phase 2: no deterministic edges to record")
 
 
     # ------------------------------------------------------------------
@@ -889,7 +732,7 @@ class CleanIngestOrchestrator:
     ) -> None:
         """Run LLM relationship extraction with frozen Known_Entity_Set (Req 12.4).
 
-        Processes steering docs and Jira tickets through the
+        Processes Jira tickets through the
         LLMExtractor, writing edges via GraphWriter (idempotent).
         """
 
@@ -908,54 +751,12 @@ class CleanIngestOrchestrator:
                 flush=True,
             )
 
-        total_llm_items = len(self._steering_docs) + len(jira_for_llm)
+        total_llm_items = len(jira_for_llm)
         llm_idx = 0
         print(
             f"\n🧠 Phase 3: LLM enrichment — {total_llm_items} items to extract\n",
             flush=True,
         )
-
-        # LLM enrichment for steering docs (Req 9)
-        for doc_info in self._steering_docs:
-            llm_idx += 1
-            pct = llm_idx / total_llm_items * 100 if total_llm_items > 0 else 0
-            try:
-                result = await self._llm_extractor.extract_from_steering(
-                    service_source_id=doc_info["service_source_id"],
-                    service_name=doc_info["service_name"],
-                    steering_text=doc_info["steering_text"],
-                    page_source_id=doc_info["page_source_id"],
-                    known_services=known_services_list,
-                )
-                edges = len(result.relationships) if result.relationships else 0
-                if result.relationships:
-                    await self._writer.write(result)
-                    by_confidence = self._bucket_by_confidence(result)
-                    self._report.record_llm_edges("steering", by_confidence)
-                print(
-                    f"[{llm_idx:>{len(str(total_llm_items))}}/{total_llm_items}] "
-                    f"{pct:5.1f}%  llm/steering: {doc_info['service_name']} — "
-                    f"{edges} edges",
-                    flush=True,
-                )
-            except LLMExtractionError as exc:
-                logger.warning(
-                    "Phase 3: LLM extraction failed for steering doc %s: %s",
-                    doc_info["service_name"],
-                    exc,
-                )
-                print(
-                    f"[{llm_idx:>{len(str(total_llm_items))}}/{total_llm_items}] "
-                    f"{pct:5.1f}%  llm/steering: {doc_info['service_name']} — ⚠ failed",
-                    flush=True,
-                )
-            except Exception as exc:
-                logger.warning(
-                    "Phase 3: unexpected error in steering LLM extraction "
-                    "for %s: %s",
-                    doc_info["service_name"],
-                    exc,
-                )
 
         # LLM enrichment for Jira tickets (Req 10)
         for ticket_info in jira_for_llm:
@@ -1007,73 +808,6 @@ class CleanIngestOrchestrator:
     # Helpers: entity writing
     # ------------------------------------------------------------------
 
-    async def _write_service_entity(self, repo_name: str) -> None:
-        """Write a Service entity node for the given repo/service name."""
-
-        now = datetime.now(UTC).isoformat()
-        entity = ExtractedEntity(
-            label=EntityType.SERVICE.value,
-            properties={
-                "source_id": f"service:{repo_name}",
-                "name": repo_name,
-                "created_at": now,
-                "updated_at": now,
-                "text_hash": compute_text_hash({"service": repo_name}),
-            },
-        )
-        await self._writer.write(ExtractionResult(entities=[entity], relationships=[]))
-
-    async def _write_steering_entity(
-        self,
-        repo_name: str,
-        file_type: str,
-        content: str,
-        source_id: str,
-    ) -> None:
-        """Write a steering doc as a ConfluencePage-type entity + DOCUMENTED_IN edge."""
-
-        now = datetime.now(UTC).isoformat()
-        text_hash = compute_text_hash(content)
-
-        title_map = {
-            "product": f"Product Context: {repo_name}",
-            "structure": f"Code Structure: {repo_name}",
-            "tech": f"Tech Stack: {repo_name}",
-        }
-        title = title_map.get(file_type, f"Steering ({file_type}): {repo_name}")
-
-        entity = ExtractedEntity(
-            label=EntityType.CONFLUENCE_PAGE.value,
-            properties={
-                "source_id": source_id,
-                "title": title,
-                "space_key": "STEERING",
-                "url": f"kiro_steering/{repo_name}/{file_type}.md",
-                "content_summary": content,
-                "created_at": now,
-                "updated_at": now,
-                "text_hash": text_hash,
-            },
-        )
-
-        # DOCUMENTED_IN: Service -> steering doc (deterministic edge)
-        service_source_id = f"service:{repo_name}"
-        relationship = ExtractedRelationship(
-            source_label=EntityType.SERVICE.value,
-            source_id=service_source_id,
-            target_label=EntityType.CONFLUENCE_PAGE.value,
-            target_id=source_id,
-            rel_type=RelationshipType.DOCUMENTED_IN.value,
-            properties={
-                "created_at": now,
-                "source": "deterministic",
-            },
-        )
-
-        await self._writer.write(
-            ExtractionResult(entities=[entity], relationships=[relationship])
-        )
-
     async def _write_confluence_entity(
         self,
         page_id: str,
@@ -1085,7 +819,7 @@ class CleanIngestOrchestrator:
     ) -> None:
         """Write a Confluence page entity node (no automatic DOCUMENTED_IN edge).
 
-        Unlike steering docs, Confluence pages do not have a deterministic
+        Confluence pages do not have a deterministic
         service link — that is discovered by Phase 3 LLM enrichment.
         """
 

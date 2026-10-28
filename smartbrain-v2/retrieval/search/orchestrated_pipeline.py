@@ -18,6 +18,7 @@ The orchestrated mode handles 4 query types:
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from neo4j import AsyncGraphDatabase
@@ -31,42 +32,139 @@ from retrieval.search.query_classifier import ClassificationResult, QueryType, c
 logger = logging.getLogger(__name__)
 
 
+def _is_list_all_services(question: str) -> bool:
+    """True for 'list all services/repositories' style questions.
+
+    Matches an enumeration verb (list/show/what/which/all/name) near a
+    collection noun (services/repositories/repos/microservices/apps/systems),
+    but NOT endpoint/api listings (those are per-service and handled
+    elsewhere).
+    """
+    q = question.lower()
+    if re.search(r"\b(endpoints?|apis?|routes?)\b", q):
+        return False
+    # Collection noun, usually plural (service -> prefer "services"). "service"
+    # singular only counts with an explicit list/all cue to avoid matching
+    # "what is X service".
+    noun_plural = re.search(
+        r"\b(services|repositor(?:y|ies)|repos|microservices|apps|applications|systems)\b",
+        q,
+    )
+    noun_any = re.search(
+        r"\b(services?|repositor(?:y|ies)|repos?|microservices?|apps?|applications?|systems?)\b",
+        q,
+    )
+    # Enumeration cues
+    list_cue = re.search(r"\b(list|show|name|all|every|which)\b", q)
+    whatare_cue = re.search(r"\bwhat\s+(services|repos|repositories|systems|apps)\b", q)
+
+    if list_cue and noun_any:
+        return True
+    if whatare_cue:
+        return True
+    # Bare plural noun with "are there" / "in the graph" style
+    if noun_plural and re.search(r"\b(in the graph|are there|do we have|exist)\b", q):
+        return True
+    return False
+
+
+def _new_driver() -> Any:
+    from neo4j import AsyncGraphDatabase
+
+    from config.settings import get_settings
+
+    settings = get_settings()
+    return AsyncGraphDatabase.driver(
+        settings.neo4j_uri,
+        auth=(settings.neo4j_user, settings.neo4j_password),
+    )
+
+
+async def _list_endpoints(service: str) -> list[dict[str, Any]]:
+    """Open a Neo4j driver and return the service's EXPOSES endpoints."""
+    from retrieval.search.repo_graph import list_service_endpoints
+
+    driver = _new_driver()
+    try:
+        return await list_service_endpoints(driver, service)
+    finally:
+        await driver.close()
+
+
+# Matches an HTTP method + path in a question, e.g. "request body of POST /bookings"
+# or "/bookings/search request/response". Method is optional.
+_ENDPOINT_RE = re.compile(
+    r"\b(?:(GET|POST|PUT|PATCH|DELETE)\s+)?(/[A-Za-z0-9_\-/{}:.]+)",
+    re.IGNORECASE,
+)
+
+
+async def _get_endpoint_detail(
+    service: str, method: str | None, path: str
+) -> list[dict[str, Any]]:
+    """Fetch one endpoint's request/response schemas from the graph."""
+    from retrieval.search.repo_graph import get_endpoint
+
+    driver = _new_driver()
+    try:
+        return await get_endpoint(driver, method, path, service)
+    finally:
+        await driver.close()
+
+
+def _fmt_fields(fields: Any) -> str:
+    """Render a schema's field list as a small markdown table, or a note."""
+    if not fields or not isinstance(fields, list):
+        return "_No field-level schema captured._"
+    lines = ["| Field | Type | Required |", "|-------|------|----------|"]
+    for f in fields:
+        if not isinstance(f, dict):
+            continue
+        name = f.get("name", "—")
+        ftype = f.get("type", "—")
+        req = "yes" if f.get("required") else "no"
+        lines.append(f"| `{name}` | {ftype} | {req} |")
+    return "\n".join(lines) if len(lines) > 2 else "_No field-level schema captured._"
+
+
 # ---------------------------------------------------------------------------
 # LLM prompts for different strategies
 # ---------------------------------------------------------------------------
 
-_SINGLE_SERVICE_PROMPT = """You are the Engineering Memory Graph Assistant. You have deep knowledge of this organization's engineering systems.
+_SINGLE_SERVICE_PROMPT = """You are the TVS Engineering Memory Graph Assistant. You answer ONLY from the TVS engineering knowledge base, using ONLY the context provided in this request.
 
 You are answering a question about a SPECIFIC service. All context provided is from that service's documentation.
 
 RULES:
+- Use ONLY the provided context. NEVER use outside or general world knowledge. No trivia, no arithmetic, no general facts.
+- Answer from whatever relevant detail IS in the context. If some specific detail the user asked for is missing, answer what you can and state plainly which part is not in the retrieved context. Do NOT refuse outright when the context is about the right service.
 - Provide ALL information from the context — full description, tech stack, endpoints, dependencies, configuration.
 - Use markdown headings (## Overview, ## Tech Stack, ## API Endpoints, etc.) to organize.
 - Render API endpoints as GFM pipe tables (Method / Endpoint / Description).
 - Bold key terms. Use bullet points for lists.
 - NEVER FABRICATE. If it's not in the context, say so.
-- Cite sources using [ref:N] markers.
+- Cite ONLY chunks that directly support your statements using [ref:N] markers. Do not cite a chunk that does not support the answer.
 """
 
-_FLOW_SYNTHESIS_PROMPT = """You are the Engineering Memory Graph Assistant. You are explaining a CROSS-SERVICE FLOW.
+_FLOW_SYNTHESIS_PROMPT = """You are the TVS Engineering Memory Graph Assistant. You answer ONLY from the TVS engineering knowledge base, using ONLY the context provided. You are explaining a CROSS-SERVICE FLOW.
 
 The user wants to understand how multiple services work together to accomplish a task. The context is organized by service, in dependency order.
 
 RULES:
+- Use ONLY the provided context. NEVER use outside or general world knowledge.
+- Answer from whatever relevant detail IS in the context. If some integration detail is missing, state plainly which part is not documented rather than refusing outright.
 - Structure your answer as a SEQUENCE showing what happens at each service.
 - Include: what triggers the flow, what each service does (in order), what data passes between them.
 - Generate a Mermaid sequence diagram showing the service interactions.
 - Bold service names. Use numbered steps or a clear sequence.
 - NEVER FABRICATE connections or APIs not mentioned in the context.
-- Cite sources using [ref:N] markers.
+- Cite ONLY chunks that directly support your statements using [ref:N] markers.
 - If the integration details between services are not documented, say so explicitly.
 """
 
 _STRUCTURAL_TEMPLATE = """## {title}
 
 {content}
-
-*Source: Graph traversal from Neo4j (no LLM synthesis — these are direct relationships stored in the knowledge graph).*
 """
 
 
@@ -87,6 +185,18 @@ async def ask_orchestrated(question: str) -> dict[str, Any]:
     Returns:
         Dict with keys: answer, citations, metadata.
     """
+    # Meta-intent allow-list (greetings / capability) → canned scope reply with
+    # no retrieval and no citations. Keeps behaviour identical to the monolithic
+    # path regardless of DEFAULT_ASK_MODE.
+    from retrieval.search.scope_gate import META_REPLY, match_meta_intent
+
+    if match_meta_intent(question):
+        return {
+            "answer": META_REPLY,
+            "citations": [],
+            "metadata": {"mode": "orchestrated", "query_type": "meta"},
+        }
+
     # Get known services for classification
     try:
         known_services = await get_known_services()
@@ -95,6 +205,25 @@ async def ask_orchestrated(question: str) -> dict[str, Any]:
         result = await ask_monolithic(question)
         result["metadata"] = {"mode": "orchestrated", "query_type": "general", "fallback_reason": "service_list_unavailable"}
         return result
+
+    # "List all services / repositories" → answer from the complete graph list
+    # (all known services), not similarity search which only returns a partial
+    # set. Deterministic, exhaustive, no LLM.
+    if _is_list_all_services(question):
+        names = sorted(known_services)
+        lines = [f"There are **{len(names)}** services in the knowledge graph:\n"]
+        lines += [f"- {n}" for n in names]
+        return {
+            "answer": _STRUCTURAL_TEMPLATE.format(
+                title="All services", content="\n".join(lines)
+            ),
+            "citations": [],
+            "metadata": {
+                "mode": "orchestrated",
+                "query_type": "structural",
+                "service_count": len(names),
+            },
+        }
 
     # Classify the query
     classification = classify_query(question, known_services)
@@ -152,6 +281,109 @@ async def _handle_structural(
         return result
 
     q_lower = question.lower()
+
+    # Single-endpoint request/response → answer from the graph's stored schema
+    # for that exact method+path. Triggered when the question names a path and
+    # asks about request/response/body/payload/schema/params.
+    wants_detail = any(
+        w in q_lower
+        for w in ["request", "response", "body", "payload", "schema", "params", "parameter"]
+    )
+    path_match = _ENDPOINT_RE.search(question)
+    if wants_detail and path_match:
+        method = (path_match.group(1) or "").upper() or None
+        path = path_match.group(2)
+        rows = await _get_endpoint_detail(service, method, path)
+        if rows:
+            r = rows[0]
+            m = (r.get("method") or "").upper()
+            p = r.get("path") or path
+            parts = [f"### `{m} {p}`"]
+            if r.get("auth"):
+                parts.append(f"**Auth:** {r['auth']}")
+            # Request
+            req_name = r.get("request")
+            parts.append(f"\n**Request body**{f' — `{req_name}`' if req_name else ''}:\n")
+            parts.append(_fmt_fields(r.get("request_fields")))
+            # Responses
+            resp_schemas = r.get("response_schemas") or []
+            if resp_schemas:
+                for rs in resp_schemas:
+                    if not isinstance(rs, dict):
+                        continue
+                    status = rs.get("status")
+                    sname = rs.get("schema")
+                    hdr = "**Response"
+                    if status:
+                        hdr += f" ({status})"
+                    hdr += "**"
+                    if sname:
+                        hdr += f" — `{sname}`"
+                    parts.append(f"\n{hdr}:\n")
+                    parts.append(_fmt_fields(rs.get("fields")))
+            else:
+                parts.append("\n**Response:** _No response schema captured._")
+            answer = "\n".join(parts)
+            return {
+                "answer": _STRUCTURAL_TEMPLATE.format(
+                    title=f"{m} {p}", content=answer
+                ),
+                "citations": [],
+                "metadata": {
+                    "mode": "orchestrated",
+                    "query_type": "structural",
+                    "service": service,
+                    "endpoint": f"{m} {p}",
+                },
+            }
+        # Named a path but we couldn't resolve it → let normal search try.
+        result = await ask_monolithic(question)
+        result["metadata"] = {
+            "mode": "orchestrated",
+            "query_type": "structural",
+            "service": service,
+            "fallback_reason": "endpoint_not_resolved",
+        }
+        return result
+
+    # Endpoint / API listing → answer directly from the graph (EXPOSES), which
+    # is the authoritative, COMPLETE list. Vector retrieval only returns top-N
+    # similar chunks, so it under-reports "list all endpoints"; the graph does
+    # not. No LLM, no similarity cutoff.
+    if any(w in q_lower for w in ["endpoint", "api", "apis", "routes", "route"]):
+        endpoints = await _list_endpoints(service)
+        if endpoints:
+            lines = [f"**{service}** exposes {len(endpoints)} HTTP endpoint(s):\n"]
+            lines.append("| Method | Path | Auth |")
+            lines.append("|--------|------|------|")
+            for e in endpoints:
+                method = (e.get("method") or "").upper() or "—"
+                path = e.get("path") or "—"
+                auth = e.get("auth") or "—"
+                lines.append(f"| {method} | `{path}` | {auth} |")
+            answer = "\n".join(lines)
+            title = f"Endpoints of {service}"
+            return {
+                "answer": _STRUCTURAL_TEMPLATE.format(title=title, content=answer),
+                "citations": [],
+                "metadata": {
+                    "mode": "orchestrated",
+                    "query_type": "structural",
+                    "service": service,
+                    "endpoint_count": len(endpoints),
+                    "latency_note": "graph-only, no LLM",
+                },
+            }
+        # No endpoints in the graph for this service → fall through to the
+        # normal single-service search so the user still gets something.
+        result = await ask_monolithic(question)
+        result["metadata"] = {
+            "mode": "orchestrated",
+            "query_type": "structural",
+            "service": service,
+            "fallback_reason": "no_endpoints_in_graph",
+        }
+        return result
 
     # Determine what structural info they want
     if any(w in q_lower for w in ["depends on", "dependencies", "upstream", "uses", "calls"]):

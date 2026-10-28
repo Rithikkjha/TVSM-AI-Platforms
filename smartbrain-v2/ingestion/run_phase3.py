@@ -95,32 +95,8 @@ async def run_phase3(ticket_limit: int = 100, verbose: bool = False) -> None:
         flush=True,
     )
 
-    # --- Load steering docs from disk ---
-    steering_dir = Path("kiro_steering")
+    # Steering docs were removed in Phase 8 (service docs now come from repo_docs).
     steering_docs: list[dict[str, Any]] = []
-
-    if steering_dir.exists():
-        repo_dirs = sorted(
-            d for d in steering_dir.iterdir()
-            if d.is_dir() and any(d.glob("*.md"))
-        )
-        for repo_dir in repo_dirs:
-            repo_name = repo_dir.name
-            for file_type in _STEERING_FILE_TYPES:
-                md_file = repo_dir / f"{file_type}.md"
-                if not md_file.exists():
-                    continue
-                content = md_file.read_text(encoding="utf-8")
-                if not content.strip():
-                    continue
-                steering_docs.append({
-                    "service_name": repo_name,
-                    "service_source_id": f"service:{repo_name}",
-                    "page_source_id": f"steering:{repo_name}:{file_type}",
-                    "steering_text": content,
-                })
-
-    print(f"   Loaded {len(steering_docs)} steering docs from disk", flush=True)
 
     # --- Fetch Jira tickets (limited) ---
     jira_tickets: list[dict[str, Any]] = []

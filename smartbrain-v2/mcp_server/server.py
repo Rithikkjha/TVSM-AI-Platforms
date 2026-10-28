@@ -159,9 +159,18 @@ async def search(query: str, repo_filter: str = "", doc_type: str = "", limit: i
     import json
     from retrieval.search.primitives import search as _search
 
+    from retrieval.search.entity_linker import resolve_name
+
+    repo_filter = repo_filter.strip()
+    if repo_filter:
+        resolved, candidates = resolve_name(repo_filter)
+        if resolved is None and len(candidates) > 1:
+            return json.dumps({"error": "ambiguous", "candidates": candidates})
+        repo_filter = resolved or repo_filter
+
     chunks = await _search(
         query=query,
-        repo_filter=repo_filter.strip() or None,
+        repo_filter=repo_filter or None,
         doc_type=doc_type.strip() or None,
         limit=min(limit, 10),
     )
@@ -248,6 +257,102 @@ async def get_impact(name: str) -> str:
     if result.get("error"):
         return f"Error: {result.get('message', result['error'])}"
     return json.dumps(result, indent=2, default=str)
+
+
+# ---------------------------------------------------------------------------
+# repo_docs graph tools (Phase 8) — fixed Cypher over the registry graph.
+# Every service/topic argument goes through the entity resolver.
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def get_dependencies(service: str, hops: int = 1) -> str:
+    """What a service depends on (calls), with edge kinds and evidence.
+
+    Args:
+        service: Service id, repo name or alias (e.g. "booking service").
+        hops: Traversal depth (1-4, default 1).
+    """
+    from mcp_server.tools.repo_graph import dependencies
+
+    return await dependencies(service, hops)
+
+
+@mcp.tool()
+async def get_dependents(service: str, hops: int = 2) -> str:
+    """Blast radius: services that depend on this service (transitively).
+
+    Args:
+        service: Service id, repo name or alias (e.g. "tvsm-auth").
+        hops: Traversal depth (1-4, default 2).
+    """
+    from mcp_server.tools.repo_graph import dependents
+
+    return await dependents(service, hops)
+
+
+@mcp.tool()
+async def who_publishes(topic: str) -> str:
+    """Services that publish to a topic/queue (e.g. "lead", "mdp.dealer_data")."""
+    from mcp_server.tools.repo_graph import publishers
+
+    return await publishers(topic)
+
+
+@mcp.tool()
+async def who_subscribes(topic: str) -> str:
+    """Services that subscribe to a topic/queue, with subscription names."""
+    from mcp_server.tools.repo_graph import subscribers
+
+    return await subscribers(topic)
+
+
+@mcp.tool()
+async def get_flows(service: str) -> str:
+    """End-to-end flows (steps) that a service takes part in.
+
+    Args:
+        service: Service id, repo name or alias (e.g. "location-frontend").
+    """
+    from mcp_server.tools.repo_graph import flows
+
+    return await flows(service)
+
+
+@mcp.tool()
+async def get_endpoint(path: str, method: str = "", service: str = "") -> str:
+    """Request/response contract of an endpoint: params, request DTO fields, responses.
+
+    Args:
+        path: Endpoint path, e.g. "/bookings" or "/bookings/{id}".
+        method: Optional HTTP method (GET/POST/...).
+        service: Optional service id / alias to narrow the lookup.
+    """
+    from mcp_server.tools.repo_graph import endpoint
+
+    return await endpoint(path, method, service)
+
+
+@mcp.tool()
+async def get_config_keys(service: str) -> str:
+    """Config key NAMES a service reads (with secret/required flags). Never values."""
+    from mcp_server.tools.repo_graph import config_keys
+
+    return await config_keys(service)
+
+
+@mcp.tool()
+async def get_service_tickets(service: str, min_confidence: str = "low", limit: int = 50) -> str:
+    """Jira tickets linked to a service, with link confidence, matched terms and hits.
+
+    Args:
+        service: Service id, repo name or alias (e.g. "booking service").
+        min_confidence: "high", "medium" or "low" (default, all links).
+        limit: Max tickets (1-200, default 50), strongest links first.
+    """
+    from mcp_server.tools.repo_graph import service_tickets
+
+    return await service_tickets(service, min_confidence, limit)
 
 
 # ---------------------------------------------------------------------------

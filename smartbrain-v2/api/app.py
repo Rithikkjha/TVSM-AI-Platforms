@@ -13,20 +13,23 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Any
 
+from config.settings import get_settings
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 from fastapi.staticfiles import StaticFiles
 
-from config.settings import get_settings
+# MCP server (stateless Streamable HTTP) — mounted at /mcp on this same app.
+from mcp_server.server import mcp
 from retrieval.search.ask_pipeline import router as ask_router
 from retrieval.search.freshness import get_freshness_summary
 from retrieval.search.semantic_search import router as search_router
 from retrieval.search.services import router as services_router
+from starlette.middleware.sessions import SessionMiddleware
 
-# MCP server (stateless Streamable HTTP) — mounted at /mcp on this same app.
-from mcp_server.server import mcp
+from api.auth import ChatbotLoginGateMiddleware, require_login
+from api.auth import router as auth_router
 
 logger = logging.getLogger(__name__)
 
@@ -57,15 +60,55 @@ async def verify_api_key(
 
     Compares the provided key against ``settings.api_key``. Returns the
     key value on success (useful for logging). Raises 401 if missing or
-    invalid.
+    invalid. Skipped entirely unless ``settings.require_api_key`` is True.
     """
     settings = get_settings()
+    if not settings.require_api_key:
+        return x_api_key or ""
     if not x_api_key or x_api_key != settings.api_key:
         raise HTTPException(
             status_code=401,
             detail={"error": "unauthorized", "message": "Invalid or missing API key"},
         )
     return x_api_key
+
+
+# ---------------------------------------------------------------------------
+# SSO / login fail-fast configuration check
+# ---------------------------------------------------------------------------
+
+
+def _check_login_config() -> None:
+    """Fail fast at startup if login is required but misconfigured.
+
+    When ``require_login`` is True we need the Azure app-registration values
+    and a session secret. Booting without them would produce an endless
+    redirect loop or an insecure (unsigned) session, so raise a clear error
+    naming the missing env var(s) instead.
+    """
+    settings = get_settings()
+    if not settings.require_login:
+        return
+
+    missing: list[str] = []
+    if not settings.azure_tenant_id:
+        missing.append("AZURE_TENANT_ID")
+    if not settings.azure_client_id:
+        missing.append("AZURE_CLIENT_ID")
+    if not settings.azure_client_secret:
+        missing.append("AZURE_CLIENT_SECRET")
+    if not settings.session_secret:
+        missing.append("SESSION_SECRET")
+
+    if missing:
+        raise RuntimeError(
+            "Login is required (REQUIRE_LOGIN defaults ON) but these env vars "
+            f"are missing/empty: {', '.join(missing)}. Set them in .env, or set "
+            "REQUIRE_LOGIN=false to disable login (not recommended for prod)."
+        )
+
+
+_check_login_config()
 
 
 # ---------------------------------------------------------------------------
@@ -80,6 +123,25 @@ app = FastAPI(
         "a knowledge graph built from GitHub, Jira, and Confluence data."
     ),
     lifespan=lifespan,
+)
+
+# Chatbot UI login gate. Added BEFORE SessionMiddleware so that
+# SessionMiddleware wraps it (Starlette runs the LAST-added middleware
+# outermost) and request.session is populated when the gate runs.
+app.add_middleware(ChatbotLoginGateMiddleware)
+
+# Session middleware — signs the login session cookie with SESSION_SECRET.
+# Required for the SSO auth-code flow (stores PKCE/state + the user dict).
+# https_only + same_site=lax are safe behind the TLS-terminating nginx proxy.
+# The secret may be empty only when login is disabled (fail-fast above would
+# have raised otherwise); fall back to the api_key so SessionMiddleware still
+# has a non-empty key for the login-disabled case.
+_session_secret = get_settings().session_secret or get_settings().api_key
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=_session_secret,
+    https_only=True,
+    same_site="lax",
 )
 
 # CORS middleware — allow all origins for V1 internal pilot
@@ -183,23 +245,18 @@ async def health() -> dict[str, Any]:
     }
 
 
-# Authenticated V1 router for query endpoints
+# Authenticated V1 router for query endpoints.
+# Two independent gates: SSO login (require_login) and the legacy X-API-Key
+# (verify_api_key). With defaults, login is required and the API key is not.
 v1_authenticated_router = APIRouter(
     prefix="/v1",
     tags=["v1"],
-    dependencies=[Depends(verify_api_key)],
+    dependencies=[Depends(require_login), Depends(verify_api_key)],
 )
 
 
-# Placeholder authenticated endpoint for testing — will be replaced by real
-# query endpoints in subsequent tasks.
-@v1_authenticated_router.get("/services")
-async def list_services() -> dict[str, Any]:
-    """Placeholder for the services listing endpoint."""
-    return {"services": []}
-
-
 # Include routers
+app.include_router(auth_router)  # /auth/login, /auth/callback, /auth/logout, /auth/me
 app.include_router(v1_router)
 v1_authenticated_router.include_router(services_router)
 v1_authenticated_router.include_router(search_router)
@@ -212,7 +269,7 @@ app.include_router(v1_authenticated_router)
 # ---------------------------------------------------------------------------
 
 
-@app.post("/v1/search", dependencies=[Depends(verify_api_key)])
+@app.post("/v1/search", dependencies=[Depends(require_login), Depends(verify_api_key)])
 async def primitive_search_endpoint(body: dict[str, Any]) -> dict[str, Any]:
     """POST /v1/search — Raw hybrid search primitive (no LLM synthesis).
 
@@ -242,7 +299,7 @@ async def primitive_search_endpoint(body: dict[str, Any]) -> dict[str, Any]:
     return {"chunks": chunks, "count": len(chunks)}
 
 
-@app.get("/v1/graph/chain", dependencies=[Depends(verify_api_key)])
+@app.get("/v1/graph/chain", dependencies=[Depends(require_login), Depends(verify_api_key)])
 async def graph_chain_endpoint(
     service: str = Query(..., description="Service name"),
     direction: str = Query(default="downstream", description="downstream|upstream|both"),
@@ -278,92 +335,6 @@ app.mount("/mcp", mcp_app, name="mcp")
 # ---------------------------------------------------------------------------
 
 app.mount("/chatbot", StaticFiles(directory="ui", html=True), name="chatbot")
-
-
-# ---------------------------------------------------------------------------
-# Steering Update Webhook
-# ---------------------------------------------------------------------------
-
-
-@app.post("/webhooks/steering-update")
-async def steering_update_webhook(body: dict[str, Any]) -> JSONResponse:
-    """Receive a steering update trigger from GitHub Actions.
-
-    Expected body:
-        {"repo": "booking-crud-services", "pr_number": 42}
-
-    Runs the full pipeline: filter → classify → patch → save → ingest.
-    Returns the result summary.
-    """
-    import asyncio
-    from ingestion.steering.steering_updater import update_steering_from_pr
-
-    repo = body.get("repo", "")
-    pr_number = body.get("pr_number", 0)
-    org = body.get("org", "TVSM-CS")
-
-    if not repo or not pr_number:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "bad_request", "message": "repo and pr_number are required"},
-        )
-
-    try:
-        result = await update_steering_from_pr(org, repo, pr_number)
-        return JSONResponse(status_code=200, content=result)
-    except Exception as exc:
-        logger.error("Steering update failed for %s PR #%d: %s", repo, pr_number, exc)
-        return JSONResponse(
-            status_code=500,
-            content={"error": "internal_error", "message": str(exc)},
-        )
-
-
-@app.post("/v1/steering/batch-update")
-async def steering_batch_update_api(
-    body: dict[str, Any] | None = None,
-    _key: str = Depends(verify_api_key),
-) -> JSONResponse:
-    """Trigger a batch steering update across all repos (or a single repo).
-
-    Scans for recently merged PRs, filters for meaningful changes,
-    patches steering files, and updates the knowledge graph.
-
-    Optional body:
-        {
-            "days": 7,          // look back N days (default: 7)
-            "max_prs": 2,       // max PRs per repo (default: 2)
-            "repo": null,       // single repo filter (default: all repos)
-            "dry_run": false    // filter only, don't patch (default: false)
-        }
-
-    After completion, MCP tools immediately serve the updated data.
-    Audit log written to logs/steering_update_audit.jsonl.
-    """
-    from ingestion.steering.steering_batch_update import run_batch_update
-
-    if body is None:
-        body = {}
-
-    days = body.get("days", 7)
-    max_prs = body.get("max_prs", 2)
-    repo_filter = body.get("repo", None)
-    dry_run = body.get("dry_run", False)
-
-    try:
-        result = await run_batch_update(
-            days=days,
-            max_prs=max_prs,
-            repo_filter=repo_filter,
-            dry_run=dry_run,
-        )
-        return JSONResponse(status_code=200, content=result)
-    except Exception as exc:
-        logger.error("Batch steering update failed: %s", exc)
-        return JSONResponse(
-            status_code=500,
-            content={"error": "internal_error", "message": str(exc)},
-        )
 
 
 # Startup / shutdown are handled by the `lifespan` context above (which also

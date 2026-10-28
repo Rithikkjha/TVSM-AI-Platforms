@@ -1,0 +1,34 @@
+# repo_docs org configuration. One entry per GitHub org; each org has its OWN token file + key.
+# Token files must be gitignored (e.g. smartbrain-v2/.env is ignored by the repo root .gitignore).
+# Paths are relative to the repo_docs/ root unless absolute.
+schema_version: 1
+defaults:
+  workers: 5
+  max_retries: 4            # attempts after the first failure; backoff 2,4,8,16s (+jitter)
+  max_file_bytes: 1000000   # phase-1: files larger than this are skipped:large
+  clone_depth: 1
+orgs:
+  - name: TVS-CS
+    enabled: true
+    token_env_file: ../.env
+    token_key: GITHUB_TOKEN
+    api_base: https://api.github.com
+    git_base: https://github.com
+    include: ["*"]                       # fnmatch on repo name
+    exclude: []
+    include_archived: true
+    allowlist: config/repos/TVS-CS.txt   # optional; only these repos are registered
+    service_id_overrides: {}             # optional {RepoName: service-id}
+    self_repos: [tvsm-brain]             # repos that are SmartBrain itself -> self: true
+  - name: TVSM-DMS
+    enabled: false   # token cannot see this org yet; LMS repos were found in TVS-CS instead
+    token_env_file: ../.env.tvsm-dms      # classic PAT, gitignored (.env.*)
+    token_key: GITHUB_TOKEN_TVSM_DMS
+    api_base: https://api.github.com
+    git_base: https://github.com
+    include: ["*"]
+    exclude: []
+    include_archived: true
+    allowlist: config/repos/TVSM-DMS.txt
+    service_id_overrides: {}
+    self_repos: []

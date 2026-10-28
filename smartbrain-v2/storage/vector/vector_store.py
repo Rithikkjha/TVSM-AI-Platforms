@@ -133,6 +133,13 @@ class VectorRecord:
     chunk_index: int | None = None
     source_ref: str | None = None
     is_duplicate: bool = False
+    # repo_docs chunk fields (Phase 8). Optional; only written to the Qdrant
+    # payload when set, so legacy records keep their exact payload shape.
+    service_id: str | None = None
+    domain: str | None = None
+    aliases: tuple[str, ...] | None = None
+    section: str | None = None
+    origin: str | None = None
 
     def __post_init__(self) -> None:
         if not self.source_id:
@@ -667,24 +674,36 @@ class QdrantVectorStore(VectorStore):
         )
 
     @staticmethod
+    def _record_payload(record: VectorRecord) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "source_id": record.source_id,
+            "entity_type": record.entity_type,
+            "text_hash": record.text_hash,
+            "created_at": record.created_at,
+            # V2 chunk metadata (``None``/``False`` for legacy vectors).
+            "section_title": record.section_title,
+            "repo_name": record.repo_name,
+            "doc_type": record.doc_type,
+            "parent_source_id": record.parent_source_id,
+            "chunk_index": record.chunk_index,
+            "source_ref": record.source_ref,
+            "is_duplicate": record.is_duplicate,
+        }
+        # repo_docs fields: only present when set.
+        for key in ("service_id", "domain", "section", "origin"):
+            value = getattr(record, key)
+            if value is not None:
+                payload[key] = value
+        if record.aliases is not None:
+            payload["aliases"] = list(record.aliases)
+        return payload
+
+    @staticmethod
     def _record_to_point(record: VectorRecord) -> dict[str, Any]:
         return {
             "id": QdrantVectorStore._point_id_for(record.source_id),
             "vector": list(record.vector),
-            "payload": {
-                "source_id": record.source_id,
-                "entity_type": record.entity_type,
-                "text_hash": record.text_hash,
-                "created_at": record.created_at,
-                # V2 chunk metadata (``None``/``False`` for legacy vectors).
-                "section_title": record.section_title,
-                "repo_name": record.repo_name,
-                "doc_type": record.doc_type,
-                "parent_source_id": record.parent_source_id,
-                "chunk_index": record.chunk_index,
-                "source_ref": record.source_ref,
-                "is_duplicate": record.is_duplicate,
-            },
+            "payload": QdrantVectorStore._record_payload(record),
         }
 
     async def _request(
@@ -822,6 +841,116 @@ class QdrantVectorStore(VectorStore):
             "POST",
             f"/collections/{self._collection_name}/points/delete",
             json={"points": [self._point_id_for(source_id)]},
+        )
+        resp.raise_for_status()
+
+    # -- point-level helpers (Phase 8 repo_docs ingest / steering purge) --
+
+    async def retrieve_payloads(
+        self, source_ids: list[str], *, batch: int = 512
+    ) -> dict[str, dict[str, Any]]:
+        """Return ``{source_id: payload}`` for the points that exist (no vectors)."""
+
+        found: dict[str, dict[str, Any]] = {}
+        for i in range(0, len(source_ids), batch):
+            ids = [self._point_id_for(s) for s in source_ids[i : i + batch]]
+            resp = await self._request(
+                "POST",
+                f"/collections/{self._collection_name}/points",
+                json={"ids": ids, "with_payload": True, "with_vector": False},
+            )
+            resp.raise_for_status()
+            for raw in resp.json().get("result", []):
+                payload = raw.get("payload") or {}
+                sid = payload.get("source_id")
+                if sid:
+                    found[str(sid)] = payload
+        return found
+
+    async def scroll(
+        self,
+        qdrant_filter: dict[str, Any] | None,
+        *,
+        with_payload: bool | list[str] = True,
+        page: int = 1000,
+    ) -> list[dict[str, Any]]:
+        """Return every point (``{"id", "payload"}``) matching a raw Qdrant filter."""
+
+        points: list[dict[str, Any]] = []
+        offset: Any = None
+        while True:
+            body: dict[str, Any] = {
+                "limit": page,
+                "with_payload": with_payload,
+                "with_vector": False,
+            }
+            if qdrant_filter:
+                body["filter"] = qdrant_filter
+            if offset is not None:
+                body["offset"] = offset
+            resp = await self._request(
+                "POST",
+                f"/collections/{self._collection_name}/points/scroll",
+                json=body,
+            )
+            resp.raise_for_status()
+            result = resp.json().get("result", {})
+            points.extend(result.get("points", []))
+            offset = result.get("next_page_offset")
+            if offset is None:
+                return points
+
+    async def count(self, qdrant_filter: dict[str, Any] | None = None) -> int:
+        body: dict[str, Any] = {"exact": True}
+        if qdrant_filter:
+            body["filter"] = qdrant_filter
+        resp = await self._request(
+            "POST", f"/collections/{self._collection_name}/points/count", json=body
+        )
+        resp.raise_for_status()
+        return int(resp.json().get("result", {}).get("count", 0))
+
+    async def set_payload(
+        self, point_ids: list[str], payload: dict[str, Any], *, batch: int = 1000
+    ) -> None:
+        """Merge ``payload`` keys into existing points (vectors untouched)."""
+
+        for i in range(0, len(point_ids), batch):
+            resp = await self._request(
+                "POST",
+                f"/collections/{self._collection_name}/points/payload?wait=true",
+                json={"payload": payload, "points": point_ids[i : i + batch]},
+            )
+            resp.raise_for_status()
+
+    async def delete_payload_keys(
+        self, keys: list[str], qdrant_filter: dict[str, Any]
+    ) -> None:
+        """Remove payload ``keys`` from every point matching ``qdrant_filter``."""
+
+        resp = await self._request(
+            "POST",
+            f"/collections/{self._collection_name}/points/payload/delete?wait=true",
+            json={"keys": keys, "filter": qdrant_filter},
+        )
+        resp.raise_for_status()
+
+    async def delete_points(self, point_ids: list[str], *, batch: int = 1000) -> None:
+        for i in range(0, len(point_ids), batch):
+            resp = await self._request(
+                "POST",
+                f"/collections/{self._collection_name}/points/delete?wait=true",
+                json={"points": point_ids[i : i + batch]},
+            )
+            resp.raise_for_status()
+
+    async def create_keyword_index(self, field: str) -> None:
+        """Create a keyword payload index (idempotent on the Qdrant side)."""
+
+        resp = await self._request(
+            "PUT",
+            f"/collections/{self._collection_name}/index?wait=true",
+            json={"field_name": field, "field_schema": "keyword"},
         )
         resp.raise_for_status()
 

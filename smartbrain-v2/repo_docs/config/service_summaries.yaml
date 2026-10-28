@@ -1,0 +1,418 @@
+# One-line summary + business domain per service (user-editable; survives regeneration).
+# Written once from OVERVIEW.md Purpose/Key Capabilities, README and service.yaml; set
+# source: manual when you edit an entry. Read by `repo_docs generate` (service.yaml
+# summary/domain + OVERVIEW.md Purpose).
+appointment-booking-service:
+  based_on:
+  - output/TVS-CS/appointment-booking-service/OVERVIEW.md
+  - output/TVS-CS/appointment-booking-service/service.yaml
+  - repos/TVS-CS/appointment-booking-service/README.md
+  domain: booking
+  source: inferred
+  summary: Backend API that lets customers schedule and manage vehicle service appointment requests online
+    for dealerships and service centres, with appointment and vehicle endpoints.
+async-communication-service:
+  based_on:
+  - output/TVS-CS/async-communication-service/OVERVIEW.md
+  - output/TVS-CS/async-communication-service/service.yaml
+  - repos/TVS-CS/async-communication-service/README.md
+  domain: integration
+  source: inferred
+  summary: Node backend that consumes one messaging entity and forwards payloads to Salesforce, with two
+    daily node-cron jobs; README is a placeholder, so exact business purpose is unclear.
+booking-crud-services:
+  based_on:
+  - output/TVS-CS/booking-crud-services/OVERVIEW.md
+  - output/TVS-CS/booking-crud-services/service.yaml
+  - repos/TVS-CS/booking-crud-services/README.md
+  domain: booking
+  source: inferred
+  summary: Centralised Booking Service (NestJS) managing vehicle bookings across TVS platforms and third
+    parties via 13 booking endpoints, Azure Service Bus events and Juspay payments.
+bs2-0-backend-integration:
+  based_on:
+  - output/TVS-CS/bs2-0-backend-integration/OVERVIEW.md
+  - output/TVS-CS/bs2-0-backend-integration/service.yaml
+  domain: booking
+  source: inferred
+  summary: .NET backend exposing dealer-dashboard, bookings, booking-export and SAP endpoints, consuming
+    a booking topic; no README, so business context beyond endpoint names is unclear.
+bto-api:
+  based_on:
+  - output/TVS-CS/bto-api/OVERVIEW.md
+  - output/TVS-CS/bto-api/service.yaml
+  - repos/TVS-CS/bto_api/README.md
+  domain: booking
+  source: inferred
+  summary: NestJS API with booking info, bookings, reports and sign-in/sign-up endpoints; README is the
+    default Nest template, so the BTO business purpose is not documented.
+catalog-microservice-backend-for-frontend-layer:
+  based_on:
+  - output/TVS-CS/catalog-microservice-backend-for-frontend-layer/OVERVIEW.md
+  - output/TVS-CS/catalog-microservice-backend-for-frontend-layer/service.yaml
+  - repos/TVS-CS/Catalog-Microservice-Backend-for-Frontend-Layer/README.md
+  domain: catalogue
+  source: inferred
+  summary: Node BFF exposing a catalogue endpoint plus health check, forwarding requests to core-commerce-platform-api-service
+    catalog configuration APIs.
+catalog-scheduler:
+  based_on:
+  - output/TVS-CS/catalog-scheduler/OVERVIEW.md
+  - output/TVS-CS/catalog-scheduler/service.yaml
+  - repos/TVS-CS/Catalog-Scheduler/README.md
+  domain: catalogue
+  source: inferred
+  summary: Timer-triggered jobs that ingest product prices and merchandise/accessories into the catalogue,
+    calling core-commerce-platform-api-service and the price engine and publishing one message.
+cbs-admin-portal:
+  based_on:
+  - output/TVS-CS/cbs-admin-portal/OVERVIEW.md
+  - output/TVS-CS/cbs-admin-portal/service.yaml
+  - repos/TVS-CS/cbs-admin-portal/README.md
+  domain: lead-management
+  source: inferred
+  summary: React admin SPA for managing Lead Service (LMS) configurations through a draft, validate and
+    publish workflow with audit logging; calls booking, MDP BFF and QR-code backends.
+core-commerce-platform-api-service:
+  based_on:
+  - output/TVS-CS/core-commerce-platform-api-service/OVERVIEW.md
+  - output/TVS-CS/core-commerce-platform-api-service/service.yaml
+  - repos/TVS-CS/Core-Commerce-Platform-API-Service/README.md
+  domain: catalogue
+  source: inferred
+  summary: Node catalogue API serving catalogs, catalog configs, cache control, Shopify products and vehicle
+    accessories; README is a starter-kit template.
+core-commerce-platform-api-service-testng:
+  based_on:
+  - output/TVS-CS/core-commerce-platform-api-service-testng/OVERVIEW.md
+  - output/TVS-CS/core-commerce-platform-api-service-testng/service.yaml
+  domain: testing
+  source: inferred
+  summary: Java TestNG API automation suite (Catalog_TVS_APIAutomation) for the catalogue/core commerce
+    APIs; no README or runtime endpoints.
+form-builder:
+  based_on:
+  - output/TVS-CS/form-builder/OVERVIEW.md
+  - output/TVS-CS/form-builder/service.yaml
+  - repos/TVS-CS/FormBuilder/README.md
+  domain: checklist-forms
+  source: inferred
+  summary: Next.js Checklist Form Builder app, based on SurveyJS, with admin APIs for forms, users and
+    clients and Firebase integration.
+job-card-service:
+  based_on:
+  - output/TVS-CS/job-card-service/OVERVIEW.md
+  - output/TVS-CS/job-card-service/service.yaml
+  - repos/TVS-CS/job-card-service/README.md
+  domain: service-jobcards
+  source: inferred
+  summary: .NET Job Card Service managing creation, tracking and updating of vehicle-service job cards,
+    labour, auto-labour, AMC and parts endpoints.
+lead-booking-crud-services-testing:
+  based_on:
+  - output/TVS-CS/lead-booking-crud-services-testing/OVERVIEW.md
+  - output/TVS-CS/lead-booking-crud-services-testing/service.yaml
+  domain: testing
+  source: inferred
+  summary: Java API automation test suite (TVSAPIAutomation) for lead/booking CRUD services; no README
+    or runtime endpoints.
+location-frontend:
+  based_on:
+  - output/TVS-CS/location-frontend/OVERVIEW.md
+  - output/TVS-CS/location-frontend/service.yaml
+  - repos/TVS-CS/location-frontend/README.md
+  domain: location
+  source: inferred
+  summary: React frontend for dealer location administration, calling tvsmbe-location dealer, contacts,
+    summary and rejection-comment APIs and Google Maps; README is the CRA template.
+lms:
+  based_on:
+  - output/TVS-CS/lms/OVERVIEW.md
+  - output/TVS-CS/lms/service.yaml
+  - repos/TVS-CS/lms/readme.md
+  domain: lead-management
+  source: inferred
+  summary: Lead Management System acquisition API (.NET) that receives, validates, de-duplicates and stores
+    leads (incl. B2B webhooks) and publishes them to Azure Service Bus for the LMS workers.
+lms-crm:
+  based_on:
+  - output/TVS-CS/lms-crm/OVERVIEW.md
+  - output/TVS-CS/lms-crm/service.yaml
+  domain: lead-management
+  source: inferred
+  summary: LMS CRM worker (.NET) consuming topic lms/CRM and pushing leads to CRM, dialer, Rezo and
+    Salesforce CCP endpoints chosen by lead-flow configuration; no README.
+lms-ems:
+  based_on:
+  - output/TVS-CS/lms-ems/OVERVIEW.md
+  - output/TVS-CS/lms-ems/service.yaml
+  - repos/TVS-CS/lms_ems/readme.md
+  domain: lead-management
+  source: inferred
+  summary: LMS EMS worker (.NET) consuming topic lms/EMS, pushing leads to the EMS API and re-publishing
+    CRM fallback, delayed retry and dealer-retry messages to the same topic.
+lms-process:
+  based_on:
+  - output/TVS-CS/lms-process/OVERVIEW.md
+  - output/TVS-CS/lms-process/service.yaml
+  domain: lead-management
+  source: inferred
+  summary: LMS lead-processing worker (.NET) consuming topic lms/PROCESS, allocating dealers and routing
+    leads to FINANCE/CRM/EMS; also syncs dealers from master-data-platform mdp.dealer_data.
+lms-tvs-credit:
+  based_on:
+  - output/TVS-CS/lms-tvs-credit/OVERVIEW.md
+  - output/TVS-CS/lms-tvs-credit/service.yaml
+  - repos/TVS-CS/lms_tvs_credit/lms_tvs_credit/Readme.md
+  domain: lead-management
+  source: inferred
+  summary: LMS finance worker (.NET) consuming topic lms/FINANCE, mapping dealers to TVS Credit codes and
+    pushing finance leads to the TVS Credit lead API.
+master-data-platform:
+  based_on:
+  - output/TVS-CS/master-data-platform/OVERVIEW.md
+  - output/TVS-CS/master-data-platform/service.yaml
+  - repos/TVS-CS/master-data-platform/README.md
+  domain: dealer-master-data
+  source: inferred
+  summary: Spring Boot master data platform (MDP) holding dealer, product, part and vehicle price data
+    ingested from SAP/SharePoint/DMS, served over HTTP and Service Bus topics.
+master-data-platform-frontend:
+  based_on:
+  - output/TVS-CS/master-data-platform-frontend/OVERVIEW.md
+  - output/TVS-CS/master-data-platform-frontend/service.yaml
+  - repos/TVS-CS/master-data-platform-frontend/README.md
+  domain: dealer-master-data
+  source: inferred
+  summary: React frontend for the master data platform; README is the CRA template and no backend calls
+    were extracted, so its features are unclear.
+notification-dispatcher-service:
+  based_on:
+  - output/TVS-CS/notification-dispatcher-service/OVERVIEW.md
+  - output/TVS-CS/notification-dispatcher-service/service.yaml
+  - repos/TVS-CS/notification-dispatcher-service/README.md
+  domain: notifications
+  source: inferred
+  summary: Spring Boot dispatcher consuming a notifications messaging entity and sending push (Firebase),
+    email and SMS via providers, with a Salesforce token refresh endpoint.
+notification-service:
+  based_on:
+  - output/TVS-CS/notification-service/OVERVIEW.md
+  - output/TVS-CS/notification-service/service.yaml
+  - repos/TVS-CS/notification-service/README.md
+  domain: notifications
+  source: inferred
+  summary: TVS Motor Notification Service handling SMS, email and WhatsApp notifications via Infobip and
+    Salesforce, with templates, user and retry preferences.
+parts-catalogue-ingestion-service:
+  based_on:
+  - output/TVS-CS/parts-catalogue-ingestion-service/OVERVIEW.md
+  - output/TVS-CS/parts-catalogue-ingestion-service/service.yaml
+  - repos/TVS-CS/Parts-Catalogue-Ingestion-Service/README.md
+  domain: parts-catalogue
+  source: inferred
+  summary: Spring Boot service ingesting parts catalogue data from external APIs into NebulaGraph and
+    OpenSearch; no HTTP endpoints or jobs were extracted.
+parts-catalogue-service:
+  based_on:
+  - output/TVS-CS/parts-catalogue-service/OVERVIEW.md
+  - output/TVS-CS/parts-catalogue-service/service.yaml
+  - repos/TVS-CS/Parts-Catalogue-Service/README.md
+  domain: parts-catalogue
+  source: inferred
+  summary: Spring Boot Product Catalogue Service serving product catalogues, parts and hierarchical relationships
+    from NebulaGraph with OpenSearch full-text search.
+payment-service-4fa0ce:
+  based_on:
+  - output/TVS-CS/payment-service-4fa0ce/OVERVIEW.md
+  - output/TVS-CS/payment-service-4fa0ce/service.yaml
+  - repos/TVS-CS/PaymentService/README.md
+  domain: payments
+  source: inferred
+  summary: .NET function app that consumes a Juspay payment message and calls the Juspay payment gateway;
+    README gives only the title.
+price-engine-frontend:
+  based_on:
+  - output/TVS-CS/price-engine-frontend/OVERVIEW.md
+  - output/TVS-CS/price-engine-frontend/service.yaml
+  - repos/TVS-CS/Price-Engine-Frontend/README.md
+  domain: pricing
+  source: inferred
+  summary: Frontend for the price engine calling on-road price and price-component APIs; README is a placeholder.
+price-engine-micro-service-backend:
+  based_on:
+  - output/TVS-CS/price-engine-micro-service-backend/OVERVIEW.md
+  - output/TVS-CS/price-engine-micro-service-backend/service.yaml
+  - repos/TVS-CS/Price-Engine-MicroService-Backend/README.md
+  domain: pricing
+  source: inferred
+  summary: Node PriceEngine backend computing on-road prices, product price components and regions, calling
+    master-data-platform and publishing one message.
+price-microservice-backend-for-frontend-layer:
+  based_on:
+  - output/TVS-CS/price-microservice-backend-for-frontend-layer/OVERVIEW.md
+  - output/TVS-CS/price-microservice-backend-for-frontend-layer/service.yaml
+  - repos/TVS-CS/Price-Microservice-Backend-for-Frontend-Layer/README.md
+  domain: pricing
+  source: inferred
+  summary: Node BFF exposing on-road price, price-component, region and product endpoints for frontends;
+    README is a placeholder.
+qrcode-frontend:
+  based_on:
+  - output/TVS-CS/qrcode-frontend/OVERVIEW.md
+  - output/TVS-CS/qrcode-frontend/service.yaml
+  - repos/TVS-CS/qrcode-frontend/README.md
+  domain: qr-codes
+  source: inferred
+  summary: React/Vite frontend for QR code creation, library management and analytics, calling tvsmbe-qrcode
+    APIs.
+tvs-cps-backend:
+  based_on:
+  - output/TVS-CS/tvs-cps-backend/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-backend/service.yaml
+  - repos/TVS-CS/TVS-CPS-BACKEND/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: Multi-module Spring Boot backend of the TVS Channel Partner System covering orders, appointments,
+    claims, training, workflow, notifications, lead allocation and a BFF aggregation layer.
+tvs-cps-be-base-framework:
+  based_on:
+  - output/TVS-CS/tvs-cps-be-base-framework/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-be-base-framework/service.yaml
+  - repos/TVS-CS/TVS-CPS-BE-BASE-FRAMEWORK/README.md
+  domain: shared-library
+  source: inferred
+  summary: Spring Boot 3.5 / Java 21 base framework, archetype and starter parent providing shared components
+    for TVSM backend applications.
+tvs-cps-billing:
+  based_on:
+  - output/TVS-CS/tvs-cps-billing/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-billing/service.yaml
+  - repos/TVS-CS/TVS-CPS-BILLING/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: CPS billing (invoice-service) Spring Boot API for creating, posting and searching invoices
+    and billing reports; README is the base-framework sample text.
+tvs-cps-customer:
+  based_on:
+  - output/TVS-CS/tvs-cps-customer/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-customer/service.yaml
+  domain: channel-partner-system
+  source: inferred
+  summary: CPS customer Spring Boot API for creating, updating, searching customers, external customer
+    operations and vehicle search; no README purpose.
+tvs-cps-db-migration:
+  based_on:
+  - output/TVS-CS/tvs-cps-db-migration/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-db-migration/service.yaml
+  - repos/TVS-CS/TVS-CPS-DB-MIGRATION/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: Flyway-based CLI applying versioned PostgreSQL schema migrations per configured CPS module/schema;
+    not a running service.
+tvs-cps-fe-base-framework:
+  based_on:
+  - output/TVS-CS/tvs-cps-fe-base-framework/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-fe-base-framework/service.yaml
+  - repos/TVS-CS/TVS-CPS-FE-BASE-FRAMEWORK/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: Base Next.js monorepo for the multi-tenant Channel Partner System web front end, with shared
+    hooks, API services and Redux slices.
+tvs-cps-inventory:
+  based_on:
+  - output/TVS-CS/tvs-cps-inventory/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-inventory/service.yaml
+  - repos/TVS-CS/TVS-CPS-INVENTORY/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: CPS inventory Spring Boot API managing vehicle inventory, bins, racks, locations, stock issue/receive
+    and inspections; README is the base-framework sample text.
+tvs-cps-job-card-service:
+  based_on:
+  - output/TVS-CS/tvs-cps-job-card-service/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-job-card-service/service.yaml
+  - repos/TVS-CS/TVS-CPS-JOB-CARD-SERVICE/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: CPS job card Spring Boot API for job card creation, updates, analytics and external job card
+    access, publishing one message.
+tvs-cps-jobs:
+  based_on:
+  - output/TVS-CS/tvs-cps-jobs/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-jobs/service.yaml
+  - repos/TVS-CS/TVS-CPS-JOBS/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: CPS scheduled jobs (cron) for bookings, enquiries and analytics that call tvs-cps-backend system
+    APIs.
+tvs-cps-portal:
+  based_on:
+  - output/TVS-CS/tvs-cps-portal/OVERVIEW.md
+  - output/TVS-CS/tvs-cps-portal/service.yaml
+  - repos/TVS-CS/TVS-CPS-PORTAL/README.md
+  domain: channel-partner-system
+  source: inferred
+  summary: Next.js multi-tenant Channel Partner System portal for channel partner operations, calling
+    tvs-cps-backend and Firebase.
+tvsm-auth:
+  based_on:
+  - output/TVS-CS/tvsm-auth/OVERVIEW.md
+  - output/TVS-CS/tvsm-auth/service.yaml
+  - repos/TVS-CS/tvsm-auth/README.md
+  domain: auth
+  source: inferred
+  summary: Spring Boot authentication and user-management service (Azure AD B2C sign-in) with user profile,
+    application, role, dealer and dynamic-form APIs.
+tvsm-marketplace-service:
+  based_on:
+  - output/TVS-CS/tvsm-marketplace-service/OVERVIEW.md
+  - output/TVS-CS/tvsm-marketplace-service/service.yaml
+  - repos/TVS-CS/tvsm-marketplace-service/README.md
+  domain: marketplace
+  source: inferred
+  summary: Spring Boot marketplace integration processing orders and listings with Flipkart and Amazon,
+    calling booking, MDP and notification services; README gives only the title.
+tvsm-otp-service:
+  based_on:
+  - output/TVS-CS/tvsm-otp-service/OVERVIEW.md
+  - output/TVS-CS/tvsm-otp-service/service.yaml
+  - repos/TVS-CS/tvsm-otp-service/README.md
+  domain: otp
+  source: inferred
+  summary: Spring Boot OTP service with generate and verify endpoints.
+tvsm-securesigner-service:
+  based_on:
+  - output/TVS-CS/tvsm-securesigner-service/OVERVIEW.md
+  - output/TVS-CS/tvsm-securesigner-service/service.yaml
+  - repos/TVS-CS/tvsm-securesigner-service/README.md
+  domain: security-utilities
+  source: inferred
+  summary: Spring Boot utility API that generates signatures, JWTs (plain/encrypted/decrypted) and bcrypt
+    hashes; README gives only the title.
+tvsmbe-location:
+  based_on:
+  - output/TVS-CS/tvsmbe-location/OVERVIEW.md
+  - output/TVS-CS/tvsmbe-location/service.yaml
+  - repos/TVS-CS/tvsmbe-location/README.md
+  domain: location
+  source: inferred
+  summary: 'Spring Boot location-master service for dealer locations: admin and dealer flows, IB and domestic
+    dealers, geocoding and dealer search, calling MDP, auth, OTP and notification services.'
+tvsmbe-mdp-bff:
+  based_on:
+  - output/TVS-CS/tvsmbe-mdp-bff/OVERVIEW.md
+  - output/TVS-CS/tvsmbe-mdp-bff/service.yaml
+  - repos/TVS-CS/tvsmbe-mdp-bff/README.md
+  domain: dealer-master-data
+  source: inferred
+  summary: BFF for master-data-platform (dealer, product, price) that also talks to external services
+    such as single-interface and Knowlarity, with inbound and outbound modules.
+tvsmbe-qrcode:
+  based_on:
+  - output/TVS-CS/tvsmbe-qrcode/OVERVIEW.md
+  - output/TVS-CS/tvsmbe-qrcode/service.yaml
+  domain: qr-codes
+  source: inferred
+  summary: Backend for QR code generation, library, logos, composition and analytics with auth endpoints;
+    no README.

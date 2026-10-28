@@ -1,0 +1,11 @@
+# repo_docs: never track clones, venv, logs, agent scratch, or transient artifacts.
+# Anchored with a leading "/" so config/repos/ (allowlists) stays tracked.
+/repos/
+/.venv/
+/logs/
+/.agents/
+**/*.tmp*
+**/*.partial/
+/state/*.lock
+__pycache__/
+.pytest_cache/

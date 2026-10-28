@@ -8,7 +8,6 @@
 #   ./start.sh ingest       → Run ingestion pipeline
 #   ./start.sh chatbot      → Start chatbot UI
 #   ./start.sh bench        → Run benchmark suite
-#   ./start.sh webhook      → Start Steering Webhook server
 
 set -e
 
@@ -62,10 +61,6 @@ run_bench() {
     cd steering-lite && python -m bench.run_bench
 }
 
-start_webhook() {
-    log "Starting Steering Webhook Server..."
-    uvicorn webhook_pipeline.app:app --host 0.0.0.0 --port 8002 --reload
-}
 
 case "${1:-all}" in
     infra)
@@ -86,9 +81,6 @@ case "${1:-all}" in
     bench)
         run_bench
         ;;
-    webhook)
-        start_webhook
-        ;;
     all)
         start_infra
         log "Starting all services..."
@@ -99,7 +91,7 @@ case "${1:-all}" in
         wait
         ;;
     *)
-        echo "Usage: ./start.sh [infra|mcp|api|ingest|chatbot|bench|webhook|all]"
+        echo "Usage: ./start.sh [infra|mcp|api|ingest|chatbot|bench|all]"
         exit 1
         ;;
 esac

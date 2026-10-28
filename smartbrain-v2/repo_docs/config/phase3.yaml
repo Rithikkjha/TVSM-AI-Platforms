@@ -1,0 +1,28 @@
+# Phase 3 (targeted gap-fill) settings. Read by the Phase 3/5 per-repo agents and their launcher.
+# Decisions recorded 2026-10-11 by the user.
+
+# Gap types that are never investigated in Phase 3.
+#  - untouched_file: tests/docs/config with nothing to extract
+#  - untouched_source: mostly HTML mail templates, CSS, helper scripts (sampled)
+#  - partial_parse: spot-checks show >=98.7% recall; low yield
+#  - missing_schema: mostly body-less endpoints; doc writer may fill obvious ones while writing API_SPEC
+skip_gap_types:
+  - untouched_file
+  - untouched_source
+  - partial_parse
+  - missing_schema
+
+# Gap types Phase 3 DOES investigate (dependency-graph relevant).
+investigate_gap_types:
+  - silent_client_file      # after extractor rule fixes, only leftovers
+  - missing_payload
+  - unresolved_entity
+  - unresolved_base_url
+  - unknown_repo_type
+
+# Repos whose gaps.json is NOT investigated in Phase 3.
+# Phase 5 docs are still generated for them from inventory.json (deterministic data only).
+skip_gap_investigation:
+  - org: TVS-CS
+    repo: TVS-CPS-PORTAL
+    reason: user decision - portal gaps not needed, docs still required

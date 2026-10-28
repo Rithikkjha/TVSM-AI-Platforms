@@ -1,0 +1,5 @@
+# source: TVS-CS/tvsmbe-location/src/main/resources/application.properties (as yml, fake values)
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://fakeuser:fakeMongoPw0rd@cluster0.example.test/locationdb

@@ -1,0 +1,894 @@
+{
+  "entities": [
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "queue",
+      "flags": [
+        "namespace_unknown",
+        "no_publishers"
+      ],
+      "key": "azure-service-bus:queue:cpg-juspay",
+      "name": "cpg-juspay",
+      "publishers": [],
+      "raw_names": [
+        "cpg-juspay"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:cpg-juspay",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "cpg-juspay"
+          ],
+          "repo": "PaymentService",
+          "service_id": "payment-service-4fa0ce",
+          "subscription": null
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown",
+        "no_publishers"
+      ],
+      "key": "azure-service-bus:topic:booking",
+      "name": "booking",
+      "publishers": [],
+      "raw_names": [
+        "prod.booking",
+        "uat.booking"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:config:ServiceBusSettings:TopicName",
+          "message_types": [],
+          "namespace": "tvsmazcmnsvcasbprd01-cin",
+          "raw_names": [
+            "prod.booking"
+          ],
+          "repo": "BS2.0Backend_Integration",
+          "service_id": "bs2-0-backend-integration",
+          "subscription": "reimbursement-booking-subscription"
+        },
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.bookingUpdates.name",
+          "message_types": [],
+          "namespace": "xxxx",
+          "raw_names": [
+            "uat.booking"
+          ],
+          "repo": "tvsm-marketplace-service",
+          "service_id": "tvsm-marketplace-service",
+          "subscription": null
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown",
+        "no_publishers"
+      ],
+      "key": "azure-service-bus:topic:catalog.price_updates",
+      "name": "catalog.price_updates",
+      "publishers": [],
+      "raw_names": [
+        "dev.catalog.price_updates"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.vehiclePriceData.name",
+          "message_types": [],
+          "namespace": "xxxx",
+          "raw_names": [
+            "dev.catalog.price_updates"
+          ],
+          "repo": "tvsm-marketplace-service",
+          "service_id": "tvsm-marketplace-service",
+          "subscription": "marketplace"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "no_publishers"
+      ],
+      "key": "azure-service-bus:topic:cp-booking",
+      "name": "cp-booking",
+      "publishers": [],
+      "raw_names": [
+        "dev.cp-booking"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:bff-service:subscribe:azure-service-bus:config:booking.servicebus.topic-name",
+          "message_types": [],
+          "namespace": "nmazcmnasbdev01-uks",
+          "raw_names": [
+            "dev.cp-booking"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend",
+          "subscription": "tnh-subscription"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [
+        "46f9b2b8df4ee6b482783e0bc1d496e0cb98026a"
+      ],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "azure-service-bus:topic:dms.dealer_data",
+      "name": "dms.dealer_data",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.dmsDealerData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.dms.dealer_data"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform"
+        }
+      ],
+      "raw_names": [
+        "local.dms.dealer_data"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.dmsDealerData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.dms.dealer_data"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform",
+          "subscription": "mdp"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [
+        "06476c57559a2d2c819a53783d4b006710d4c3ff",
+        "0f3add01af00b41f263862d78baaf27f121e686e",
+        "2042cba9b65db93e280d679c824f9bca53016894",
+        "35932182448b0ed269200e6a17a7359976abfe53",
+        "37b3f95b4cbc6a9a26a1fb490c24ae3e4e66be37",
+        "6fa6a4727f8954e2f6be430dcad2bd4f32aeb7ca",
+        "78da1ea6b7537807afe4c87515521def6573b439",
+        "80b4a18990b8e5af10aac3250a2951463f764a72",
+        "87bc9cb99888e7e92f26f171d1d23b0a7799f28d",
+        "a6f967059e24437d8e61080490c994efeeb2b9ef",
+        "b1cfc14c7641f5fc945563c5226dce912f48ff2c",
+        "e5db30fb1060e7d488a11a5e85dfda46ebc31d51"
+      ],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "azure-service-bus:topic:lead",
+      "name": "lead",
+      "publishers": [
+        {
+          "item_id": "messaging:leadLogs:publish:azure-service-bus:unknown",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "lead"
+          ],
+          "repo": "lms",
+          "service_id": "lms"
+        },
+        {
+          "item_id": "messaging:emsService:publish:azure-service-bus:config:AppSettings:TOPIC_NAME",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "lead"
+          ],
+          "repo": "lms_ems",
+          "service_id": "lms-ems"
+        },
+        {
+          "item_id": "messaging:processLeadService:publish:azure-service-bus:config:AppSettings:TOPIC_NAME",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "lead"
+          ],
+          "repo": "lms_process",
+          "service_id": "lms-process"
+        }
+      ],
+      "raw_names": [
+        "lead"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:config:AppSettings:TOPIC_NAME:CRM",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "lead"
+          ],
+          "repo": "lms_crm",
+          "service_id": "lms-crm",
+          "subscription": "CRM"
+        },
+        {
+          "filter": null,
+          "item_id": "messaging:emsService:subscribe:azure-service-bus:config:AppSettings:TOPIC_NAME:EMS",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "lead"
+          ],
+          "repo": "lms_ems",
+          "service_id": "lms-ems",
+          "subscription": "EMS"
+        },
+        {
+          "filter": null,
+          "item_id": "messaging:processLeadService:subscribe:azure-service-bus:config:AppSettings:TOPIC_NAME:PROCESS",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "lead"
+          ],
+          "repo": "lms_process",
+          "service_id": "lms-process",
+          "subscription": "PROCESS"
+        },
+        {
+          "filter": null,
+          "item_id": "messaging:lms_tvs_credit:subscribe:azure-service-bus:config:AppSettings:TOPIC_NAME:FINANCE",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "lead"
+          ],
+          "repo": "lms_tvs_credit",
+          "service_id": "lms-tvs-credit",
+          "subscription": "FINANCE"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [
+        "2942fdcd70f5053acbc2c6ed9eef8f8173151c27",
+        "a3cad1004a70931843b73b4e16c8397279300e8b",
+        "f44c223d2f1b53244fa65b8a9dfc644554b16edc"
+      ],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "azure-service-bus:topic:mdp.dealer_data",
+      "name": "mdp.dealer_data",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.dealerData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.mdp.dealer_data"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform"
+        }
+      ],
+      "raw_names": [
+        "dev.mdp.dealer_data",
+        "local.mdp.dealer_data",
+        "prod.mdp.dealer_data",
+        "uat.mdp.dealer_data"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:processLeadService:subscribe:azure-service-bus:config:AppSettings:MDP_TOPIC_NAME:lms",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.mdp.dealer_data",
+            "prod.mdp.dealer_data",
+            "uat.mdp.dealer_data"
+          ],
+          "repo": "lms_process",
+          "service_id": "lms-process",
+          "subscription": "lms"
+        },
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.dealerData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.mdp.dealer_data"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform",
+          "subscription": "mdp"
+        },
+        {
+          "filter": null,
+          "item_id": "messaging:outbound:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.mdpDealerData.name",
+          "message_types": [],
+          "namespace": "tvsmazebpasbdev01",
+          "raw_names": [
+            "dev.mdp.dealer_data"
+          ],
+          "repo": "tvsmbe-mdp-bff",
+          "service_id": "tvsmbe-mdp-bff",
+          "subscription": "mdp_bff"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown",
+        "no_subscribers"
+      ],
+      "key": "azure-service-bus:topic:mdp.part.price",
+      "name": "mdp.part.price",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.partPriceData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.mdp.part.price"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform"
+        }
+      ],
+      "raw_names": [
+        "local.mdp.part.price"
+      ],
+      "subscribers": []
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown",
+        "no_subscribers"
+      ],
+      "key": "azure-service-bus:topic:mdp.part_data",
+      "name": "mdp.part_data",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.partData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.mdp.part_data"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform"
+        }
+      ],
+      "raw_names": [
+        "local.mdp.part_data"
+      ],
+      "subscribers": []
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [
+        "3e6db1c0fb881d1db82ad3809186f160f4136134"
+      ],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "azure-service-bus:topic:mdp.price.vehicle",
+      "name": "mdp.price.vehicle",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.priceVehicleData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.mdp.price.vehicle"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform"
+        }
+      ],
+      "raw_names": [
+        "local.mdp.price.vehicle",
+        "uat.mdp.price.vehicle"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:uat.mdp.price.vehicle",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "uat.mdp.price.vehicle"
+          ],
+          "repo": "Price-Engine-MicroService-Backend",
+          "service_id": "price-engine-micro-service-backend",
+          "subscription": "ccp"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown",
+        "no_subscribers"
+      ],
+      "key": "azure-service-bus:topic:mdp.product.mna",
+      "name": "mdp.product.mna",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.productMnaData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.mdp.product.mna"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform"
+        }
+      ],
+      "raw_names": [
+        "local.mdp.product.mna"
+      ],
+      "subscribers": []
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [
+        "ffa3794ee400d282112f8d6bedc16c1d07b30d39"
+      ],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "azure-service-bus:topic:mdp.product.vehicle",
+      "name": "mdp.product.vehicle",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.productVehicleData.name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.mdp.product.vehicle"
+          ],
+          "repo": "master-data-platform",
+          "service_id": "master-data-platform"
+        }
+      ],
+      "raw_names": [
+        "local.mdp.product.vehicle",
+        "uat.mdp.product.vehicle"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:uat.mdp.product.vehicle",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "uat.mdp.product.vehicle"
+          ],
+          "repo": "Price-Engine-MicroService-Backend",
+          "service_id": "price-engine-micro-service-backend",
+          "subscription": "ccp"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [
+        "6221117275e2074a5bcb6363066465bb16aa6e68"
+      ],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "azure-service-bus:topic:notifications",
+      "name": "notifications",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.notifications",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.notifications"
+          ],
+          "repo": "notification-service",
+          "service_id": "notification-service"
+        }
+      ],
+      "raw_names": [
+        "local.notifications"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:.:subscribe:azure-service-bus:config:spring.jms.servicebus.topic.notifications",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "local.notifications"
+          ],
+          "repo": "notification-dispatcher-service",
+          "service_id": "notification-dispatcher-service",
+          "subscription": [
+            "email-notifications",
+            "fcmpush-notifications",
+            "highpriority-notifications",
+            "sms-notifications",
+            "whatsapp-notifications"
+          ]
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown",
+        "no_subscribers"
+      ],
+      "key": "azure-service-bus:topic:notifications-status-update",
+      "name": "notifications-status-update",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:spring.jms.servicebus.topic.notifications.status-update",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "notifications-status-update"
+          ],
+          "repo": "notification-service",
+          "service_id": "notification-service"
+        }
+      ],
+      "raw_names": [
+        "notifications-status-update"
+      ],
+      "subscribers": []
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "no_publishers"
+      ],
+      "key": "azure-service-bus:topic:oclns.cp-lead",
+      "name": "oclns.cp-lead",
+      "publishers": [],
+      "raw_names": [
+        "dev.oclns.cp-lead"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:bff-service:subscribe:azure-service-bus:config:lead.servicebus.topic-name",
+          "message_types": [],
+          "namespace": "nmazcmnasbdev01-uks",
+          "raw_names": [
+            "dev.oclns.cp-lead"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend",
+          "subscription": "tnh_subscription"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "no_publishers"
+      ],
+      "key": "azure-service-bus:topic:ums.user",
+      "name": "ums.user",
+      "publishers": [],
+      "raw_names": [
+        "dev.ums.user"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:bff-service:subscribe:azure-service-bus:config:ums.servicebus.topic-name",
+          "message_types": [],
+          "namespace": "nmazcmnehdev01-uks",
+          "raw_names": [
+            "dev.ums.user"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend",
+          "subscription": "cps-user-subscription"
+        }
+      ]
+    },
+    {
+      "broker": "azure-service-bus",
+      "edges": [],
+      "entity_type": "topic",
+      "flags": [
+        "namespace_unknown",
+        "no_subscribers"
+      ],
+      "key": "azure-service-bus:topic:ums.user_apps",
+      "name": "ums.user_apps",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:azure-service-bus:config:azure.servicebus.topic-name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.ums.user_apps"
+          ],
+          "repo": "tvsm-auth",
+          "service_id": "tvsm-auth"
+        }
+      ],
+      "raw_names": [
+        "dev.ums.user_apps"
+      ],
+      "subscribers": []
+    },
+    {
+      "broker": "kafka",
+      "edges": [],
+      "entity_type": "kafka-topic",
+      "flags": [
+        "namespace_unknown",
+        "no_subscribers"
+      ],
+      "key": "kafka:kafka-topic:cp.appointment",
+      "name": "cp.appointment",
+      "publishers": [
+        {
+          "item_id": "messaging:appointment-service:publish:kafka:config:azure.eventhub.appointment.hub-name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.appointment"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend"
+        }
+      ],
+      "raw_names": [
+        "dev.cp.appointment"
+      ],
+      "subscribers": []
+    },
+    {
+      "broker": "kafka",
+      "edges": [
+        "8b9885770a9d6a0cb32099d5c126dbc09d8af75e"
+      ],
+      "entity_type": "kafka-topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "kafka:kafka-topic:cp.booking",
+      "name": "cp.booking",
+      "publishers": [
+        {
+          "item_id": "messaging:order-service:publish:kafka:config:order.messaging.kafka.topics.booking",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.booking"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend"
+        }
+      ],
+      "raw_names": [
+        "dev.cp.booking"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:bff-service:subscribe:kafka:config:bff.booking.messaging.kafka.topics.booking",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.booking"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend",
+          "subscription": null
+        }
+      ]
+    },
+    {
+      "broker": "kafka",
+      "edges": [],
+      "entity_type": "kafka-topic",
+      "flags": [
+        "namespace_unknown",
+        "no_subscribers"
+      ],
+      "key": "kafka:kafka-topic:cp.job_card",
+      "name": "cp.job_card",
+      "publishers": [
+        {
+          "item_id": "messaging:.:publish:kafka:config:azure.eventhub.jobcard.hub-name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.job_card"
+          ],
+          "repo": "TVS-CPS-JOB-CARD-SERVICE",
+          "service_id": "tvs-cps-job-card-service"
+        }
+      ],
+      "raw_names": [
+        "dev.cp.job_card"
+      ],
+      "subscribers": []
+    },
+    {
+      "broker": "kafka",
+      "edges": [
+        "551eb8fa37d98ee9f4b9a5ec8ee5f0d09e742141"
+      ],
+      "entity_type": "kafka-topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "kafka:kafka-topic:cp.notification1",
+      "name": "cp.notification1",
+      "publishers": [
+        {
+          "item_id": "messaging:notification-service:publish:kafka:config:notification.messaging.kafka.hub-name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.notification1"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend"
+        }
+      ],
+      "raw_names": [
+        "dev.cp.notification1"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:notification-service:subscribe:kafka:config:notification.messaging.kafka.hub-name",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.notification1"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend",
+          "subscription": null
+        }
+      ]
+    },
+    {
+      "broker": "kafka",
+      "edges": [
+        "e7aed656607fd313d0a01dbd5032778327f0d6d1"
+      ],
+      "entity_type": "kafka-topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "kafka:kafka-topic:cp.order",
+      "name": "cp.order",
+      "publishers": [
+        {
+          "item_id": "messaging:order-service:publish:kafka:config:order.messaging.kafka.topics.order",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.order"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend"
+        }
+      ],
+      "raw_names": [
+        "dev.cp.order"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:order-service:subscribe:kafka:config:order.messaging.kafka.topics.order",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.order"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend",
+          "subscription": null
+        }
+      ]
+    },
+    {
+      "broker": "kafka",
+      "edges": [
+        "0b8c9b60f5c2100a9221c5afea5ecaaf6e8ba495"
+      ],
+      "entity_type": "kafka-topic",
+      "flags": [
+        "namespace_unknown"
+      ],
+      "key": "kafka:kafka-topic:cp.service_lead",
+      "name": "cp.service_lead",
+      "publishers": [
+        {
+          "item_id": "messaging:bff-service:publish:kafka:config:bff.servicelead.messaging.kafka.topics.service-lead",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.service_lead"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend"
+        }
+      ],
+      "raw_names": [
+        "dev.cp.service_lead"
+      ],
+      "subscribers": [
+        {
+          "filter": null,
+          "item_id": "messaging:bff-service:subscribe:kafka:config:bff.servicelead.messaging.kafka.topics.service-lead",
+          "message_types": [],
+          "namespace": null,
+          "raw_names": [
+            "dev.cp.service_lead"
+          ],
+          "repo": "TVS-CPS-BACKEND",
+          "service_id": "tvs-cps-backend",
+          "subscription": null
+        }
+      ]
+    }
+  ],
+  "schema_version": 1
+}

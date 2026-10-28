@@ -1,0 +1,188 @@
+# SmartBrain service manifest — schema v1
+# Single source of truth for graph edges. Keep values short; explanations go in the .md files.
+# All service references use canonical service_id. Non-TVS systems use "external:<name>".
+# source: code (read from code/config) | manual (written by owner) | inferred (AI-generated, unverified)
+
+schema_version: 1
+service_id: booking-crud-services          # kebab-case, == repo name, globally unique
+name: Booking CRUD Services                # human display name
+aliases: [BookingService, booking-api]     # names other docs use → mapped to service_id at ingest
+type: backend-api                          # backend-api | bff | frontend-web | mobile-app | worker | function | library | portal | cms
+domain: connected-commerce                 # business domain
+status: active                             # active | deprecated | planned
+summary: >-
+  Creates, updates and cancels vehicle bookings for TVS Connect and the dealer portal.
+
+repo:
+  url: https://github.com/tvsmotorcompany/booking-crud-services
+  default_branch: main
+
+ownership:
+  team: Connected Commerce Backend
+  tech_lead: firstname.lastname@tvsmotor.com
+  product_owner: firstname.lastname@tvsmotor.com
+  vendor: null                             # external vendor name if outsourced
+  oncall: "Teams: CC-Backend"
+
+tech_stack:
+  languages: [csharp]
+  frameworks: [aspnet-core-8]
+  runtime: dotnet-8
+  key_libraries: [EntityFrameworkCore, MassTransit, Polly]
+  build: dotnet
+  container: docker
+
+deployment:
+  platform: aks                            # aks | app-service | azure-functions | vm | static-web | app-store | play-store
+  regions: [centralindia]
+  environments:
+    - name: prod
+      base_url: https://api.tvsmotor.com/bookings
+    - name: uat
+      base_url: https://uat-api.tvsmotor.com/bookings
+
+# ---------------------------------------------------------------- INBOUND
+# What this service exposes, and who calls it. Full contract detail lives in API_SPEC.md.
+inbound:
+  - id: create-booking                     # unique within this file; referenced by flows
+    kind: http                             # http | grpc | graphql | event | scheduled | ui
+    method: POST
+    path: /api/bookings
+    auth: bearer-jwt
+    callers: [tvs-connect-android-app, tvs-connect-ios-app, dealer-portal]
+    params:                                # path / query / header params
+      - { name: X-Correlation-Id, in: header, type: string, required: false }
+    request: CreateBookingRequest          # → schemas.CreateBookingRequest (null if no body)
+    responses:
+      - { status: 201, schema: BookingResponse }
+      - { status: 400, schema: ErrorResponse, when: validation failed }
+      - { status: 409, schema: ErrorResponse, when: vehicle already booked }
+    source: code
+
+# ---------------------------------------------------------------- OUTBOUND
+# Everything this service calls synchronously. One entry per target+endpoint.
+outbound:
+  - target: payment-service
+    kind: http
+    method: POST
+    path: /api/payments/initiate
+    purpose: Initiate payment for a booking
+    request: InitiatePaymentRequest        # shape THIS service sends (from its client DTO)
+    response: InitiatePaymentResponse      # shape THIS service expects back
+    criticality: hard                      # hard (request fails without it) | soft (degrades) | async
+    on_failure: Booking stays PENDING_PAYMENT; client retries
+    source: code
+  - target: external:juspay
+    kind: http
+    purpose: Payment status reconciliation
+    criticality: soft
+    source: manual
+
+# ---------------------------------------------------------------- EVENTS
+# Entity names are often indirect (config key → value per env). Record BOTH the
+# resolved name and where it came from, so cross-repo matching works on either.
+# producers/consumers are filled in Phase 4 by matching entity names across all repos.
+events:
+  publishes:
+    - entity: booking-events               # resolved topic/queue name
+      entity_type: topic                   # topic | queue | event-hub | kafka-topic | exchange
+      broker: azure-service-bus            # azure-service-bus | event-grid | event-hub | kafka | rabbitmq
+      namespace: sb-tvsm-prod              # if known (from config, not connection string)
+      name_from: config:ServiceBus:BookingTopic   # literal | config:<key> | env:<VAR> — how the name was found
+      message_types: [BOOKING_CREATED, BOOKING_CANCELLED]   # subject/label/type property values
+      payload: BookingEvent                # → schemas.BookingEvent
+      properties: { session_id: bookingId }               # app properties / session / correlation used
+      published_by: src/Booking.Infra/Messaging/BookingPublisher.cs:41
+      consumers: [async-communication-service]            # Phase 4 fills from others' subscribes
+      source: code
+  subscribes:
+    - entity: payment-events
+      entity_type: topic
+      broker: azure-service-bus
+      subscription: booking-svc-sub        # topic subscription name (null for queues)
+      filter: "type IN ('PAYMENT_SUCCEEDED','PAYMENT_FAILED')"   # SQL/correlation filter if defined
+      name_from: config:ServiceBus:PaymentTopic
+      message_types: [PAYMENT_SUCCEEDED, PAYMENT_FAILED]
+      payload: PaymentEvent
+      handler: src/Booking.Infra/Messaging/PaymentEventHandler.cs:22   # listener / function / processor
+      trigger: processor                   # processor | function-trigger | jms-listener | poll
+      action: Update booking status to CONFIRMED / FAILED
+      error_handling: { max_delivery: 10, dead_letter: true, retry: exponential }
+      producers: [payment-service]         # Phase 4 fills from others' publishes
+      source: code
+
+# ---------------------------------------------------------------- SCHEMAS
+# Every request / response / event payload referenced above, resolved from code
+# (DTO classes, @RequestBody, [FromBody], @Body(), ResponseEntity<T>, ActionResult<T>, OpenAPI files).
+# Nested types are listed as their own schema and referenced by name.
+schemas:
+  CreateBookingRequest:
+    defined_in: src/Booking.API/Dtos/CreateBookingRequest.cs:12
+    fields:
+      - { name: vehicleId, type: string, required: true }
+      - { name: dealerCode, type: string, required: true, validation: "len 5" }
+      - { name: customer, type: Customer, required: true }        # → schemas.Customer
+      - { name: preferredDate, type: date, required: false }
+    source: code
+  BookingResponse:
+    defined_in: src/Booking.API/Dtos/BookingResponse.cs:8
+    fields:
+      - { name: bookingId, type: string, required: true }
+      - { name: status, type: "enum[CREATED,PENDING_PAYMENT,CONFIRMED,CANCELLED]", required: true }
+    source: code
+
+# ---------------------------------------------------------------- DATA
+data_stores:
+  - name: booking-db
+    type: mssql                            # mssql | postgres | cosmos | mongo | redis | blob | elastic | ...
+    access: read-write                     # read | write | read-write
+    owned: true                            # false = shared DB owned by another service
+    owner_service: null                    # set when owned: false
+    key_entities: [Booking, BookingItem]
+    source: code
+
+# ---------------------------------------------------------------- CONFIG
+# NEVER put values here.
+config:
+  - name: PAYMENT_SERVICE_URL
+    purpose: Base URL of payment-service
+    required: true
+    secret: false
+    provided_by: app-settings              # key-vault | app-settings | k8s-secret | env-file | pipeline
+    points_to: payment-service             # optional: links config to a dependency
+  - name: DB_CONNECTION_STRING
+    purpose: booking-db connection
+    required: true
+    secret: true
+    provided_by: key-vault
+
+# ---------------------------------------------------------------- FLOWS
+# End-to-end business flows this service takes part in. Steps are ordered.
+# Use the SAME flow_id across all services in the flow so the graph can stitch them together.
+flows:
+  - flow_id: vehicle-booking
+    name: Customer books a vehicle
+    role: orchestrator                     # orchestrator | participant | consumer
+    steps:
+      - from: tvs-connect-android-app
+        to: booking-crud-services
+        via: create-booking                # inbound id, topic, or endpoint
+        data: booking request (vehicle, dealer, customer)
+      - from: booking-crud-services
+        to: payment-service
+        via: POST /api/payments/initiate
+        data: booking_id, amount
+      - from: payment-service
+        to: booking-crud-services
+        via: topic:payment-events
+        data: PAYMENT_SUCCEEDED
+      - from: booking-crud-services
+        to: async-communication-service
+        via: topic:booking-events
+        data: BOOKING_CREATED → SMS/email
+
+# ---------------------------------------------------------------- LINKS
+links:
+  jira_projects: [ACV2]
+  confluence_pages: []
+  dashboards: []

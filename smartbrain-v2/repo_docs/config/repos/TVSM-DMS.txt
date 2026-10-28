@@ -1,0 +1,6 @@
+# Allowlist for org TVSM-DMS (added 2026-10-11 by user request)
+lms
+lms_process
+lms_ems
+lms_crm
+lms_tvs_credit

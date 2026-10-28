@@ -49,6 +49,15 @@ _STRUCTURAL_PATTERNS = [
     r"\bdownstream\b.*\bservices?\b",
     r"\bwhat\s+services?\s+use\b",
     r"\bwhat\s+services?\s+call\b",
+    # Endpoint / API listing — answered deterministically from the graph's
+    # EXPOSES relationship (complete list), not top-N similarity search.
+    r"\b(list|show|all|what|which)\b.*\b(endpoints?|apis?|routes?)\b",
+    r"\b(endpoints?|apis?|routes?)\b.*\b(expose|exposed|exposes|provide|provides|available|does)\b",
+    # Single-endpoint request/response — the question names an HTTP path and
+    # asks about its request/response/body/payload/schema. Answered from the
+    # endpoint's stored schema in the graph.
+    r"\b(request|response|body|payload|schema)\b.*\b/[A-Za-z0-9_\-/{}:.]+",
+    r"\b/[A-Za-z0-9_\-/{}:.]+.*\b(request|response|body|payload|schema)\b",
 ]
 
 # Patterns that signal cross-service flow questions

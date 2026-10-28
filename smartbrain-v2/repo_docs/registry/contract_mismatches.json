@@ -1,0 +1,1232 @@
+{
+  "items": [
+    {
+      "callee_schema": "APIResponse<map<string,object>[]>",
+      "caller_schema": "VehicleVariantResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "catalogSkuId",
+          "field": "catalogSkuId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "modelName",
+          "field": "modelName",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "variants",
+          "field": "variants",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "vehicleName",
+          "field": "vehicleName",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "08caa634d08606fe24ce3fdd2184ea628f162bf3"
+    },
+    {
+      "callee_schema": "UpdateBookingRequestDto",
+      "caller_schema": "BookingActionRequest",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "assignedDealerSalesExecutiveId",
+          "field": "assignedDealerSalesExecutiveId",
+          "issue": "extra",
+          "severity": "info"
+        },
+        {
+          "callee": null,
+          "caller": "bookingStatus",
+          "field": "bookingStatus",
+          "issue": "extra",
+          "severity": "info"
+        }
+      ],
+      "direction": "request",
+      "edge_id": "0d0c0c7c2d9f61bee0141c887a3422e1624ba0c2"
+    },
+    {
+      "callee_schema": "APIResponse<AppointmentDetailResponseDTO>",
+      "caller_schema": "AppointmentInterface",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "listStatus",
+          "field": "listStatus",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "131a7ded4ffe4184d201f7db5a107e4e3fdfa2e0"
+    },
+    {
+      "callee_schema": "APIResponse<GRNDetailsClaimBFFResponseDTO>",
+      "caller_schema": "GrnDetailsData",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "damagedItemsCount",
+          "field": "damagedItemsCount",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "damagedItemsValue",
+          "field": "damagedItemsValue",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "deliveryId",
+          "field": "deliveryId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "invoiceId",
+          "field": "invoiceId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "invoiceIdLocation",
+          "field": "invoiceIdLocation",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "missingItemsCount",
+          "field": "missingItemsCount",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "missingItemsValue",
+          "field": "missingItemsValue",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "orderCategoryType",
+          "field": "orderCategoryType",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "orderId",
+          "field": "orderId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "parts",
+          "field": "parts",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "vehicles",
+          "field": "vehicles",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "1c905b8ed6560ea15b8ba6d2f9bd91cede2583f9"
+    },
+    {
+      "callee_schema": "Role",
+      "caller_schema": "DealerRolesResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "data",
+          "field": "data",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "message",
+          "field": "message",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "status",
+          "field": "status",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "statusCode",
+          "field": "statusCode",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "222d36115e0cf9c42969063cd76f958af41fba6b"
+    },
+    {
+      "callee_schema": "APIResponse<map<string,object>>",
+      "caller_schema": "LeadUpdateResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "data",
+          "field": "data",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "message",
+          "field": "message",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "messageKey",
+          "field": "messageKey",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "status",
+          "field": "status",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "statusCode",
+          "field": "statusCode",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "2c24088cd7412d4cf39a31db1f1e2a60898a7d50"
+    },
+    {
+      "callee_schema": "NotificationMessageResponseDto",
+      "caller_schema": "NotificationMessageSearchResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "content",
+          "field": "content",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "totalRecords",
+          "field": "totalRecords",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "3aacec9edbde499964f50677f329e1b67787a432"
+    },
+    {
+      "callee_schema": "APIResponse<BookingSearchResponseDto>",
+      "caller_schema": "BookingsData",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "bookings",
+          "field": "bookings",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "totalBookings",
+          "field": "totalBookings",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "4dfd0584815e1e6039a2c1bcb2dde3d46b40f08f"
+    },
+    {
+      "callee_schema": "APIResponse<object>",
+      "caller_schema": "PartsInterface",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "content",
+          "field": "content",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "page",
+          "field": "page",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "size",
+          "field": "size",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "total",
+          "field": "total",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "51e080746be8c8c08cb8f4581bdd7024376e2fa7"
+    },
+    {
+      "callee_schema": "APIResponse<map<string,object>>",
+      "caller_schema": "JobCardInvoiceGenerateResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "invoiceNumber",
+          "field": "invoiceNumber",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "5f648d994cabd9500e42d0a6a00855aeabceb5b9"
+    },
+    {
+      "callee_schema": "APIResponse<AssemblyCategoryDTO[]>",
+      "caller_schema": "AssemblyResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "assemblyName",
+          "field": "assemblyName",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "catalogSkuId",
+          "field": "catalogSkuId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "subAssemblyList",
+          "field": "subAssemblyList",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "6edaeda1c9ac00b2b3aaca0ca26820c72e6a63ce"
+    },
+    {
+      "callee_schema": "APIResponse<InspectionDetailResponse>",
+      "caller_schema": "VehicleInspectionSubmitResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "deliveryStatus",
+          "field": "deliveryStatus",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "deliverySubmissionDate",
+          "field": "deliverySubmissionDate",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "deliverySubmissionId",
+          "field": "deliverySubmissionId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "deliverySubmissionStatus",
+          "field": "deliverySubmissionStatus",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "pdiStatus",
+          "field": "pdiStatus",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "pdiSubmissionDate",
+          "field": "pdiSubmissionDate",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "pdiSubmissionId",
+          "field": "pdiSubmissionId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "pdiSubmissionStatus",
+          "field": "pdiSubmissionStatus",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "77455144df999e22a535ff47814134d684bcc28a"
+    },
+    {
+      "callee_schema": "APIResponse<object>",
+      "caller_schema": "PartCatalogResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "catalogItems",
+          "field": "catalogItems",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "currentPage",
+          "field": "currentPage",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "totalRecords",
+          "field": "totalRecords",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "9072c7db65897c6b49ac64dd65840842bcf44a0f"
+    },
+    {
+      "callee_schema": "APIResponse<map<string,object>[]>",
+      "caller_schema": "AddressSuggestion",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "description",
+          "field": "description",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "placeId",
+          "field": "placeId",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "911ca4b49b7352361c34b00300f6b6bb4d23bf17"
+    },
+    {
+      "callee_schema": "APIResponse<ServiceReminderDetailResponseDTO>",
+      "caller_schema": "ServiceReminderDetailsData",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "appointmentId",
+          "field": "appointmentId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "appointmentNo",
+          "field": "appointmentNo",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "interactionDetails",
+          "field": "interactionDetails",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "reminderInformation",
+          "field": "reminderInformation",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "serviceHistory",
+          "field": "serviceHistory",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "vehicleCustomerId",
+          "field": "vehicleCustomerId",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "9751fd3bb31ec7591078981850230e26f8d15f0b"
+    },
+    {
+      "callee_schema": "APIResponse<LeadAllocationDataDTO[]>",
+      "caller_schema": "LeadAllocationItem",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "assignedUsers",
+          "field": "assignedUsers",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "entityType",
+          "field": "entityType",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "entityTypeId",
+          "field": "entityTypeId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "type",
+          "field": "type",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "a21b32a50a68c87574cb43943d185629d6368a7e"
+    },
+    {
+      "callee_schema": "APIResponse<PageResponseDTO<AppointmentResponseDTO>>",
+      "caller_schema": "AppointmentListResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "content",
+          "field": "content",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "page",
+          "field": "page",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "size",
+          "field": "size",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "total",
+          "field": "total",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "a57e452841181a01f05e2efdb239552b03827754"
+    },
+    {
+      "callee_schema": "APIResponse<AppointmentCountResponseDTO>",
+      "caller_schema": "AppointmentCountResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "summary",
+          "field": "summary",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "totalCount",
+          "field": "totalCount",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "a63d1531702e525539c61621fa90bacdcacd559c"
+    },
+    {
+      "callee_schema": "APIResponse<LeadServiceListResponseDto>",
+      "caller_schema": "ServiceReminderListData",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "content",
+          "field": "content",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "currentPage",
+          "field": "currentPage",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "pageSize",
+          "field": "pageSize",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "totalPages",
+          "field": "totalPages",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "totalRecords",
+          "field": "totalRecords",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "c2136f36df7174b9775edc47ca2d3819be612977"
+    },
+    {
+      "callee_schema": "APIResponse<object>",
+      "caller_schema": "MerchandiseDetails",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "currentMyStockValue",
+          "field": "currentMyStockValue",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "currentQtyInMyStock",
+          "field": "currentQtyInMyStock",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "currentStockLocation",
+          "field": "currentStockLocation",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseColor",
+          "field": "merchandiseColor",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseDescription",
+          "field": "merchandiseDescription",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseId",
+          "field": "merchandiseId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseImageUrl",
+          "field": "merchandiseImageUrl",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseImageUrls",
+          "field": "merchandiseImageUrls",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseName",
+          "field": "merchandiseName",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseNumber",
+          "field": "merchandiseNumber",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseSize",
+          "field": "merchandiseSize",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "merchandiseType",
+          "field": "merchandiseType",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "orderValue",
+          "field": "orderValue",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "qtyOrdered",
+          "field": "qtyOrdered",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "stockStatus",
+          "field": "stockStatus",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "unitPrice",
+          "field": "unitPrice",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "ccbc451462b71932d1fbb2a70416642f383b9fd3"
+    },
+    {
+      "callee_schema": "APIResponse<AppointmentResponseDTO>",
+      "caller_schema": "CreateAppointmentResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "appointmentDateTime",
+          "field": "appointmentDateTime",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "appointmentId",
+          "field": "appointmentId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "appointmentNo",
+          "field": "appointmentNo",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "cceId",
+          "field": "cceId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "channel",
+          "field": "channel",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "context",
+          "field": "context",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "createdAt",
+          "field": "createdAt",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "createdBy",
+          "field": "createdBy",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "entitySubType",
+          "field": "entitySubType",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "entityType",
+          "field": "entityType",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "followUpDateTime",
+          "field": "followUpDateTime",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "followUps",
+          "field": "followUps",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "jobType",
+          "field": "jobType",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "numberOfFollowUps",
+          "field": "numberOfFollowUps",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "reason",
+          "field": "reason",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "remark",
+          "field": "remark",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "serviceType",
+          "field": "serviceType",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "status",
+          "field": "status",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "updatedAt",
+          "field": "updatedAt",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "updatedBy",
+          "field": "updatedBy",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "cff78be335d5d4ac55811150f6b04da4fe2b2fb4"
+    },
+    {
+      "callee_schema": "CancelBookingRequestDto",
+      "caller_schema": "BookingCancellationRequestDto",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "dateOfCancellation",
+          "field": "dateOfCancellation",
+          "issue": "extra",
+          "severity": "info"
+        },
+        {
+          "callee": null,
+          "caller": "productIds",
+          "field": "productIds",
+          "issue": "extra",
+          "severity": "info"
+        },
+        {
+          "callee": null,
+          "caller": "refundDetails",
+          "field": "refundDetails",
+          "issue": "extra",
+          "severity": "info"
+        },
+        {
+          "callee": null,
+          "caller": "vehicleId",
+          "field": "vehicleId",
+          "issue": "extra",
+          "severity": "info"
+        }
+      ],
+      "direction": "request",
+      "edge_id": "d29e365b7b2ff42557ca401d59cd4fe19504ab1a"
+    },
+    {
+      "callee_schema": "APIResponse<AppointmentResponseDTO>",
+      "caller_schema": "RescheduleAppointmentResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "data",
+          "field": "data",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "message",
+          "field": "message",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "success",
+          "field": "success",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "d793de71811c131957812fed8c9e46dd660eb84a"
+    },
+    {
+      "callee_schema": "APIResponse<map<string,object>>",
+      "caller_schema": "LabourCatalogResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "categories",
+          "field": "categories",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "productType",
+          "field": "productType",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "d8219f4dd0dba9e13fa713fc88e01b5eb45e36e8"
+    },
+    {
+      "callee_schema": "APIResponse<map<string,object>>",
+      "caller_schema": "AddressDetails",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "city",
+          "field": "city",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "country",
+          "field": "country",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "countryCode",
+          "field": "countryCode",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "formattedAddress",
+          "field": "formattedAddress",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "latitude",
+          "field": "latitude",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "longitude",
+          "field": "longitude",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "placeId",
+          "field": "placeId",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "postalCode",
+          "field": "postalCode",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "state",
+          "field": "state",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "streetName",
+          "field": "streetName",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "streetNumber",
+          "field": "streetNumber",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "db05bc3f538712eb20d1679fc3604f856693a090"
+    },
+    {
+      "callee_schema": "APIResponse<AppointmentDashboardResponseDTO>",
+      "caller_schema": "AppointmentDashboardResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "appointmentCounts",
+          "field": "appointmentCounts",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "e3daad3ed1689ac02c3436c26e602fc2edf7606e"
+    },
+    {
+      "callee_schema": "APIResponse<LeadServiceDashboardResponseDto>",
+      "caller_schema": "ServiceReminderDashboardResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "leadCounts",
+          "field": "leadCounts",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "e59e2197401f1cb7085c91c2bf5663551e0b0a52"
+    },
+    {
+      "callee_schema": "APIResponse<AppointmentsDownloadDTO>",
+      "caller_schema": "AppointmentDownloadResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "content",
+          "field": "content",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "totalItems",
+          "field": "totalItems",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "e6b1cf5dfea58fbcda711cfb37759d234ba38c1d"
+    },
+    {
+      "callee_schema": "APIResponse<PageResponseDTO<EnquiryBulkUploadDTO>>",
+      "caller_schema": "EnquiryUploadHistoryResponse",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "content",
+          "field": "content",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "page",
+          "field": "page",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "size",
+          "field": "size",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "total",
+          "field": "total",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "e82de2afc34f5c6eba36a1eb20608c2a58fb17f4"
+    },
+    {
+      "callee_schema": "APIResponse<JobCardMasterDataResponseDTO>",
+      "caller_schema": "JCDetailsWithMappingsCoreResponseDTO",
+      "diffs": [
+        {
+          "callee": null,
+          "caller": "data",
+          "field": "data",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "message",
+          "field": "message",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "status",
+          "field": "status",
+          "issue": "extra",
+          "severity": "warn"
+        },
+        {
+          "callee": null,
+          "caller": "statusCode",
+          "field": "statusCode",
+          "issue": "extra",
+          "severity": "warn"
+        }
+      ],
+      "direction": "response",
+      "edge_id": "ea5b825b59d6c4927a48dc7b74ece7451d8fdc44"
+    }
+  ],
+  "schema_version": 1
+}
